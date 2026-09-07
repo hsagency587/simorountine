@@ -66,10 +66,14 @@
 </main>
 
 <footer class="foot">
-  <div class="storico">
-    <select class="mese" id="mese" aria-label="History month"></select>
-    <button type="button" class="scarica" id="scarica">Download</button>
-  </div>
+  <!-- lo storico sta chiuso: si apre solo se lo si tocca -->
+  <details class="storico-box">
+    <summary class="storico-tit">History</summary>
+    <div class="storico">
+      <select class="mese" id="mese" aria-label="History month"></select>
+      <button type="button" class="scarica" id="scarica">Download</button>
+    </div>
+  </details>
 </footer>
 
 <!-- Il Menù Task: il serbatoio delle cose da fare che non vanno nel calendario. -->

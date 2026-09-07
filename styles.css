@@ -447,8 +447,17 @@ body.menu-open{overflow:hidden}
   padding-bottom:calc(var(--s5) + env(safe-area-inset-bottom));
   text-align:center;
 }
+/* lo storico e' chiuso: in fondo resta solo la parolina che lo apre */
+.storico-tit{
+  display:inline-block;list-style:none;cursor:pointer;
+  min-height:36px;line-height:36px;padding:0 var(--s2);
+  font-size:13px;color:var(--muted);
+  text-decoration:underline;text-underline-offset:3px;
+}
+.storico-tit::-webkit-details-marker{display:none}
+.storico-box[open] .storico-tit{color:var(--text-2)}
 /* scegli il mese, poi scaricalo: due pezzi dello stesso oggetto */
-.storico{display:flex;justify-content:center;gap:var(--s2)}
+.storico{display:flex;justify-content:center;gap:var(--s2);margin-top:var(--s2)}
 .mese,.scarica{
   min-height:44px;padding:0 var(--s3);
   background:var(--surface);color:var(--text-2);
