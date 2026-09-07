@@ -291,7 +291,8 @@ jobs:
             }, null, 2) + '\n';
           }
 
-          const dati = { generatedAt: romeISO(new Date()), days: out };
+          /* scartati: diagnostica temporanea, l'app non lo legge */
+          const dati = { generatedAt: romeISO(new Date()), scartati: { cancellati: scartatiCancellati, senzaTitolo: scartatiSenzaTitolo }, days: out };
           const fp = createHash('sha256').update(JSON.stringify({ days: out })).digest('hex');
 
           /* Qui si genera e basta, a ogni giro. E il passo dopo che decide se questa
