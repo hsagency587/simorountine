@@ -358,22 +358,29 @@ body.menu-open{overflow:hidden}
 
 .drawer-top{
   display:flex;align-items:center;gap:var(--s1);
-  padding:var(--s2) var(--s2) var(--s2) var(--s4);
+  padding:var(--s1) var(--s2) var(--s1) var(--s3);
   border-bottom:1px solid var(--line);
 }
-.drawer-tit{flex:1;margin:0;font-size:17px}
+.drawer-tit{flex:1;margin:0;font-size:15px}
 .chiudi{
-  flex:0 0 auto;width:40px;height:40px;
-  border-radius:var(--radius);font-size:24px;line-height:1;color:var(--muted);
+  flex:0 0 auto;width:34px;height:34px;
+  border-radius:var(--radius);font-size:22px;line-height:1;color:var(--muted);
 }
 .chiudi:active{background:var(--surface-2)}
 
+.drawer-top .plus{width:34px;height:34px;font-size:20px}
+.drawer-top .salva{min-height:30px;font-size:12px}
+
+/* i due filtri affiancati: mezza riga per uno, una linea sola sotto */
+.switches{display:flex;border-bottom:1px solid var(--line)}
 .switch{
-  display:flex;align-items:center;gap:var(--s3);
-  min-height:44px;padding:0 var(--s4);
+  flex:1;min-width:0;
+  display:flex;align-items:center;gap:var(--s2);
+  min-height:38px;padding:0 var(--s3);
   font-size:13px;color:var(--text-2);
-  border-bottom:1px solid var(--line);
 }
+.switch span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.switch + .switch{border-left:1px solid var(--line)}
 .switch input{width:19px;height:19px;margin:0;accent-color:var(--giallo)}
 
 .drawer-list{flex:1;overflow-y:auto;padding:var(--s2) 0 var(--s4)}
@@ -403,6 +410,10 @@ body.menu-open{overflow:hidden}
   cursor:pointer;
 }
 .trow:active{background:var(--surface-2)}
+/* riga con il cliente davanti: gli spazi si stringono, altrimenti fra casella,
+   rank, cliente, nome e orario non ci sta piu' niente */
+.trow:has(.tcli){gap:var(--s2)}
+.trow .tcli{max-width:32%}
 .tcheck{flex:none;width:20px;height:20px;margin:0;accent-color:var(--accent)}
 /* Nella riga di una task il titolo comanda: il cliente si stringe per primo e
    non passa mai il 40% della riga. */
@@ -455,6 +466,8 @@ body.menu-open{overflow:hidden}
   font-size:13px;font-weight:600;
 }
 .chip.sel{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+/* la chip dei giorni lontani sta sotto il campo Day, staccata di poco */
+.chips-oltre{margin-top:var(--s2)}
 .btn-del{flex:0 0 auto;color:var(--danger);border-color:rgba(255,69,58,.45)}
 .btn-largo{width:100%;margin-bottom:var(--s3)}
 .nota{margin:var(--s2) 0 0;font-size:12px;line-height:1.4;color:var(--muted)}

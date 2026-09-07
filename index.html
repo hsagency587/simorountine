@@ -89,14 +89,17 @@
     <button type="button" class="plus" id="nuova" aria-label="New task">+</button>
     <button type="button" class="chiudi" id="chiudiMenu" aria-label="Close the menu">×</button>
   </div>
-  <label class="switch">
-    <input type="checkbox" id="tutte">
-    <span>Show scheduled ones too</span>
-  </label>
-  <label class="switch">
-    <input type="checkbox" id="calendar">
-    <span>Calendar events</span>
-  </label>
+  <!-- i due filtri stanno su una riga sola: occupano meta' spazio -->
+  <div class="switches">
+    <label class="switch">
+      <input type="checkbox" id="tutte">
+      <span>Scheduled</span>
+    </label>
+    <label class="switch">
+      <input type="checkbox" id="calendar">
+      <span>Calendar</span>
+    </label>
+  </div>
   <div class="drawer-list" id="drawerList"></div>
   <div class="drawer-foot">
     <span class="sync" id="sync"></span>
@@ -104,7 +107,7 @@
 </aside>
 
 <!-- Un editor solo, per creare e per modificare. -->
-<dialog class="chiusura" id="editor" aria-labelledby="editorTit">
+<dialog class="chiusura" id="editor" tabindex="-1" aria-labelledby="editorTit">
   <form method="dialog" class="chiusura-box" id="editorForm">
     <h2 class="chiusura-tit" id="editorTit">Task</h2>
     <!-- per un evento del calendario: giorno e orario, in sola lettura -->
@@ -127,6 +130,8 @@
     <div id="tCampiGiorno">
       <p class="commento-lab">Day</p>
       <button type="button" class="campo tendina" id="tGiorno"></button>
+      <!-- i giorni piu' lontani della finestra: da fra 3 a fra 7 -->
+      <div class="chips chips-oltre"><button type="button" class="chip" id="tOltre"></button></div>
 
       <p class="commento-lab" id="tGwsLab">Sessions</p>
       <div class="chips" id="tGws"></div>

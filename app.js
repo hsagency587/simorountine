@@ -58,7 +58,7 @@ const CLIROOT_KEY   = 'gwork-radiciaperte-v1';
    dall'altra. Un cliente finisce nell'una o nell'altra a seconda di `mia`. */
 const RADICI = [
   { k: 'mie',     nome: 'MY COMPANIES', mie: true,  oro: true },
-  { k: 'clienti', nome: 'CLIENTS',      mie: false }
+  { k: 'clienti', nome: 'CLIENTS',      mie: false, oro: true }
 ];
 /* Il calendario sta sul branch "dati" e non dentro il sito: si aggiorna con un
    commit, non ripubblicando Pages. La cache di raw dura cinque minuti, che e'
@@ -285,7 +285,11 @@ function prepEvent(ev, k) {
   }
 
   const span = Math.max(eMin, sMin + 1);
-  const fascia = finestre(k).findIndex(f => sMin >= f[0] && sMin < f[1]);
+  const fin = finestre(k);
+  const fascia = fin.findIndex(f => sMin >= f[0] && sMin < f[1]);
+  /* le tappe che l'evento attraversa: una riunione dalle 18:30 alle 21 tocca il
+     workout, la cena e la quinta sessione, e va vista in tutte e tre */
+  const fasce = fin.reduce((a, f, i) => (sMin < f[1] && span > f[0] ? a.concat(i) : a), []);
 
   return {
     id:     String(ev.id || (start + '|' + ev.title)),
@@ -293,7 +297,8 @@ function prepEvent(ev, k) {
     desc:   String(ev.description || '').trim(),
     txt:    sTxt + '–' + eTxt,
     alarm:  protetteOf(k).some(w => sMin < w[1] && span > w[0]),
-    fascia: fascia < 0 ? 0 : fascia
+    fascia: fascia < 0 ? 0 : fascia,
+    fasce:  fasce.length ? fasce : [fascia < 0 ? 0 : fascia]
   };
 }
 
@@ -305,6 +310,14 @@ function eventoDi(x) {
   const raw = cal.days[x.giorno];
   if (!Array.isArray(raw)) return null;
   return raw.map(v => prepEvent(v, x.giorno)).find(v => v.id === x.evento) || null;
+}
+
+/* Le chiavi con cui un evento si spunta nella giornata: una per ogni tappa che
+   attraversa. Con una tappa sola e' l'id dell'evento, com'e' sempre stato. */
+function chiaviEvento(x) {
+  const e = eventoDi(x);
+  if (!e || e.fasce.length < 2) return [x.evento];
+  return e.fasce.map(f => x.evento + '@' + f);
 }
 
 /* Il titolo salvato e' una copia presa quando si e' dato il cliente. Finche' il
@@ -321,7 +334,17 @@ function groupEvents(k) {
   const list = Array.isArray(cal.days[k]) ? cal.days[k] : [];
   for (const raw of list) {
     const e = prepEvent(raw, k);
-    out[e.fascia].push(e);
+    const n = e.fasce.length;
+    /* un pezzo per tappa. Con una tappa sola la chiave resta l'id dell'evento,
+       com'e' sempre stata: le spunte gia' scritte continuano a valere. */
+    e.fasce.forEach((f, j) => {
+      out[f].push(Object.assign({}, e, {
+        evId:   e.id,
+        id:     n > 1 ? e.id + '@' + f : e.id,
+        pezzi:  n,
+        ultimo: j === n - 1
+      }));
+    });
   }
   return out;
 }
@@ -581,11 +604,17 @@ function eventNode(e, on) {
   i.type = 'checkbox';
   i.checked = on;
   i.dataset.key = e.id;           /* la chiave e' l'id dell'evento, mai il titolo */
+  if (e.pezzi > 1) {
+    /* pezzo di un evento lungo: si spunta da solo, e l'ultimo puo' chiudere
+       tutta la serie in un colpo */
+    i.dataset.serie = e.evId;
+    if (e.ultimo) i.dataset.ultimo = '1';
+  }
   l.appendChild(i);
   l.appendChild(el('span', 'time', e.txt));
   /* se all'evento e' stato dato un cliente, il nome sta davanti al titolo,
      come nelle task dentro la sessione */
-  const rec = findTask('ev:' + e.id);
+  const rec = findTask('ev:' + (e.evId || e.id));
   const cli = rec ? clienteCorto(rec.cliente) : '';
   if (cli) {
     l.appendChild(el('span', 'tcli', cli));
@@ -607,7 +636,7 @@ function eventNode(e, on) {
   if (isEditable(viewKey)) {
     const m = el('button', 'more', '⋯');
     m.type = 'button';
-    m.dataset.evento = e.id;
+    m.dataset.evento = e.evId || e.id;
     m.setAttribute('aria-label', 'Assign a client');
     bar.appendChild(m);
   }
@@ -1050,7 +1079,32 @@ $('list').addEventListener('change', ev => {
   i.closest('.row').classList.toggle('on', i.checked);
 
   syncDerived();
+
+  /* Un evento lungo e' spezzato su piu' tappe, una spunta per tappa. Spuntando
+     l'ultimo pezzo si puo' chiudere tutta la serie in un colpo: si chiede,
+     perche' lasciare i pezzi rimasti da spuntare resta una scelta legittima. */
+  if (i.checked && i.dataset.ultimo === '1' && i.dataset.serie) {
+    const altri = [].slice.call($('list').querySelectorAll('input[data-serie="' + i.dataset.serie + '"]'))
+                    .filter(o => o !== i && !o.checked && !o.disabled);
+    if (altri.length) chiediSerie(altri);
+  }
 });
+
+/* Le due strade, con il pannello di scelta che l'app usa gia'. */
+function chiediSerie(altri) {
+  apriPicker('Event', [
+    { k: 'solo',  lab: 'Only this one' },
+    { k: 'tutti', lab: 'Tick the other ' + altri.length + (altri.length > 1 ? ' parts' : ' part') }
+  ], 'solo', v => {
+    if (v !== 'tutti') return;
+    for (const o of altri) {
+      o.checked = true;
+      o.closest('.row').classList.add('on');
+      setCheck(viewKey, o.dataset.key, true);
+    }
+    syncDerived();
+  });
+}
 
 $('list').addEventListener('click', ev => {
   const more = ev.target.closest('button.more[data-task]');
@@ -1357,11 +1411,11 @@ function whenText(x) {
             : fraQuanti(x.giorno) > 0            ? 'in ' + fraQuanti(x.giorno) + ' days'
             : fmtDate.format(new Date(x.giorno + 'T00:00:00'));
   return lab + ' · ' + (x.evento ? x.ora
-                                 : 'GWS ' + gwsDi(x.gws).map(g => g + 1).join(','));
+                                 : 'GWS ' + gwsDi(x.gws).map(g => g + 1).join('+'));
 }
 
 /* Una riga del menu' (o dell'elenco da cui pescare, senza i tre puntini). */
-function trowNode(x, pick) {
+function trowNode(x, pick, conCliente) {
   /* il colore del bordino: verde se e' una task messa su un giorno, blu se e'
      un evento del calendario, rosso se quell'evento cade in finestra protetta —
      gli stessi colori che ha nella giornata */
@@ -1375,13 +1429,21 @@ function trowNode(x, pick) {
     const i = el('input', 'tcheck');
     i.type = 'checkbox';
     i.dataset.tcheck = x.id;
-    i.checked = !!(x.giorno && (x.evento ? dayChecks(x.giorno)[x.evento]
+    i.checked = !!(x.giorno && (x.evento ? chiaviEvento(x).every(kk => dayChecks(x.giorno)[kk])
                                          : taskFatta(x, dayChecks(x.giorno))));
     i.disabled = !!(x.giorno && !isEditable(x.giorno));
     i.setAttribute('aria-label', 'Mark done');
     li.appendChild(i);
   }
   li.appendChild(el('span', 'rank r' + x.rank, x.rank));
+  /* nei blocchi RANK il cliente sta davanti al nome, come dentro la sessione:
+     li' le task di tutti stanno mescolate e senza non si sa di chi sono.
+     Dentro un cliente non serve: lo dice la testata sopra. */
+  const cli = conCliente ? clienteCorto(x.cliente) : '';
+  if (cli) {
+    li.appendChild(el('span', 'tcli', cli));
+    li.appendChild(el('span', 'tsep', '|'));
+  }
   li.appendChild(el('span', 'tname', titoloEvento(x)));
   if (x.giorno) li.appendChild(el('span', 'twhen', whenText(x)));
   if (!pick) {
@@ -1436,17 +1498,18 @@ function gruppiCliente(list, mie) {
 function paintDrawer() {
   const box = $('drawerList');
   box.textContent = '';
-  /* le task del serbatoio, o anche le schedulate. Gli eventi del calendario con
-     un cliente entrano solo col filtro Calendar: hanno sempre un giorno, quindi
-     l'interruttore delle schedulate non li riguarda. */
+  /* le task del serbatoio, o anche le schedulate. Nei blocchi RANK qui sotto
+     gli eventi del calendario entrano solo col filtro Calendar; dentro un
+     cliente ci sono sempre, come le schedulate. */
   const list = tstore.tasks.filter(x => !x.evento && (tutte || !x.giorno));
-  const evs  = calendar ? tstore.tasks.filter(x => x.evento) : [];
+  const eventi = tstore.tasks.filter(x => x.evento);
+  const evs  = calendar ? eventi : [];
   const tutto = list.concat(evs);
   /* Dentro un cliente si vede sempre tutto: il serbatoio e anche quello che e'
      gia' su un giorno, che si riconosce dal bordino verde. L'interruttore delle
      schedulate vale per i blocchi RANK qui sotto, non per i clienti: aprire un
      cliente e' gia' chiedere di vedere le sue cose. */
-  const perCli = tstore.tasks.filter(x => !x.evento).concat(evs);
+  const perCli = tstore.tasks.filter(x => !x.evento).concat(eventi);
 
   for (const rad of RADICI) {
     const gruppi = gruppiCliente(perCli, rad.mie);
@@ -1491,7 +1554,7 @@ function paintDrawer() {
     if (!l.length) continue;
     box.appendChild(el('p', 'grp', 'RANK ' + r));
     const ul = el('ul', 'trows');
-    for (const x of l) ul.appendChild(trowNode(x, false));
+    for (const x of l) ul.appendChild(trowNode(x, false, true));
     box.appendChild(ul);
   }
 
@@ -1571,7 +1634,9 @@ function spuntaDalMenu(id, on) {
        della riga: cosi' menu' e giornata restano la stessa spunta. Nel menu'
        una task ha una riga sola anche se sta su piu' sessioni: di li' si
        spunta tutta in una volta. */
-    if (x.evento) setCheck(x.giorno, x.evento, on);
+    /* un evento lungo ha una spunta per ogni tappa che attraversa: dal menu'
+       si chiudono tutte insieme */
+    if (x.evento) for (const kk of chiaviEvento(x)) setCheck(x.giorno, kk, on);
     else for (const g of gwsDi(x.gws)) setCheck(x.giorno, chiaveTask(x, g), on);
   }
   render();
@@ -1614,6 +1679,13 @@ let ed = null;                   /* { id, rank, cliente, giorno, gws }: lo stato
 /* I giorni su cui si puo' mettere una task. Se la task sta gia' su un giorno
    che non e' piu' fra questi, quel giorno si mostra com'e': si puo' lasciare
    o togliere, non rimettere. */
+/* I giorni lontani della finestra: da fra 3 a fra 7. I primi tre stanno gia'
+   nel campo Day, questi sono quelli che restano. */
+function giorniOltre() {
+  const t0 = today();
+  return [3, 4, 5, 6, 7].map(n => ({ k: dayKey(shift(t0, n)), lab: 'In ' + n + ' days' }));
+}
+
 function dayChoices(current) {
   const t0 = today();
   const out = [{ k: '', lab: 'Not scheduled' }];
@@ -1687,6 +1759,11 @@ function paintEditor() {
   if (ed.evento) return;          /* di un evento si sceglie soltanto il cliente */
   chips($('tRank'), RANKS.map(r => ({ k: r, lab: r })), ed.rank);
   $('tGiorno').textContent  = etichetta(dayChoices(ed.giorno), ed.giorno || '');
+  /* la chip mostra il giorno lontano scelto, oppure invita ad aprirla */
+  const oltre = giorniOltre().find(o => o.k === ed.giorno);
+  const chip = $('tOltre');
+  chip.textContent = oltre ? oltre.lab : 'In 3–7 days';
+  chip.classList.toggle('sel', !!oltre);
   const sched = !!ed.giorno;
   $('tGwsLab').hidden = !sched;
   $('tGws').hidden = !sched;
@@ -1740,7 +1817,10 @@ function apriEditor(nuova) {
   $('tElimina').textContent = 'Delete';
   paintEditor();
   dlgEd.showModal();
-  if (nuova) $('tNome').focus();
+  /* Il fuoco resta sul dialogo. Senza questa riga showModal lo mette sul primo
+     campo, e sul telefono la tastiera sale e copre meta' finestra prima ancora
+     di aver deciso cosa scrivere. */
+  dlgEd.focus();
 }
 
 $('editorForm').addEventListener('click', ev => {
@@ -1773,6 +1853,19 @@ $('tGiorno').addEventListener('click', () => {
   apriPicker('Day', dayChoices(ed.giorno), ed.giorno || '', v => {
     ed.giorno = v || null;
     ed.gws = ed.giorno ? (ed.gws.length ? ed.gws : [0]) : [];
+    paintEditor();
+  });
+});
+
+/* La chip dei giorni lontani: apre la stessa tendina del campo Day, ma con i
+   cinque giorni che li' non ci sono. Sceglierne uno e' come scegliere un
+   giorno qualunque: la sessione compare come sempre. */
+$('tOltre').addEventListener('click', () => {
+  if (!ed) return;
+  apriPicker('Day', giorniOltre(), ed.giorno || '', v => {
+    if (!v) return;
+    ed.giorno = v;
+    if (!ed.gws.length) ed.gws = [0];
     paintEditor();
   });
 });
