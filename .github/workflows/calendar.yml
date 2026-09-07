@@ -38,9 +38,11 @@ jobs:
         env:
           GCAL_ICAL_URL: ${{ secrets.GCAL_ICAL_URL }}
           CALENDAR_OUT: ${{ runner.temp }}/calendar.json
+          DATA_KEY: ${{ secrets.DATA_KEY }}
         run: |
           cat > "$RUNNER_TEMP/deps/build-calendar.mjs" <<'SCRIPT'
           import { writeFileSync } from 'node:fs';
+          import { randomBytes, pbkdf2Sync, createCipheriv, createHash } from 'node:crypto';
           import * as ICALmod from 'ical.js';
 
           const ICAL = ICALmod.default || ICALmod;
@@ -249,10 +251,46 @@ jobs:
           for (const k of keys) out[k] = [];
           for (const b of bucket) out[b.key].push(b.item);
 
+          /* --- la chiusura, se c'e` una chiave --------------------------------
+
+             Con il secret DATA_KEY impostato il file esce cifrato: AES-GCM a 256
+             bit, chiave ricavata dalla parola con PBKDF2, gli stessi parametri
+             che usa l'app per aprirlo. Senza secret esce in chiaro e non cambia
+             niente.
+
+             `fp` e` l'impronta degli eventi, senza generatedAt. Serve al passo
+             dopo per capire se e` cambiato qualcosa senza dover aprire il file:
+             due cifrature dello stesso contenuto sono diverse ogni volta, e
+             senza impronta si committerebbe ogni due minuti. */
+
+          const ITER = 150000;
+          const chiave = process.env.DATA_KEY || '';
+
+          function chiudi(testo, fp) {
+            if (!chiave) return testo;
+            const salt = randomBytes(16);
+            const iv   = randomBytes(12);
+            const k    = pbkdf2Sync(chiave, salt, ITER, 32, 'sha256');
+            const c    = createCipheriv('aes-256-gcm', k, iv);
+            const ct   = Buffer.concat([c.update(testo, 'utf8'), c.final()]);
+            /* WebCrypto si aspetta il tag in coda al testo cifrato */
+            return JSON.stringify({
+              enc:  1,
+              fp:   fp,
+              salt: salt.toString('base64'),
+              iv:   iv.toString('base64'),
+              ct:   Buffer.concat([ct, c.getAuthTag()]).toString('base64')
+            }, null, 2) + '\n';
+          }
+
+          const dati = { generatedAt: romeISO(new Date()), days: out };
+          const fp = createHash('sha256').update(JSON.stringify({ days: out })).digest('hex');
+
           /* Qui si genera e basta, a ogni giro. E il passo dopo che decide se questa
              versione va committata, confrontando gli eventi con quelli gia pubblicati. */
-          writeFileSync(target, JSON.stringify({ generatedAt: romeISO(new Date()), days: out }, null, 2) + '\n');
-          console.log('calendar.json generato: ' + bucket.length + ' occorrenze su ' + keys.join(', ') + '.');
+          writeFileSync(target, chiudi(JSON.stringify(dati, null, 2) + '\n', fp));
+          console.log('calendar.json generato' + (chiave ? ' e cifrato' : '') + ': '
+            + bucket.length + ' occorrenze su ' + keys.join(', ') + '.');
           SCRIPT
           node "$RUNNER_TEMP/deps/build-calendar.mjs"
 
@@ -280,7 +318,19 @@ jobs:
           # e non e` un evento del calendario. Cosi' si committa solo quando su
           # Google e` cambiato qualcosa davvero, o quando scatta la mezzanotte
           # e la finestra dei quattro giorni scorre.
-          if [ -s vecchio.json ] \
+          #
+          # Con il file cifrato il contenuto non si puo` confrontare: due
+          # cifrature della stessa cosa sono sempre diverse. Si confrontano le
+          # impronte, che lo script scrive apposta accanto al pacchetto.
+          VECCHIA_FP="$(jq -r 'if .enc == 1 then (.fp // "") else "" end' vecchio.json 2>/dev/null || echo '')"
+          NUOVA_FP="$(jq -r 'if .enc == 1 then (.fp // "") else "" end' "$NUOVO" 2>/dev/null || echo '')"
+
+          if [ -n "$VECCHIA_FP" ] && [ -n "$NUOVA_FP" ]; then
+            if [ "$VECCHIA_FP" = "$NUOVA_FP" ]; then
+              echo "Eventi invariati: non committo."
+              exit 0
+            fi
+          elif [ -s vecchio.json ] \
              && jq -S 'del(.generatedAt)' vecchio.json > prima.json 2>/dev/null \
              && jq -S 'del(.generatedAt)' "$NUOVO" > dopo.json \
              && cmp -s prima.json dopo.json; then
@@ -292,7 +342,7 @@ jobs:
           git add calendar.json
           git -c user.name='github-actions[bot]' \
               -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-              commit -q -m "calendario $(jq -r '.generatedAt' calendar.json)"
+              commit -q -m "calendario $(jq -r '.generatedAt // .fp // "aggiornato"' calendar.json)"
 
           # Il branch e` orfano e si riscrive per intero a ogni cambio: resta a
           # un commit solo, e il repository non cresce di commit al giorno.

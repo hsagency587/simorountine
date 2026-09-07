@@ -16,6 +16,11 @@ const LEGACY_KEY  = 'hs-personal-routine-v1';
    pubblico. */
 const TASKS_KEY    = 'gwork-tasks-v1';       /* { tasks, sha, dirty, known } */
 const TOKEN_KEY    = 'gwork-token-v1';
+/* La chiave con cui si aprono calendario e task, quando sono cifrati. La stessa
+   parola sta nel secret DATA_KEY del repository: la usa il workflow per
+   chiudere il calendario, questa la usa il telefono per aprirlo. Senza chiave
+   l'app funziona come prima, in chiaro. */
+const CHIAVE_KEY   = 'gwork-chiave-v1';
 const ARCHIVIO_KEY = 'gwork-taskfatte-v1';   /* task fatte uscite dalla finestra */
 const MANCATE_KEY  = 'gwork-taskmancate-v1'; /* task lasciate indietro, giorno per giorno */
 const TASK_BRANCH  = 'task';
@@ -1023,6 +1028,9 @@ let mancate  = readStore(MANCATE_KEY);
 
 let token = '';
 try { token = localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { /* niente token */ }
+let chiave = '';
+let chiaveKo = false;          /* l'ultima lettura non si e' aperta */
+try { chiave = localStorage.getItem(CHIAVE_KEY) || ''; } catch (e) { /* niente chiave */ }
 
 const newId    = () => 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const findTask = id => tstore.tasks.find(x => x.id === id) || null;
@@ -1558,18 +1566,31 @@ const dlgImp = $('impostazioni');
 
 function openImpostazioni() {
   $('tokenInput').value = token;
+  $('chiaveInput').value = chiave;
   const s = $('tokenStato');
   s.className = 'nota';
   s.textContent = token ? 'Token presente.' : 'Nessun token: le task si leggono ma non si salvano.';
+  const c = $('chiaveStato');
+  c.className = 'nota';
+  c.textContent = chiaveKo ? 'L\'ultimo file non si e` aperto: chiave mancante o sbagliata.'
+                : chiave   ? 'Chiave presente.'
+                :            'Nessuna chiave: calendario e task viaggiano in chiaro.';
   dlgImp.showModal();
 }
 
 $('impostazioniForm').addEventListener('submit', () => {
   token = $('tokenInput').value.trim();
+  chiave = $('chiaveInput').value.trim();
   try {
     if (token) localStorage.setItem(TOKEN_KEY, token);
     else localStorage.removeItem(TOKEN_KEY);
-  } catch (e) { /* resta solo in memoria */ }
+    if (chiave) localStorage.setItem(CHIAVE_KEY, chiave);
+    else localStorage.removeItem(CHIAVE_KEY);
+  } catch (e) { /* restano solo in memoria */ }
+  /* con la chiave nuova si riprova ad aprire quello che non si apriva */
+  chiaveKo = false;
+  loadCalendar();
+  pullTasks();
   salvaErr = '';
   beatAuth = true;                /* col token nuovo il battito riprova la quota personale */
   beatQuota = 0;
@@ -1602,6 +1623,65 @@ function ghHeaders() {
   const h = { Accept: 'application/vnd.github+json' };
   if (token) h.Authorization = 'Bearer ' + token;
   return h;
+}
+
+/* ----------------------------------------------------------- cifratura --- */
+
+/* Il repository e' pubblico: chi lo trova legge calendario e task. Con una
+   chiave impostata i due file diventano un pacchetto illeggibile — AES-GCM a
+   256 bit, chiave ricavata dalla parola con PBKDF2. Senza chiave non cambia
+   niente: si scrive e si legge in chiaro, come e' sempre stato.
+
+   Il formato: { enc:1, fp, salt, iv, ct }. `fp` e' l'impronta del contenuto in
+   chiaro e serve al workflow per capire se gli eventi sono cambiati senza
+   doverlo aprire. Un file senza `enc` e' in chiaro e si legge com'e': cosi' il
+   passaggio da chiaro a cifrato non rompe niente. */
+
+const ITER = 150000;
+
+const bytesB64 = u => { let s = ''; for (const b of u) s += String.fromCharCode(b); return btoa(s); };
+const b64Bytes = b => {
+  const bin = atob(String(b).replace(/\s/g, ''));
+  const u = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return u;
+};
+
+async function derivaChiave(pass, salt) {
+  const base = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: salt, iterations: ITER, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+
+/* Senza chiave il testo passa com'e': l'app resta quella di prima. */
+async function cifra(testo, fp) {
+  if (!chiave) return testo;
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const k    = await derivaChiave(chiave, salt);
+  const ct   = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, k,
+                                           new TextEncoder().encode(testo));
+  /* l'impronta la mette solo chi ne ha bisogno: al workflow serve per capire
+     se gli eventi sono cambiati, alle task no — e un'impronta in meno e' una
+     cosa in meno che si puo' leggere da fuori */
+  const p = { enc: 1, salt: bytesB64(salt), iv: bytesB64(iv), ct: bytesB64(new Uint8Array(ct)) };
+  if (fp) p.fp = fp;
+  return JSON.stringify(p, null, 2) + '\n';
+}
+
+/* Torna il testo in chiaro. Un file gia' in chiaro torna identico.
+   Se il pacchetto e' cifrato e la chiave manca o non e' quella, lancia. */
+async function decifra(testo) {
+  let p = null;
+  try { p = JSON.parse(testo); } catch (e) { return testo; }
+  if (!p || p.enc !== 1) return testo;
+  if (!chiave) throw new Error('manca la chiave');
+  const k = await derivaChiave(chiave, b64Bytes(p.salt));
+  const buf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64Bytes(p.iv) },
+                                          k, b64Bytes(p.ct));
+  return new TextDecoder().decode(buf);
 }
 
 /* base64 di testo UTF-8, in entrambe le direzioni: btoa da solo si rompe
@@ -1671,7 +1751,13 @@ async function pullTasks() {
   if (!j || !j.sha || tstore.known.indexOf(j.sha) >= 0) return;   /* gia' vista */
 
   let data;
-  try { data = JSON.parse(b64dec(j.content)); } catch (e) { paintSync('file online illeggibile', true); return; }
+  try {
+    data = JSON.parse(await decifra(b64dec(j.content)));
+  } catch (e) {
+    paintSync('task cifrate: chiave mancante o sbagliata', true);
+    chiaveKo = true;
+    return;
+  }
   const remote = Array.isArray(data.tasks) ? data.tasks.map(validTask).filter(Boolean) : [];
 
   if (tstore.dirty) {
@@ -1706,9 +1792,19 @@ async function pushTasks(opts) {
      dirty deve restare acceso anche a salvataggio riuscito */
   const sent = JSON.stringify(tstore.tasks);
   const n = tstore.tasks.filter(x => !x.giorno).length;
+  /* con la chiave impostata il file parte chiuso; senza, in chiaro come prima */
+  const testo = JSON.stringify({ tasks: tstore.tasks }, null, 2) + '\n';
+  let corpo;
+  try {
+    corpo = await cifra(testo);
+  } catch (e) {
+    salvando = false; salvaErr = 'cifratura fallita'; paintSalva();
+    paintSync('cifratura fallita: controlla la chiave', true);
+    return;
+  }
   const payload = {
     message: 'task: ' + n + ' in serbatoio, ' + (tstore.tasks.length - n) + ' schedulate',
-    content: b64enc(JSON.stringify({ tasks: tstore.tasks }, null, 2) + '\n'),
+    content: b64enc(corpo),
     branch:  TASK_BRANCH
   };
   if (tstore.sha) payload.sha = tstore.sha;
@@ -1751,7 +1847,7 @@ async function pushTasks(opts) {
         const j = await cur.json();
         rememberSha(j.sha);
         let data = null;
-        try { data = JSON.parse(b64dec(j.content)); } catch (e) { /* si riprova comunque */ }
+        try { data = JSON.parse(await decifra(b64dec(j.content))); } catch (e) { /* si riprova comunque */ }
         if (data && sameTasks(data.tasks, tstore.tasks)) { salvato(); return; }
         return pushTasks(Object.assign({}, opts, { retry: true }));
       }
@@ -1799,10 +1895,16 @@ async function loadCalendar() {
   try {
     const r = await fetch(CAL_URL, { cache: 'no-store' });
     if (!r.ok) throw new Error(String(r.status));
-    const j = await r.json();
+    /* il file puo' essere cifrato: si legge come testo e si apre con la chiave */
+    const j = JSON.parse(await decifra(await r.text()));
     cal = (j && typeof j === 'object' && j.days && typeof j.days === 'object') ? j : null;
+    chiaveKo = false;
   } catch (e) {
     cal = null;
+    /* la chiave sbagliata o assente si distingue da una rete che non va: sono
+       due guasti diversi e si sistemano in due posti diversi */
+    chiaveKo = /chiave|decrypt|operation-specific/i.test(String(e && e.message)) || e instanceof DOMException;
+    if (chiaveKo) paintSync('calendario cifrato: chiave mancante o sbagliata', true);
   }
   const first = !loaded;
   loaded = true;

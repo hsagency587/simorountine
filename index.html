@@ -145,9 +145,14 @@
     <p class="nota">Fine-grained, limitato a questo repository, permesso <b>Contents</b> in lettura e scrittura. Serve per salvare le task; leggerle funziona anche senza.</p>
     <p class="nota" id="tokenStato"></p>
 
+    <label class="commento-lab" for="chiaveInput">Chiave dei dati</label>
+    <input class="campo" id="chiaveInput" type="password" autocomplete="off" placeholder="la stessa del secret DATA_KEY">
+    <p class="nota">La stessa parola che sta nel secret <b>DATA_KEY</b> del repository. Serve ad aprire calendario e task quando viaggiano cifrati. Lasciandola vuota tutto resta in chiaro, come prima.</p>
+    <p class="nota" id="chiaveStato"></p>
+
     <div class="chiusura-btn">
       <button type="button" class="btn" id="tokenAnnulla">Annulla</button>
-      <button type="submit" class="btn btn-ok" value="ok">Salva token</button>
+      <button type="submit" class="btn btn-ok" value="ok">Salva</button>
     </div>
   </form>
 </dialog>
