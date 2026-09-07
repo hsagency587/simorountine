@@ -10,6 +10,7 @@
   --muted:#98a1ae;
   --accent:#3ddc84;
   --gold:#e3b341;
+  --blu:#4f9dff;
   --danger:#ff453a;
   --stale:#f5a524;
   --giallo:#ffd60a;
@@ -248,8 +249,14 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 
 /* ---------- eventi del calendario ---------- */
 
+/* Quello che arriva dal calendario si riconosce dal blu: barra davanti e ora
+   dello stesso colore. Le task no: quelle hanno gia' la pastiglia del rank. */
 .ev{border-left:3px solid transparent}
-.ev.alarm{border-left-color:var(--danger);background:rgba(255,69,58,.10)}
+.ev:not(.task){border-left-color:var(--blu)}
+.ev:not(.task) .time{color:var(--blu)}
+/* in finestra protetta cambia solo il colore: barra e ora in rosso, niente
+   fondo, cosi' la riga resta leggera come le altre */
+.ev.alarm{border-left-color:var(--danger)}
 
 .evrow{display:flex;align-items:center}
 .evrow .row{flex:1;min-width:0;min-height:var(--row-sub);padding-right:var(--s2);padding-left:10px}
@@ -257,7 +264,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
   flex:0 0 auto;font-size:12px;color:var(--muted);
   font-variant-numeric:tabular-nums;letter-spacing:.01em;
 }
-.ev.alarm .time{color:#ff8a80}
+.ev.alarm .time{color:var(--danger)}
 .ev .ttl{font-size:13px;color:var(--text-2)}
 
 .toggle{
