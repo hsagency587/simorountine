@@ -65,32 +65,32 @@ const protetteOf = k => isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
    non e' una costante. La parte fino alle 17:15 e' uguale per tutti i giorni;
    cambia solo la sera. */
 const ROUTINE_GIORNO = [
-  { id: 'sveglia', t: '6:45 · SVEGLIA + ROUTINE MATTUTINA' },
-  { id: 'gws1', t: '7:30 · 1ª G WORK SESSION', gws: 0 },
-  { id: 'snack-mattina', t: '10:00 · SNACK + REC' },
-  { id: 'gws2', t: '10:15 · 2ª G WORK SESSION', gws: 1 },
-  { id: 'workout-1', t: '12:30 · 1° WORKOUT' },
-  { id: 'pranzo', t: '13:00 · PRANZO + ROUTINE' },
-  { id: 'gws3', t: '14:00 · 3ª G WORK SESSION', gws: 2 },
-  { id: 'snack-pomeriggio', t: '17:00 · SNACK + REC' }
+  { id: 'sveglia', t: '6:45 | SVEGLIA + ROUTINE MATTUTINA' },
+  { id: 'gws1', t: '7:30 | 1ª G WORK SESSION', gws: 0 },
+  { id: 'snack-mattina', t: '10:00 | SNACK + REC' },
+  { id: 'gws2', t: '10:15 | 2ª G WORK SESSION', gws: 1 },
+  { id: 'workout-1', t: '12:30 | 1° WORKOUT' },
+  { id: 'pranzo', t: '13:00 | PRANZO + ROUTINE' },
+  { id: 'gws3', t: '14:00 | 3ª G WORK SESSION', gws: 2 },
+  { id: 'snack-pomeriggio', t: '17:00 | SNACK + REC' }
 ];
 
 const SERA_WC = [
-  { id: 'gws4', t: '17:15 · 4ª G WORK SESSION', gws: 3 },
-  { id: 'prep-cena', t: '18:15 · PREPARAZIONE CENA' },
-  { id: 'workout-2', t: '18:30 · 2° WORKOUT — WING CHUN' },
-  { id: 'cena', t: '20:30 · CENA + ROUTINE' },
-  { id: 'gws5', t: '21:00 · 5ª G WORK SESSION', gws: 4 },
-  { id: 'serale', t: '22:00 · ROUTINE / PENSIERO SERALE' }
+  { id: 'gws4', t: '17:15 | 4ª G WORK SESSION', gws: 3 },
+  { id: 'prep-cena', t: '18:15 | PREPARAZIONE CENA' },
+  { id: 'workout-2', t: '18:30 | 2° WORKOUT — WING CHUN' },
+  { id: 'cena', t: '20:30 | CENA + ROUTINE' },
+  { id: 'gws5', t: '21:00 | 5ª G WORK SESSION', gws: 4 },
+  { id: 'serale', t: '22:00 | ROUTINE / PENSIERO SERALE' }
 ];
 
 const SERA_STD = [
-  { id: 'gws4', t: '17:15 · 4ª G WORK SESSION', gws: 3 },
-  { id: 'prep-cena', t: '18:45 · PREPARAZIONE CENA' },
-  { id: 'workout-2', t: '19:00 · 2° WORKOUT' },
-  { id: 'cena', t: '20:00 · CENA' },
-  { id: 'gws5', t: '20:30 · 5ª G WORK SESSION', gws: 4 },
-  { id: 'serale', t: '22:00 · ROUTINE / PENSIERO SERALE' }
+  { id: 'gws4', t: '17:15 | 4ª G WORK SESSION', gws: 3 },
+  { id: 'prep-cena', t: '18:45 | PREPARAZIONE CENA' },
+  { id: 'workout-2', t: '19:00 | 2° WORKOUT' },
+  { id: 'cena', t: '20:00 | CENA' },
+  { id: 'gws5', t: '20:30 | 5ª G WORK SESSION', gws: 4 },
+  { id: 'serale', t: '22:00 | ROUTINE / PENSIERO SERALE' }
 ];
 
 const routineFor = k => ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD);
