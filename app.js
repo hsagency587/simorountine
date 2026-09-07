@@ -1269,13 +1269,18 @@ function paintDrawer() {
 }
 
 /* Il menu' si apre e si chiude anche con il dito. Entra da destra, quindi il
-   dito va a sinistra per aprirlo e a destra per chiuderlo. Da chiuso il gesto
-   vale solo se parte dal bordo destro: altrimenti ruberebbe lo scorrimento
-   all'elenco della giornata. Un movimento piu' verticale che orizzontale non
-   conta, e con una finestra aperta il gesto e' spento del tutto. */
+   dito va a sinistra per aprirlo e a destra per chiuderlo.
+
+   Il gesto vale da qualunque punto dello schermo. Partire dal bordo destro non
+   funziona: su Android quella striscia e' della navigazione di sistema, e il
+   dito che parte da li' fa "indietro" prima che la pagina se ne accorga.
+
+   Per non aprirlo per sbaglio mentre si scorre l'elenco, il movimento deve
+   essere lungo e deciso: almeno 70 pixel, e almeno una volta e mezza piu'
+   orizzontale che verticale. Con una finestra aperta il gesto e' spento. */
 (function () {
-  const BORDO = 28;               /* la striscia da cui si apre, in pixel */
-  const CORSA = 60;               /* quanto deve correre il dito per contare */
+  const CORSA = 70;               /* quanto deve correre il dito per contare */
+  const DECISO = 1.5;             /* quanto dev'essere piu' orizzontale che verticale */
   let x0 = 0, y0 = 0, valido = false;
 
   const aperto = () => $('drawer').classList.contains('open');
@@ -1287,7 +1292,7 @@ function paintDrawer() {
     }
     x0 = ev.touches[0].clientX;
     y0 = ev.touches[0].clientY;
-    valido = aperto() || (window.innerWidth - x0) <= BORDO;
+    valido = true;
   }, { passive: true });
 
   document.addEventListener('touchend', ev => {
@@ -1295,7 +1300,7 @@ function paintDrawer() {
     valido = false;
     const dx = ev.changedTouches[0].clientX - x0;
     const dy = ev.changedTouches[0].clientY - y0;
-    if (Math.abs(dx) < CORSA || Math.abs(dx) <= Math.abs(dy)) return;
+    if (Math.abs(dx) < CORSA || Math.abs(dx) < Math.abs(dy) * DECISO) return;
     if (!aperto() && dx < 0) openMenu(true);
     else if (aperto() && dx > 0) openMenu(false);
   }, { passive: true });
