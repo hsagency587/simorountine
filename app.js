@@ -21,6 +21,19 @@ const MANCATE_KEY  = 'gwork-taskmancate-v1'; /* task lasciate indietro, giorno p
 const TASK_BRANCH  = 'task';
 const TASK_API     = 'https://api.github.com/repos/hsagency587/simorountine/contents/tasks.json';
 const RANKS        = ['A', 'B', 'C'];
+
+/* I clienti su cui possono stare le task. L'id e' quello che resta scritto
+   dentro le task gia' fatte: non si cambia mai. Il nome invece si corregge
+   quando si vuole. Per aggiungere un cliente si aggiunge una riga qui. */
+const CLIENTI = [
+  { id: 'manuela-lovo', nome: 'Manuela Lovo' },
+  { id: 'osteria-anna', nome: 'Osteria da Anna' },
+  { id: 'your-future',  nome: 'Your Future Academy' },
+  { id: 'di-nucci',     nome: 'Gioielleria Di Nucci' },
+  { id: 'hs-agency',    nome: 'HS Agency' }
+];
+/* i clienti aperti nel menu': restano aperti fra un'apertura e l'altra */
+const CLIAPERTI_KEY = 'gwork-clientiaperti-v1';
 /* Il calendario sta sul branch "dati" e non dentro il sito: si aggiorna con un
    commit, non ripubblicando Pages. La cache di raw dura cinque minuti, che e'
    la vera freschezza del file. */
@@ -1024,6 +1037,7 @@ function validTask(x) {
     nome:   x.nome,
     desc:   typeof x.desc === 'string' ? x.desc : '',
     rank:   RANKS.indexOf(x.rank) >= 0 ? x.rank : 'B',
+    cliente: CLIENTI.some(c => c.id === x.cliente) ? x.cliente : null,
     giorno: giorno,
     gws:    giorno ? gws : null,
     creata: typeof x.creata === 'string' ? x.creata : ''
@@ -1125,19 +1139,51 @@ function trowNode(x, pick) {
 
 /* Il menu': A, B, C. Di base solo il serbatoio; con l'interruttore anche le
    schedulate, col bordino giallo. */
+/* Quali clienti sono aperti nel menu'. Piu' di uno alla volta: aprendone uno
+   gli altri restano come stanno, l'elenco si allunga e si scorre. */
+let cliAperti = (() => {
+  try {
+    const v = JSON.parse(localStorage.getItem(CLIAPERTI_KEY));
+    return new Set(Array.isArray(v) ? v : []);
+  } catch (e) { return new Set(); }
+})();
+
+function salvaAperti() {
+  try { localStorage.setItem(CLIAPERTI_KEY, JSON.stringify([...cliAperti])); } catch (e) {}
+}
+
+/* L'ordine dei gruppi e' quello di CLIENTI, con le task senza cliente in
+   fondo. Dentro un gruppo l'ordine resta quello di sempre: prima il rank. */
+function gruppiCliente(list) {
+  return CLIENTI.map(c => ({ k: c.id, nome: c.nome }))
+    .concat([{ k: '', nome: 'Senza cliente' }])
+    .map(g => ({ g: g, tasks: list.filter(x => (x.cliente || '') === g.k).sort(byRank) }))
+    .filter(o => o.tasks.length);
+}
+
 function paintDrawer() {
   const box = $('drawerList');
   box.textContent = '';
+  const list = tstore.tasks.filter(x => tutte || !x.giorno);
   let n = 0;
-  for (const r of RANKS) {
-    const list = tstore.tasks.filter(x => x.rank === r && (tutte || !x.giorno)).sort(byRank);
-    if (!list.length) continue;
-    n += list.length;
-    box.appendChild(el('p', 'grp', 'RANK ' + r));
+
+  for (const o of gruppiCliente(list)) {
+    n += o.tasks.length;
+    const open = cliAperti.has(o.g.k);
+    const h = el('button', 'grp grpcli' + (open ? ' open' : ''));
+    h.type = 'button';
+    h.dataset.cli = o.g.k;
+    h.setAttribute('aria-expanded', open ? 'true' : 'false');
+    h.appendChild(el('span', 'grpfrec', open ? '\u25be' : '\u25b8'));
+    h.appendChild(el('span', 'grpnome', o.g.nome));
+    h.appendChild(el('span', 'grpn', String(o.tasks.length)));
+    box.appendChild(h);
+    if (!open) continue;
     const ul = el('ul', 'trows');
-    for (const x of list) ul.appendChild(trowNode(x, false));
+    for (const x of o.tasks) ul.appendChild(trowNode(x, false));
     box.appendChild(ul);
   }
+
   if (!n) box.appendChild(el('p', 'vuoto', tutte ? 'Nessuna task' : 'Serbatoio vuoto'));
   paintSync();
 }
@@ -1151,6 +1197,14 @@ $('impostazioniBtn').addEventListener('click', openImpostazioni);
 
 /* tutta la riga apre l'editor: i tre puntini sono il segnale, non l'unico posto */
 $('drawerList').addEventListener('click', ev => {
+  const g = ev.target.closest('button.grpcli');
+  if (g) {
+    const k = g.dataset.cli;
+    if (cliAperti.has(k)) cliAperti.delete(k); else cliAperti.add(k);
+    salvaAperti();
+    paintDrawer();
+    return;
+  }
   const li = ev.target.closest('.trow[data-task]');
   if (li) openEditor(li.dataset.task);
 });
@@ -1158,7 +1212,7 @@ $('drawerList').addEventListener('click', ev => {
 /* ------------------------------------------------------------ editor ---- */
 
 const dlgEd = $('editor');
-let ed = null;                   /* { id, rank, giorno, gws }: lo stato dell'editor aperto */
+let ed = null;                   /* { id, rank, cliente, giorno, gws }: lo stato dell'editor aperto */
 
 /* I giorni su cui si puo' mettere una task. Se la task sta gia' su un giorno
    che non e' piu' fra questi, quel giorno si mostra com'e': si puo' lasciare
@@ -1185,6 +1239,8 @@ function chips(box, items, sel) {
 
 function paintEditor() {
   chips($('tRank'), RANKS.map(r => ({ k: r, lab: r })), ed.rank);
+  chips($('tCliente'), [{ k: '', lab: 'Nessuno' }]
+        .concat(CLIENTI.map(c => ({ k: c.id, lab: c.nome }))), ed.cliente || '');
   chips($('tGiorno'), dayChoices(ed.giorno), ed.giorno || '');
   const sched = !!ed.giorno;
   $('tGwsLab').hidden = !sched;
@@ -1194,8 +1250,8 @@ function paintEditor() {
 
 function openEditor(id, preset) {
   const x = id ? findTask(id) : null;
-  ed = x ? { id: x.id, rank: x.rank, giorno: x.giorno, gws: x.gws }
-         : { id: null, rank: 'B',
+  ed = x ? { id: x.id, rank: x.rank, cliente: x.cliente, giorno: x.giorno, gws: x.gws }
+         : { id: null, rank: 'B', cliente: null,
              giorno: (preset && preset.giorno) || null,
              gws: preset && preset.gws != null ? preset.gws : null };
   if (ed.giorno && ed.gws == null) ed.gws = 0;
@@ -1216,6 +1272,7 @@ $('editorForm').addEventListener('click', ev => {
   const v = b.dataset.v;
   const box = b.parentNode.id;
   if (box === 'tRank') ed.rank = v;
+  else if (box === 'tCliente') ed.cliente = v || null;
   else if (box === 'tGws') ed.gws = +v;
   else if (box === 'tGiorno') {
     ed.giorno = v || null;
@@ -1249,6 +1306,7 @@ $('editorForm').addEventListener('submit', ev => {
   x.nome = nome;
   x.desc = $('tDesc').value;
   x.rank = ed.rank;
+  x.cliente = ed.cliente;
   x.giorno = ed.giorno;
   x.gws = ed.giorno ? ed.gws : null;
   /* solo una task nuova o spostata riapre la sessione: un ritocco al nome no */

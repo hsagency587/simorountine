@@ -324,6 +324,14 @@ body.menu-open{overflow:hidden}
 
 .drawer-list{flex:1;overflow-y:auto;padding:var(--s2) 0 var(--s4)}
 .grp{margin:0;padding:var(--s3) var(--s4) var(--s1);font-size:11px;letter-spacing:.08em;color:var(--muted)}
+.grpcli{display:flex;align-items:center;gap:var(--s2);width:100%;
+  background:none;border:0;text-align:left;letter-spacing:0;font-size:13px;
+  padding:var(--s3) var(--s4);color:var(--fg);cursor:pointer;font-family:inherit}
+.grpcli:active{background:rgba(255,255,255,.05)}
+.grpcli.open{color:var(--accent)}
+.grpfrec{width:1em;flex:none;color:var(--muted)}
+.grpnome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grpn{flex:none;font-size:11px;color:var(--muted)}
 .trows{list-style:none;margin:0;padding:0}
 .trow{
   display:flex;align-items:center;gap:var(--s3);
