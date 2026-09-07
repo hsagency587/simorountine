@@ -332,7 +332,6 @@ body.menu-open{overflow:hidden}
 .grpcli.open{color:var(--accent)}
 .grpfrec{width:1em;flex:none;color:var(--muted)}
 .grpnome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.grpn{flex:none;font-size:11px;color:var(--muted)}
 .grptag{flex:none;font-size:10px;letter-spacing:.04em;color:var(--gold)}
 .grproot{font-size:11px;letter-spacing:.08em;color:var(--muted)}
 .grproot.open{color:var(--muted)}

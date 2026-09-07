@@ -1190,7 +1190,6 @@ function paintDrawer() {
     r.setAttribute('aria-expanded', cliRoot ? 'true' : 'false');
     r.appendChild(el('span', 'grpfrec', cliRoot ? '\u25be' : '\u25b8'));
     r.appendChild(el('span', 'grpnome', 'CLIENTI'));
-    r.appendChild(el('span', 'grpn', String(n)));
     box.appendChild(r);
   }
 
@@ -1203,7 +1202,6 @@ function paintDrawer() {
     h.appendChild(el('span', 'grpfrec', open ? '\u25be' : '\u25b8'));
     h.appendChild(el('span', 'grpnome', o.g.nome));
     if (o.g.tag) h.appendChild(el('span', 'grptag', o.g.tag));
-    h.appendChild(el('span', 'grpn', String(o.tasks.length)));
     box.appendChild(h);
     if (!open) continue;
     const ul = el('ul', 'trows');
