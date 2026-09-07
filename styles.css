@@ -487,7 +487,6 @@ body.menu-open{overflow:hidden}
    `background` di quella regola cancellerebbe l'immagine della freccetta. */
 button.tendina{
   display:flex;align-items:center;text-align:left;
-  margin-top:var(--s4);
   padding-right:26px;cursor:pointer;
   background-color:var(--surface-2);
   background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
