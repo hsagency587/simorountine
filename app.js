@@ -31,15 +31,15 @@ const RANKS        = ['A', 'B', 'C'];
    dentro le task gia' fatte: non si cambia mai. Il nome invece si corregge
    quando si vuole. Per aggiungere un cliente si aggiunge una riga qui. */
 const CLIENTI = [
-  { id: 'hs-agency',    nome: 'HS Agency', tag: 'My Agency' },
+  { id: 'hs-agency',    nome: 'HS Agency',              tag: 'My Agency', oro: true },
   { id: 'longkai',      nome: 'Lòngkai — Sifu Diego' },
-  { id: 'di-nucci',     nome: 'Gioielleria Di Nucci (Top 3)' },
-  { id: 'manuela-lovo', nome: 'Manuela Lovo Fotografa (Top 3)' },
-  { id: 'arbogreen',    nome: 'Arbogreen Service (Sito)' },
-  { id: 'omnia',        nome: 'Omnia Ristrutturazioni (Top 3)' },
-  { id: 'bergamaschi',  nome: 'Bergamaschi Giardini (Top 3)' },
-  { id: 'fisio-leone',  nome: 'Fisio Leone (Top 3)' },
-  { id: 'osteria-anna', nome: 'Osteria Da Anna (Top 3 + ADS)' }
+  { id: 'di-nucci',     nome: 'Gioielleria Di Nucci',   tag: 'Top 3' },
+  { id: 'manuela-lovo', nome: 'Manuela Lovo Fotografa', tag: 'Top 3' },
+  { id: 'arbogreen',    nome: 'Arbogreen Service',      tag: 'Sito' },
+  { id: 'omnia',        nome: 'Omnia Ristrutturazioni', tag: 'Top 3' },
+  { id: 'bergamaschi',  nome: 'Bergamaschi Giardini',   tag: 'Top 3' },
+  { id: 'fisio-leone',  nome: 'Fisio Leone',            tag: 'Top 3' },
+  { id: 'osteria-anna', nome: 'Osteria Da Anna',        tag: 'Top 3 + ADS' }
 ];
 const clienteNome = id => {
   const c = CLIENTI.find(x => x.id === id);
@@ -1210,7 +1210,7 @@ function salvaAperti() {
    entrano: stanno nel serbatoio qui sotto, che le mostra tutte. */
 function gruppiCliente(list) {
   return CLIENTI.map(c => ({
-    g: { k: c.id, nome: c.nome, tag: c.tag },
+    g: { k: c.id, nome: c.nome, tag: c.tag, oro: c.oro },
     tasks: list.filter(x => x.cliente === c.id).sort(byRank)
   }));
 }
@@ -1239,7 +1239,7 @@ function paintDrawer() {
     h.setAttribute('aria-expanded', open ? 'true' : 'false');
     h.appendChild(el('span', 'grpfrec', open ? '\u25be' : '\u25b8'));
     h.appendChild(el('span', 'grpnome', o.g.nome));
-    if (o.g.tag) h.appendChild(el('span', 'grptag', o.g.tag));
+    if (o.g.tag) h.appendChild(el('span', 'grptag' + (o.g.oro ? ' oro' : ''), o.g.tag));
     box.appendChild(h);
     if (!open) continue;
     if (!o.tasks.length) {
