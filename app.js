@@ -33,13 +33,13 @@ const RANKS        = ['A', 'B', 'C'];
 const CLIENTI = [
   { id: 'hs-agency',    nome: 'HS Agency',              tag: 'My Agency', oro: true },
   { id: 'longkai',      nome: 'Lòngkai — Sifu Diego' },
-  { id: 'di-nucci',     nome: 'Gioielleria Di Nucci',   tag: 'Top 3' },
-  { id: 'manuela-lovo', nome: 'Manuela Lovo Fotografa', tag: 'Top 3' },
+  { id: 'di-nucci',     nome: 'Gioielleria Di Nucci',   tag: 'Top3' },
+  { id: 'manuela-lovo', nome: 'Manuela Lovo Fotografa', tag: 'Top3' },
   { id: 'arbogreen',    nome: 'Arbogreen Service',      tag: 'Sito' },
-  { id: 'omnia',        nome: 'Omnia Ristrutturazioni', tag: 'Top 3' },
-  { id: 'bergamaschi',  nome: 'Bergamaschi Giardini',   tag: 'Top 3' },
-  { id: 'fisio-leone',  nome: 'Fisio Leone',            tag: 'Top 3' },
-  { id: 'osteria-anna', nome: 'Osteria Da Anna',        tag: 'Top 3 + ADS' }
+  { id: 'omnia',        nome: 'Omnia Ristrutturazioni', tag: 'Top3' },
+  { id: 'bergamaschi',  nome: 'Bergamaschi Giardini',   tag: 'Top3' },
+  { id: 'fisio-leone',  nome: 'Fisio Leone',            tag: 'Top3' },
+  { id: 'osteria-anna', nome: 'Osteria Da Anna',        tag: 'Top3 + ADS' }
 ];
 const clienteNome = id => {
   const c = CLIENTI.find(x => x.id === id);
