@@ -1514,13 +1514,17 @@ const MOSTRA_KEY = 'gwork-mostra-v1';
 let mostra = (() => {
   try {
     const v = JSON.parse(localStorage.getItem(MOSTRA_KEY) || 'null');
-    if (v && typeof v === 'object') return { w: v.w !== false, d: v.d !== false };
-  } catch (e) { /* si parte accesi */ }
-  return { w: true, d: true };
+    if (v && typeof v === 'object')
+      return { w: v.w !== false, d: v.d !== false, mw: !!v.mw, md: !!v.md };
+  } catch (e) { /* si parte accesi, e senza i campi per scrivere */ }
+  return { w: true, d: true, mw: false, md: false };
 })();
 function salvaMostra() {
   try { localStorage.setItem(MOSTRA_KEY, JSON.stringify(mostra)); } catch (e) {}
 }
+/* i campi per scrivere si vedono solo con l'interruttore Edit acceso: di norma
+   il pannello e' una cosa da leggere */
+const modifica = () => wTab === 'w' ? mostra.mw : mostra.md;
 
 const CALENDAR_KEY = 'gwork-calendar-v1';
 let calendar = (() => {
@@ -1758,7 +1762,7 @@ function paintDrawer() {
 /* ------------------------------------------------ piano dei workout ---- */
 
 const GIORNI = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const GIORNI3 = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const GIORNI2 = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 /* Una riga di tabella: le celle in ordine, ognuna con le sue classi. */
 function tabRiga(celle, cls) {
@@ -1787,7 +1791,7 @@ function openW(on) {
   $('wdrawer').classList.toggle('open', on);
   $('velo').hidden = !on;
   document.body.classList.toggle('menu-open', on);
-  if (on) { $('wMostra').checked = wTab === 'w' ? mostra.w : mostra.d; paintW(); riportaSu(); }
+  if (on) { paintSwitch(); paintW(); riportaSu(); }
 }
 
 function setTab(t) {
@@ -1796,15 +1800,26 @@ function setTab(t) {
   $('tabD').classList.toggle('on', t === 'd');
   $('tabW').setAttribute('aria-pressed', t === 'w' ? 'true' : 'false');
   $('tabD').setAttribute('aria-pressed', t === 'd' ? 'true' : 'false');
-  $('wMostra').checked = t === 'w' ? mostra.w : mostra.d;
+  paintSwitch();
   paintW();
   riportaSu();
+}
+
+function paintSwitch() {
+  $('wMostra').checked = wTab === 'w' ? mostra.w : mostra.d;
+  $('wMod').checked = modifica();
 }
 
 $('wMostra').addEventListener('change', e => {
   if (wTab === 'w') mostra.w = e.target.checked; else mostra.d = e.target.checked;
   salvaMostra();
   render();
+});
+
+$('wMod').addEventListener('change', e => {
+  if (wTab === 'w') mostra.mw = e.target.checked; else mostra.md = e.target.checked;
+  salvaMostra();
+  paintW();
 });
 
 $('tabW').addEventListener('click', () => setTab('w'));
@@ -1826,12 +1841,13 @@ function paintW() {
   for (const g of [1, 2, 3, 4, 5, 6, 0]) {
     const r = tstore.workout[g] || [];
     tab.appendChild(tabRiga([
-      { t: GIORNI3[g], cls: 'eti' },
+      { t: GIORNI2[g], cls: 'eti' },
       { t: r[0] || '—', cls: r[0] ? '' : 'vuota', k: 'w' + g + '-0' },
       { t: r[1] || '—', cls: r[1] ? '' : 'vuota', k: 'w' + g + '-1' }
     ], g === oggi ? 'oggi' : ''));
   }
   box.appendChild(tab);
+  if (!modifica()) return;
   /* Il piano e' generico, non parte da oggi: da lunedi' a domenica, sempre
      uguale. Per gli orari serve pero' una data vera con quel giorno della
      settimana, e la si pesca nei sette giorni davanti. */
@@ -1870,7 +1886,7 @@ function paintD() {
   const k = dayKey(today());
   const r = routineFor(k);
 
-  /* prima la tabella: pasto, ora, cosa */
+  /* la tabella dei pasti: pasto, ora, cosa */
   const tab = el('div', 'tab tab-d');
   tab.appendChild(tabRiga([{ t: 'Meal' }, { t: 'Time' }, { t: 'What' }], 'capo'));
   for (const t of PASTI) {
@@ -1878,12 +1894,30 @@ function paintD() {
     const ora = (i >= 0 ? r[i] : t).t.split('|')[0].trim();
     const v = tstore.dieta[t.id] || '';
     tab.appendChild(tabRiga([
-      { t: t.pasto, cls: 'eti' },
+      { t: t.pasto.split(' ')[0], cls: 'eti' },
       { t: ora, cls: 'ora' },
       { t: v || '—', cls: v ? '' : 'vuota', k: 'd' + t.id }
     ]));
   }
   box.appendChild(tab);
+
+  /* le info: cose che non stanno dentro un pasto. Stanno in una tabella come i
+     pasti, e si toccano per cambiarle. */
+  const ti = el('div', 'tab tab-i');
+  ti.appendChild(tabRiga([{ t: 'Info' }, { t: '' }], 'capo'));
+  for (const x of tstore.limiti) {
+    const riga = tabRiga([
+      { t: x.cosa || '—', cls: x.cosa ? 'eti' : 'eti vuota' },
+      { t: x.valore || '—', cls: x.valore ? 'val' : 'val vuota' }
+    ], 'tocca');
+    riga.dataset.limite = x.id;
+    ti.appendChild(riga);
+  }
+  if (!tstore.limiti.length) ti.appendChild(tabRiga([{ t: '—', cls: 'vuota' }, { t: '' }]));
+  box.appendChild(ti);
+
+  if (!modifica()) return;
+
   for (const t of PASTI) {
     const i = r.findIndex(v => v.id === t.id);
     const tappa = i >= 0 ? r[i] : t;
@@ -1903,16 +1937,7 @@ function paintD() {
     box.appendChild(row);
   }
 
-  /* i limiti: regole che non stanno dentro un pasto */
-  box.appendChild(el('p', 'dgiorno', 'Limits'));
-  for (const x of tstore.limiti) {
-    const row = el('div', 'lrow');
-    row.dataset.limite = x.id;
-    row.appendChild(el('span', 'lcosa', x.cosa));
-    row.appendChild(el('span', 'lval', x.valore));
-    box.appendChild(row);
-  }
-  const piu = el('button', 'lpiu', '+  Add a limit');
+  const piu = el('button', 'lpiu', '+  Add info');
   piu.type = 'button';
   piu.dataset.piulimite = '1';
   box.appendChild(piu);
@@ -1972,7 +1997,7 @@ let lim = null;                   /* il limite che si sta scrivendo, o null */
 function apriLimite(id) {
   const x = id ? tstore.limiti.find(v => v.id === id) : null;
   lim = x ? { id: x.id } : { id: null };
-  $('limiteTit').textContent = x ? 'Limit' : 'New limit';
+  $('limiteTit').textContent = x ? 'Info' : 'New info';
   $('lCosa').value = x ? x.cosa : '';
   $('lVal').value = x ? x.valore : '';
   $('lElimina').hidden = !x;
@@ -2015,7 +2040,7 @@ $('lElimina').addEventListener('click', () => {
 
 $('wlist').addEventListener('click', ev => {
   if (ev.target.closest('button[data-piulimite]')) { apriLimite(null); return; }
-  const r = ev.target.closest('.lrow[data-limite]');
+  const r = ev.target.closest('[data-limite]');
   if (r) apriLimite(r.dataset.limite);
 });
 
