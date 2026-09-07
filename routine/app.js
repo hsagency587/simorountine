@@ -1,0 +1,1617 @@
+'use strict';
+
+/* =========================================================================
+   G Work — vista in sola lettura su routine fissa + calendario G WORK.
+   Nessuna dipendenza. Nessuna scrittura verso Google.
+   ========================================================================= */
+
+const CHECKS_KEY  = 'gwork-checks-v1';
+const RECORDS_KEY = 'gwork-records-v1';
+const DIARIO_KEY  = 'gwork-diario-v1';
+const LEGACY_KEY  = 'hs-personal-routine-v1';
+
+/* Il serbatoio delle task. La copia che comanda sta nel telefono; Salva la
+   manda su GitHub in un commit solo, sul branch "task", via API con il token
+   incollato in Impostazioni. Leggere funziona anche senza token: il repo e'
+   pubblico. */
+const TASKS_KEY    = 'gwork-tasks-v1';       /* { tasks, sha, dirty, known } */
+const TOKEN_KEY    = 'gwork-token-v1';
+const ARCHIVIO_KEY = 'gwork-taskfatte-v1';   /* task fatte uscite dalla finestra */
+const MANCATE_KEY  = 'gwork-taskmancate-v1'; /* task lasciate indietro, giorno per giorno */
+const TASK_BRANCH  = 'task';
+const TASK_API     = 'https://api.github.com/repos/hsagency587/simorountine/contents/tasks.json';
+const RANKS        = ['A', 'B', 'C'];
+/* Il calendario sta sul branch "dati" e non dentro il sito: si aggiorna con un
+   commit, non ripubblicando Pages. La cache di raw dura cinque minuti, che e'
+   la vera freschezza del file. */
+const CAL_URL = 'https://raw.githubusercontent.com/hsagency587/simorountine/dati/calendar.json';
+
+/* Il battito non lo scrive nessuno: si chiede a GitHub quando il ponte ha
+   girato l'ultima volta. E' una lettura pubblica di metadati — niente commit,
+   niente deploy, nessuno dei tetti in cui siamo gia' finiti. Sessanta letture
+   l'ora per indirizzo: l'app ne fa una all'apertura e una ogni due minuti
+   mentre resta aperta, quindi trenta scarse. */
+const RUNS_URL = 'https://api.github.com/repos/hsagency587/simorountine/actions/workflows/'
+               + 'calendar.yml/runs?per_page=5&exclude_pull_requests=true';
+const BEAT_MS  = 2 * 60 * 1000;
+
+/* Le soglie del battito: fino a 10 minuti senza un giro riuscito e' normale,
+   oltre 10 il ponte accumula ritardo, oltre 30 e' fermo davvero. */
+const LATE_MS     = 10 * 60 * 1000;
+const DOWN_MS     = 30 * 60 * 1000;
+
+/* La giornata ha due forme. Da martedi' a venerdi' la sera e' occupata dal
+   wing chun; lunedi', sabato e domenica hanno la sera piu' corta. Cambiano gli
+   orari, non le tappe: gli id restano gli stessi, cosi' le spunte non si
+   perdono passando da un giorno all'altro. */
+const isWingChun = k => {
+  const d = new Date(k + 'T00:00:00').getDay();   /* 0 domenica ... 6 sabato */
+  return d >= 2 && d <= 5;                        /* martedi' - venerdi' */
+};
+
+/* Le cinque fasce delle G Work Session, in minuti dalla mezzanotte.
+   Coprono le 24 ore: nessun evento puo' restare fuori. */
+const FASCE_WC  = [[0, 600], [600, 840], [840, 1035], [1035, 1260], [1260, 1440]];
+const FASCE_STD = [[0, 600], [600, 840], [840, 1035], [1035, 1230], [1230, 1440]];
+const fasceOf = k => isWingChun(k) ? FASCE_WC : FASCE_STD;
+
+/* Le finestre protette: sonno, workout e pranzo, sera dopo cena, notte.
+   Nessun rapporto con le fasce, nessun nome visibile. */
+const PROTETTE_WC  = [[0, 450], [750, 840], [1095, 1230], [1320, 1440]];
+const PROTETTE_STD = [[0, 450], [750, 840], [1125, 1230], [1320, 1440]];
+const protetteOf = k => isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
+
+/* La routine fissa, giorno per giorno. Il totale del giorno si calcola da qui,
+   non e' una costante. La parte fino alle 17:15 e' uguale per tutti i giorni;
+   cambia solo la sera. */
+const ROUTINE_GIORNO = [
+  { id: 'sveglia', t: 'SVEGLIA 6:45 + ROUTINE MATTUTINA' },
+  { id: 'gws1', t: '1ª G WORK SESSION · 7:30–10:00', gws: 0 },
+  { id: 'snack-mattina', t: 'SNACK + REC · 10:00–10:15' },
+  { id: 'gws2', t: '2ª G WORK SESSION · 10:15–12:30', gws: 1 },
+  { id: 'workout-1', t: '1° WORKOUT · 12:30–13:00' },
+  { id: 'pranzo', t: 'PRANZO + ROUTINE · 13:00–14:00' },
+  { id: 'gws3', t: '3ª G WORK SESSION · 14:00–17:00', gws: 2 },
+  { id: 'snack-pomeriggio', t: 'SNACK + REC · 17:00–17:15' }
+];
+
+const SERA_WC = [
+  { id: 'gws4', t: '4ª G WORK SESSION · 17:15–18:15', gws: 3 },
+  { id: 'prep-cena', t: 'PREPARAZIONE CENA · 18:15–18:30' },
+  { id: 'workout-2', t: '2° WORKOUT — WING CHUN · 18:30–20:30' },
+  { id: 'cena', t: 'CENA + ROUTINE · 20:30–21:00' },
+  { id: 'gws5', t: '5ª G WORK SESSION · 21:00–22:00', gws: 4 },
+  { id: 'serale', t: 'ROUTINE / PENSIERO SERALE · 22:00–22:30' }
+];
+
+const SERA_STD = [
+  { id: 'gws4', t: '4ª G WORK SESSION · 17:15–18:45', gws: 3 },
+  { id: 'prep-cena', t: 'PREPARAZIONE CENA · 18:45–19:00' },
+  { id: 'workout-2', t: '2° WORKOUT · 19:00–20:00' },
+  { id: 'cena', t: 'CENA · 20:00–20:30' },
+  { id: 'gws5', t: '5ª G WORK SESSION · 20:30–22:00', gws: 4 },
+  { id: 'serale', t: 'ROUTINE / PENSIERO SERALE · 22:00–22:30' }
+];
+
+const routineFor = k => ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD);
+
+/* L'elenco di tutti gli id esistenti, per le ricerche che non dipendono dal
+   giorno. Le due sere condividono gli id: cambia solo il testo. */
+const ALL_TAPPE = ROUTINE_GIORNO.concat(SERA_WC);
+
+/* La tappa che chiude la giornata: spuntarla chiede il voto e il commento. */
+const CLOSE_ID = 'serale';
+
+/* ---------------------------------------------------------------- date --- */
+
+const pad = n => String(n).padStart(2, '0');
+const dayKey = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+
+function shift(d, n) {
+  const c = new Date(d.getTime());
+  c.setDate(c.getDate() + n);
+  return c;
+}
+
+function today() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+const fmtDate = new Intl.DateTimeFormat('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+const fmtTime = new Intl.DateTimeFormat('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+/* La finestra dei quattro giorni si calcola in locale, non si legge dal file:
+   se il ponte si ferma, oggi resta comunque spuntabile. */
+function windowKeys() {
+  const t = today();
+  return [-1, 0, 1, 2].map(n => dayKey(shift(t, n)));
+}
+
+/* Unica regola per le spunte e per il registro: dentro la finestra si scrive,
+   fuori si guarda e basta. Cosi' schermo e registro non possono divergere. */
+const isEditable = k => windowKeys().indexOf(k) >= 0;
+
+/* ------------------------------------------------------- archiviazione --- */
+
+function readStore(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return {};
+    const v = JSON.parse(raw);
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+  } catch (e) {
+    return {};                    /* JSON corrotto = stato vuoto, non app rotta */
+  }
+}
+
+function writeStore(key, val) {
+  try {
+    localStorage.setItem(key, JSON.stringify(val));
+  } catch (e) {
+    /* quota piena o modalita' privata: le spunte restano solo in memoria */
+  }
+}
+
+let checks  = readStore(CHECKS_KEY);
+let records = readStore(RECORDS_KEY);
+let diario  = readStore(DIARIO_KEY);
+
+const dayChecks = k => (checks[k] && typeof checks[k] === 'object') ? checks[k] : {};
+
+/* Un giorno e' chiuso quando la tappa di chiusura e' spuntata e il voto c'e'.
+   Togliendo la spunta il giorno si riapre, ma voto e commento restano scritti:
+   tornano nel pop-up se la giornata si richiude. */
+const isClosed = k => !!(dayChecks(k)[CLOSE_ID] && diario[k]);
+
+function setDiario(k, voto, commento) {
+  if (!isEditable(k)) return;
+  diario[k] = { voto: voto, commento: commento };
+  writeStore(DIARIO_KEY, diario);
+}
+
+function setCheck(k, id, on) {
+  if (!isEditable(k)) return;
+  if (!checks[k] || typeof checks[k] !== 'object') checks[k] = {};
+  if (on) checks[k][id] = 1;
+  else delete checks[k][id];      /* esistono solo le spunte attive */
+  if (Object.keys(checks[k]).length === 0) delete checks[k];
+  writeStore(CHECKS_KEY, checks);
+}
+
+/* ------------------------------------------------------------ eventi ----- */
+
+let cal = null;                   /* contenuto di calendar.json, oppure null */
+let loaded = false;               /* true dopo il primo tentativo di lettura */
+
+const isCovered = k => !!(cal && cal.days && Object.prototype.hasOwnProperty.call(cal.days, k));
+
+const minutesOf = hhmm => (+hhmm.slice(0, 2)) * 60 + (+hhmm.slice(3, 5));
+
+/* Gli orari nel JSON sono gia' in ora di Roma: si leggono dalla stringa, cosi'
+   il risultato non dipende dal fuso orario del telefono. */
+function prepEvent(ev, k) {
+  const start = String(ev.start || '');
+  const sTxt = start.slice(11, 16);
+  const sMin = minutesOf(sTxt);
+
+  let eMin = sMin, eTxt = sTxt;
+  if (ev.end) {
+    if (String(ev.end).slice(0, 10) === start.slice(0, 10)) {
+      eTxt = String(ev.end).slice(11, 16);
+      eMin = minutesOf(eTxt);
+    } else {
+      eMin = 1440;                /* finisce oltre la mezzanotte, o dura tutto il giorno */
+      eTxt = '24:00';
+    }
+  }
+
+  const span = Math.max(eMin, sMin + 1);
+  const fascia = fasceOf(k).findIndex(f => sMin >= f[0] && sMin < f[1]);
+
+  return {
+    id:     String(ev.id || (start + '|' + ev.title)),
+    title:  String(ev.title || '(senza titolo)'),
+    desc:   String(ev.description || '').trim(),
+    txt:    sTxt + '–' + eTxt,
+    alarm:  protetteOf(k).some(w => sMin < w[1] && span > w[0]),
+    fascia: fascia < 0 ? 0 : fascia
+  };
+}
+
+/* Le cinque fasce coprono le 24 ore: nessun evento puo' restare fuori. */
+function groupEvents(k) {
+  const out = [[], [], [], [], []];
+  if (!isCovered(k)) return out;
+  const list = Array.isArray(cal.days[k]) ? cal.days[k] : [];
+  for (const raw of list) {
+    const e = prepEvent(raw, k);
+    out[e.fascia].push(e);
+  }
+  return out;
+}
+
+/* Le task schedulate in un giorno, sessione per sessione, in ordine di rank. */
+function dayTasks(k) {
+  const out = [[], [], [], [], []];
+  for (const x of tstore.tasks) {
+    if (x.giorno === k && x.gws != null && out[x.gws]) out[x.gws].push(x);
+  }
+  for (const l of out) l.sort(byRank);
+  return out;
+}
+
+/* Le figlie di una sessione: gli eventi nell'ordine del calendario, poi le
+   task. Una task e' un evento senza orario e senza sirena: ha un id, si spunta,
+   conta uno. Tutto il conteggio passa di qui, cosi' non puo' divergere. */
+function childrenOf(k) {
+  const g = groupEvents(k), t = dayTasks(k);
+  const m = mancate[k] || [];
+  /* le task lasciate indietro restano figlie del giorno, non fatte, con un id
+     che nessuno spuntera' mai: cosi' il conteggio di ieri non cambia */
+  return g.map((evs, i) => evs
+    .concat(t[i].map(x => ({ id: x.id, task: x })))
+    .concat(m.filter(x => x.gws === i).map((x, n) => ({ id: 'mancata:' + k + ':' + i + ':' + n, mancata: x }))));
+}
+
+/* ---------------------------------------------------------- conteggio --- */
+
+/* Le figlie di una tappa: sottotappe, alternative ed eventi del calendario. */
+function childState(t, c, evs) {
+  let total = 0, done = 0;
+  if (t.sub)    for (const s of t.sub) { total++; if (c[s.id]) done++; }
+  if (t.choice) { total++; if (t.choice.some(o => c[o.id])) done++; }
+  if (evs)      for (const e of evs) { total++; if (c[e.id]) done++; }
+  return { total, done };
+}
+
+/* Spuntata la tappa, il blocco vale completo: le figlie rimaste indietro non
+   pesano piu' sul totale della giornata. */
+function tappaState(t, c, evs) {
+  const ch = childState(t, c, evs);
+  const total = ch.total + 1;
+  return { total, done: c[t.id] ? total : ch.done };
+}
+
+function tally(k) {
+  const c = dayChecks(k);
+  const g = childrenOf(k);
+  let total = 0, done = 0;
+  for (const t of routineFor(k)) {
+    const st = tappaState(t, c, t.gws != null ? g[t.gws] : null);
+    total += st.total;
+    done  += st.done;
+  }
+  return { total, done };
+}
+
+/* Il record si riscrive per i quattro giorni della finestra, gli stessi in cui si
+   puo' spuntare. Fuori resta congelato. Se calendar.json non copre un giorno della
+   finestra i suoi eventi valgono zero: meglio un totale parziale che un buco nella
+   serie quando il ponte si ferma. */
+function refreshRecords() {
+  if (!loaded) return;            /* prima della lettura non conosco ancora gli eventi */
+  for (const k of windowKeys()) {
+    const r = tally(k);
+    records[k] = {
+      fatte:       r.done,
+      totale:      r.total,
+      percentuale: r.total ? Math.round(r.done / r.total * 100) : 0,
+      completo:    r.total > 0 && r.done === r.total
+    };
+  }
+  writeStore(RECORDS_KEY, records);
+}
+
+/* La serie come stava quel giorno: zero se il giorno stesso non e' completo. */
+function streakAt(k) {
+  const complete = x => !!(records[x] && records[x].completo);
+  let d = new Date(k + 'T00:00:00'), n = 0;
+  while (complete(dayKey(d))) { n++; d = shift(d, -1); }
+  return n;
+}
+
+function streak() {
+  const t = today();
+  /* oggi non ancora chiuso non azzera la serie: si guarda a ieri */
+  return streakAt(dayKey(t)) || streakAt(dayKey(shift(t, -1)));
+}
+
+/* ------------------------------------------------------------ storico --- */
+
+const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
+              'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+
+const monthKey  = k => k.slice(0, 7);
+const monthName = m => MESI[+m.slice(5, 7) - 1] + ' ' + m.slice(0, 4);
+
+const fmtLong = new Intl.DateTimeFormat('it-IT',
+  { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+/* Un giorno entra nello storico se ha lasciato una traccia: almeno una spunta,
+   oppure una chiusura. I giorni vuoti non si scrivono. */
+const hasTrace = k => !!((records[k] && records[k].fatte > 0) || diario[k]
+                         || (archivio[k] && archivio[k].length)
+                         || (mancate[k] && mancate[k].length));
+
+function storicoDays(m) {
+  const set = {};
+  for (const k of Object.keys(records))  if (monthKey(k) === m && hasTrace(k)) set[k] = 1;
+  for (const k of Object.keys(diario))   if (monthKey(k) === m) set[k] = 1;
+  for (const k of Object.keys(archivio)) if (monthKey(k) === m) set[k] = 1;
+  for (const k of Object.keys(mancate))  if (monthKey(k) === m) set[k] = 1;
+  return Object.keys(set).sort();
+}
+
+function storicoMonths() {
+  const set = {};
+  for (const k of Object.keys(records))  if (hasTrace(k)) set[monthKey(k)] = 1;
+  for (const k of Object.keys(diario))   set[monthKey(k)] = 1;
+  for (const k of Object.keys(archivio)) set[monthKey(k)] = 1;
+  for (const k of Object.keys(mancate))  set[monthKey(k)] = 1;
+  return Object.keys(set).sort().reverse();   /* il mese in corso per primo */
+}
+
+/* Le task fatte in un giorno: quelle gia' in archivio piu' quelle ancora nel
+   file, se il giorno e' in finestra e la spunta c'e'. */
+function doneTasks(k) {
+  const c = dayChecks(k);
+  const vive = tstore.tasks.filter(x => x.giorno === k && c[x.id])
+                           .map(x => ({ nome: x.nome, rank: x.rank, gws: x.gws }));
+  return (archivio[k] || []).concat(vive).sort(byRank);
+}
+
+/* Un mese, un file. I giorni uno sotto l'altro invece che in tabella: cosi' si
+   legge ordinato sul telefono anche senza niente che interpreti il Markdown. */
+function monthMarkdown(m) {
+  const days   = storicoDays(m);
+  const chiuse = days.filter(isClosed);
+
+  let voti = 0, pct = 0;
+  for (const k of chiuse) voti += diario[k].voto;
+  for (const k of days)   pct  += (records[k] ? records[k].percentuale : 0);
+
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const out = ['# Storico G Work — ' + monthName(m), ''];
+
+  out.push('Giorni con attività: ' + days.length
+    + ' · giornate chiuse: ' + chiuse.length
+    + (chiuse.length ? ' · voto medio: ' + (voti / chiuse.length).toFixed(1) : '')
+    + (days.length   ? ' · completamento medio: ' + Math.round(pct / days.length) + '%' : ''));
+
+  for (const k of days) {
+    const r = records[k] || { fatte: 0, totale: 0, percentuale: 0 };
+    const d = isClosed(k) ? diario[k] : null;
+
+    out.push('', '---', '');
+    out.push('## ' + cap(fmtLong.format(new Date(k + 'T00:00:00'))));
+    out.push('');
+    out.push((d ? 'Voto ' + d.voto.toFixed(1) : 'Giornata non chiusa')
+      + ' · ' + r.percentuale + '% (' + r.fatte + ' su ' + r.totale + ')'
+      + ' · serie ' + streakAt(k));
+
+    const c = d && String(d.commento || '').trim();
+    if (c) out.push('', c);
+
+    const fatte = doneTasks(k);
+    if (fatte.length) {
+      out.push('', 'Task fatte: ' + fatte.map(x => '[' + x.rank + '] ' + x.nome).join(' · '));
+    }
+    const lasciate = (mancate[k] || []).slice().sort(byRank);
+    if (lasciate.length) {
+      out.push('', 'Task lasciate indietro: ' + lasciate.map(x => '[' + x.rank + '] ' + x.nome).join(' · '));
+    }
+  }
+
+  return out.join('\n') + '\n';
+}
+
+function download(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type: type }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ------------------------------------------------------------- pagina --- */
+
+const $ = id => document.getElementById(id);
+
+let view = today();
+let viewKey = dayKey(view);
+let rows = [];                    /* [{ t, el, evs }] per gli aggiornamenti mirati */
+
+function el(tag, cls, txt) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (txt != null) n.textContent = txt;
+  return n;
+}
+
+function checkRow(id, label, cls, on, choiceOf) {
+  const l = el('label', 'row' + (cls ? ' ' + cls : '') + (on ? ' on' : ''));
+  const i = el('input');
+  i.type = 'checkbox';
+  i.checked = on;
+  i.dataset.key = id;
+  if (choiceOf) i.dataset.choice = choiceOf;
+  l.appendChild(i);
+  l.appendChild(el('span', 'ttl', label));
+  return l;
+}
+
+function eventNode(e, on) {
+  const li = el('li', 'ev' + (e.alarm ? ' alarm' : ''));
+  const bar = el('div', 'evrow');
+
+  const l = el('label', 'row' + (on ? ' on' : ''));
+  const i = el('input');
+  i.type = 'checkbox';
+  i.checked = on;
+  i.dataset.key = e.id;           /* la chiave e' l'id dell'evento, mai il titolo */
+  l.appendChild(i);
+  l.appendChild(el('span', 'time', e.txt));
+  l.appendChild(el('span', 'ttl', e.title));
+  bar.appendChild(l);
+
+  if (e.desc) {
+    const b = el('button', 'toggle', '▼');
+    b.type = 'button';
+    b.dataset.role = 'desc';
+    b.setAttribute('aria-expanded', 'false');
+    b.setAttribute('aria-label', 'Mostra la descrizione');
+    bar.appendChild(b);
+  }
+
+  li.appendChild(bar);
+
+  if (e.desc) {
+    const p = el('p', 'desc', e.desc);   /* textContent: il testo di Google non e' HTML */
+    p.hidden = true;
+    li.appendChild(p);
+  }
+  return li;
+}
+
+/* Una task dentro la sessione: come un evento, con la lettera del rank al
+   posto dell'orario e i tre puntini che aprono l'editor. Tutta la riga spunta. */
+function taskNode(x, on) {
+  const li = el('li', 'ev task');
+  const bar = el('div', 'evrow');
+
+  const l = el('label', 'row' + (on ? ' on' : ''));
+  const i = el('input');
+  i.type = 'checkbox';
+  i.checked = on;
+  i.dataset.key = x.id;
+  l.appendChild(i);
+  l.appendChild(el('span', 'rank r' + x.rank, x.rank));
+  l.appendChild(el('span', 'ttl', x.nome));
+  bar.appendChild(l);
+
+  if (x.desc) {
+    const b = el('button', 'toggle', '▼');
+    b.type = 'button';
+    b.dataset.role = 'desc';
+    b.setAttribute('aria-expanded', 'false');
+    b.setAttribute('aria-label', 'Mostra la descrizione');
+    bar.appendChild(b);
+  }
+
+  const m = el('button', 'more', '⋯');
+  m.type = 'button';
+  m.dataset.task = x.id;
+  m.setAttribute('aria-label', 'Modifica la task');
+  bar.appendChild(m);
+
+  li.appendChild(bar);
+
+  if (x.desc) {
+    const p = el('p', 'desc', x.desc);
+    p.hidden = true;
+    li.appendChild(p);
+  }
+  return li;
+}
+
+/* Una task lasciata indietro: a mezzanotte e' tornata nel serbatoio, ma il
+   giorno la ricorda com'era, non fatta. Si guarda e basta: la casella e'
+   spenta per sempre, e lockRow la lascia stare. */
+function ghostNode(x, id) {
+  const li = el('li', 'ev task mancata');
+  const bar = el('div', 'evrow');
+  const l = el('label', 'row');
+  const i = el('input');
+  i.type = 'checkbox';
+  i.disabled = true;
+  i.dataset.key = id;
+  i.dataset.mancata = '1';
+  l.appendChild(i);
+  l.appendChild(el('span', 'rank r' + x.rank, x.rank));
+  l.appendChild(el('span', 'ttl', x.nome));
+  l.appendChild(el('span', 'twhen', 'nel serbatoio'));
+  bar.appendChild(l);
+  li.appendChild(bar);
+  return li;
+}
+
+let renderedDay = null;           /* il giorno "oggi" dell'ultimo disegno */
+
+function render() {
+  /* La mezzanotte si scopre qui, da chiunque ridisegni: se si stava guardando
+     oggi si passa al nuovo oggi. E' sicuro anche sotto un dialogo aperto: il
+     pop-up di chiusura ricorda il suo giorno, l'editor e la pesca guardano
+     l'oggi vero al momento della conferma. */
+  const t = dayKey(today());
+  if (renderedDay && t !== renderedDay && viewKey === renderedDay) {
+    view = today();
+    viewKey = t;
+    riaperta = null;
+  }
+  renderedDay = t;
+  tidyTasks();                    /* mezzanotte: chi torna nel serbatoio, chi va in archivio */
+  const c = dayChecks(viewKey);
+  const g = childrenOf(viewKey);
+  const covered = isCovered(viewKey);
+  const list = $('list');
+
+  list.textContent = '';
+  rows = [];
+
+  for (const t of routineFor(viewKey)) {
+    const evs = t.gws != null ? g[t.gws] : null;
+    const li = el('li', 'tappa');
+
+    if (t.gws != null) {
+      /* il + sta fuori dalla label: toccarlo non deve spuntare la sessione */
+      const head = el('div', 'head');
+      head.appendChild(checkRow(t.id, t.t, 'row-t', !!c[t.id]));
+      if (canSchedule(viewKey)) {
+        const b = el('button', 'plus', '+');
+        b.type = 'button';
+        b.dataset.gws = t.gws;
+        b.setAttribute('aria-label', 'Aggiungi una task alla sessione');
+        head.appendChild(b);
+      }
+      li.appendChild(head);
+    } else {
+      li.appendChild(checkRow(t.id, t.t, 'row-t', !!c[t.id]));
+    }
+
+    if (t.choice) {
+      const box = el('div', 'choice');
+      for (const o of t.choice) box.appendChild(checkRow(o.id, o.t, null, !!c[o.id], t.id));
+      li.appendChild(box);
+    }
+
+    if (t.sub) {
+      const ul = el('ul', 'sub');
+      for (const s of t.sub) {
+        const sli = el('li');
+        sli.appendChild(checkRow(s.id, s.t, null, !!c[s.id]));
+        ul.appendChild(sli);
+      }
+      li.appendChild(ul);
+    }
+
+    if (t.gws != null) {
+      /* prima del primo caricamento non si annuncia ancora niente; le task
+         invece si vedono comunque, il calendario non c'entra */
+      if (!covered && loaded) li.appendChild(el('p', 'nocov', 'Eventi non coperti per questa data'));
+      if (evs.length) {
+        const ul = el('ul', 'evs');
+        for (const e of evs) {
+          ul.appendChild(e.mancata ? ghostNode(e.mancata, e.id)
+                       : e.task    ? taskNode(e.task, !!c[e.id])
+                       :             eventNode(e, !!c[e.id]));
+        }
+        li.appendChild(ul);
+      }
+    }
+
+    list.appendChild(li);
+    rows.push({ t: t, el: li, evs: evs });
+  }
+
+  /* fuori dalla finestra si consulta soltanto */
+  const readOnly = !isEditable(viewKey);
+  list.classList.toggle('ro', readOnly);
+  if (readOnly) {
+    list.querySelectorAll('input[type=checkbox]').forEach(i => { i.disabled = true; });
+  }
+
+  paintDate();
+  syncDerived();          /* accende o spegne anche la sirena */
+}
+
+function paintDate() {
+  $('dateMain').textContent = fmtDate.format(view);
+  const t0 = today();
+  const rel = $('dateRel');
+  const readOnly = !isEditable(viewKey);
+  rel.classList.toggle('ro', readOnly);
+  rel.textContent = readOnly                     ? 'sola lettura'
+            : viewKey === dayKey(t0)             ? 'oggi'
+            : viewKey === dayKey(shift(t0, -1))  ? 'ieri'
+            : viewKey === dayKey(shift(t0,  1))  ? 'domani'
+            :                                      'dopodomani';
+}
+
+/* La sirena gira finche' resta almeno un evento in finestra protetta da spuntare.
+   Spuntati tutti, sparisce. Chiusa la tappa non suona piu': quegli eventi ormai
+   sono congelati e non si possono piu' spuntare. Il margine rosso invece resta:
+   dice dov'era il conflitto. */
+function paintSiren(c) {
+  const any = rows.some(r => r.evs && !c[r.t.id] && r.evs.some(e => e.alarm && !c[e.id]));
+  $('siren').hidden = !any;
+  $('top').classList.toggle('has-siren', any);
+}
+
+/* La tappa che l'utente ha appena riaperto a mano: non si richiude nello
+   stesso tocco, altrimenti una figlia spuntata per sbaglio non si potrebbe
+   piu' correggere. Al tocco successivo su qualunque casella torna tutto
+   normale. */
+let riaperta = null;
+
+/* Spuntate tutte le figlie, la tappa che le conteneva si chiude da sola. */
+function autoClose() {
+  if (!isEditable(viewKey)) return;
+  /* con il calendario non ancora arrivato le sessioni hanno solo le task:
+     chiuderle adesso congelerebbe gli eventi in arrivo come gia' fatti */
+  const senzaCal = !isCovered(viewKey);
+  const c = dayChecks(viewKey);
+  for (const r of rows) {
+    if (r.t.gws != null && senzaCal) continue;
+    if (r.t.id === riaperta) continue;
+    const ch = childState(r.t, c, r.evs);
+    if (!ch.total || ch.done !== ch.total || c[r.t.id]) continue;
+    setCheck(viewKey, r.t.id, true);
+    const box = r.el.querySelector('input[data-key="' + r.t.id + '"]');
+    if (box) {
+      box.checked = true;
+      box.closest('.row').classList.add('on');
+    }
+  }
+}
+
+/* Tappa chiusa: le figlie restano allo stato in cui sono — gli incompleti
+   incompleti, i completi completi — e non si toccano piu'. */
+function lockRow(r, closed, ro) {
+  r.el.classList.toggle('closed', closed);
+  r.el.querySelectorAll('input[data-key]').forEach(i => {
+    if (i.dataset.key !== r.t.id && !i.dataset.mancata) i.disabled = closed || ro;
+  });
+}
+
+function syncDerived() {
+  autoClose();
+  const c = dayChecks(viewKey);
+  const ro = !isEditable(viewKey);
+  let total = 0, done = 0, active = null;
+
+  for (const r of rows) {
+    const st = tappaState(r.t, c, r.evs);
+    total += st.total;
+    done  += st.done;
+    const full = !!c[r.t.id];        /* la tappa spuntata e' chiusa, comunque stiano le figlie */
+    lockRow(r, full, ro);
+    r.el.classList.toggle('done', full);
+    r.el.classList.remove('active');
+    if (!active && !full) active = r;
+  }
+  if (active) active.el.classList.add('active');
+
+  paintSiren(c);
+
+  const pct = total ? Math.round(done / total * 100) : 0;
+  $('pct').textContent = pct + '%';
+  $('progFill').style.width = pct + '%';
+  $('act').textContent = active ? active.t.t : 'giornata completa';
+
+  refreshRecords();
+  paintMesi();
+
+  const n = streak();
+  const s = $('streak');
+  s.textContent = 'serie ' + n;
+  s.classList.toggle('hot', n > 0);
+}
+
+/* firma dell'elenco: non si ridisegna a ogni spunta. Parte da null perche' la
+   firma dell'elenco vuoto e' la stringa vuota, e il primo giro deve passare. */
+let mesiSig = null;
+
+function paintMesi() {
+  const ms  = storicoMonths();
+  const sig = ms.join(',');
+  if (sig === mesiSig) return;
+  mesiSig = sig;
+
+  const sel = $('mese');
+  const cur = sel.value;
+  sel.textContent = '';
+  for (const m of ms) {
+    const o = el('option', null, monthName(m));
+    o.value = m;
+    sel.appendChild(o);
+  }
+  if (!ms.length) sel.appendChild(el('option', null, 'nessuno storico'));
+  if (ms.indexOf(cur) >= 0) sel.value = cur;   /* il mese scelto non salta via */
+
+  sel.disabled = !ms.length;
+  $('scarica').disabled = !ms.length;
+}
+
+/* Solo la durata, senza "fa": la frase intorno cambia da un caso all'altro. */
+function durata(ms) {
+  const m = Math.floor(ms / 60000);
+  if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + ' h';
+  return Math.floor(h / 24) + ' g';
+}
+
+/* Il battito: l'ultimo giro riuscito, l'esito dell'ultimo giro finito e l'ora
+   dell'ultimo giro partito, qualunque fine abbia fatto. Bastano questi tre per
+   distinguere "il ponte e' vivo" da "gira ma fallisce" da "non parte piu'". */
+let beat   = null;
+let beatOk = false;               /* l'ultima interrogazione e' riuscita */
+let beatAuth  = true;             /* col token si usa la quota personale (5000/ora) */
+let beatQuota = 0;                /* quota anonima esaurita: fino a quando (ms) */
+
+async function loadBeat() {
+  if (beatQuota && Date.now() < beatQuota) { paintFresh(); return; }
+  beatQuota = 0;
+  try {
+    let r = await fetch(RUNS_URL, { cache: 'no-store', headers: beatAuth && token ? ghHeaders() : {} });
+    /* un fine-grained token senza il permesso Actions puo' rispondere 403
+       anche su un repo pubblico: si riprova anonimi e si resta anonimi */
+    if ((r.status === 401 || r.status === 403) && beatAuth && token) {
+      beatAuth = false;
+      r = await fetch(RUNS_URL, { cache: 'no-store' });
+    }
+    /* la quota anonima e' per indirizzo, e sul 5G l'indirizzo e' condiviso:
+       finita, si aspetta l'ora del reset invece di gridare al lupo */
+    if ((r.status === 403 || r.status === 429) && r.headers.get('x-ratelimit-remaining') === '0') {
+      const reset = (+r.headers.get('x-ratelimit-reset') || 0) * 1000;
+      beatQuota = reset > Date.now() ? reset : Date.now() + 5 * 60000;
+      throw new Error('quota');
+    }
+    if (!r.ok) throw new Error(String(r.status));
+    const j = await r.json();
+    const runs = Array.isArray(j.workflow_runs) ? j.workflow_runs : [];
+    const ms = s => { const d = new Date(s); return isNaN(d.getTime()) ? null : d.getTime(); };
+
+    const finiti = runs.filter(x => x.status === 'completed');
+    const buono  = finiti.find(x => x.conclusion === 'success');
+
+    beat = {
+      ok:      buono       ? ms(buono.updated_at)   : null,
+      partito: runs.length ? ms(runs[0].created_at) : null
+    };
+    beatOk = true;
+  } catch (e) {
+    beatOk = false;               /* non lo so: e' diverso da "e' rotto" */
+  }
+  paintFresh();
+}
+
+function paintFresh() {
+  const f = $('fresh');
+  f.classList.remove('stale', 'down', 'muto');
+
+  /* Prima i dati: se il calendario non arriva, il resto e' accademia. */
+  if (loaded && !cal) {
+    f.classList.add('down');
+    f.textContent = 'Calendario non raggiungibile';
+    return;
+  }
+
+  if (beatQuota && Date.now() < beatQuota) {
+    f.classList.add('muto');
+    f.textContent = 'Quota API esaurita fino alle ' + fmtTime.format(new Date(beatQuota));
+    return;
+  }
+
+  if (!beatOk || !beat) {
+    f.classList.add('muto');
+    f.textContent = 'Battito non verificabile';
+    return;
+  }
+
+  const now = Date.now();
+  const ok  = beat.ok;
+
+  if (ok && now - ok <= LATE_MS) {
+    f.textContent = 'Aggiornato alle ' + fmtTime.format(new Date(ok));
+    return;
+  }
+
+  /* Da qui in giu' qualcosa non va, e la differenza dice cosa: se i giri
+     partono ancora il guasto e' dentro — iCal irraggiungibile, secret
+     revocato; se non parte piu' niente, e' la sveglia esterna che si e'
+     fermata. */
+  const sveglia = beat.partito && now - beat.partito <= LATE_MS;
+  f.classList.add(!ok || now - ok > DOWN_MS ? 'down' : 'stale');
+
+  if (!ok) {
+    f.textContent = 'Nessun giro riuscito fra gli ultimi controllati';
+  } else if (sveglia) {
+    f.textContent = 'I giri falliscono — ultimo riuscito alle '
+      + fmtTime.format(new Date(ok)) + ' (' + durata(now - ok) + ' fa)';
+  } else {
+    f.textContent = 'FERMO — nessun giro da ' + durata(now - (beat.partito || ok));
+  }
+}
+
+/* ---------------------------------------------------------- interazioni --- */
+
+$('list').addEventListener('change', ev => {
+  const i = ev.target;
+  if (!i.dataset || !i.dataset.key) return;
+  const key = i.dataset.key;
+
+  /* la giornata finisce qui: la spunta si scrive solo dopo voto e commento,
+     cosi' se l'app muore col pop-up aperto non resta una chiusura senza voto */
+  if (key === CLOSE_ID && i.checked) {
+    i.closest('.row').classList.add('on');
+    openChiusura();
+    return;
+  }
+
+  setCheck(viewKey, key, i.checked);
+
+  /* FULL e MED sono alternative: spuntarne una esclude l'altra */
+  if (i.checked && i.dataset.choice) {
+    const sel = 'input[data-choice="' + i.dataset.choice + '"]';
+    $('list').querySelectorAll(sel).forEach(o => {
+      if (o !== i && o.checked) {
+        o.checked = false;
+        o.closest('.row').classList.remove('on');
+        setCheck(viewKey, o.dataset.key, false);
+      }
+    });
+  }
+
+  i.closest('.row').classList.toggle('on', i.checked);
+
+  /* una tappa riaperta a mano non si richiude nello stesso tocco */
+  riaperta = (!i.checked && ALL_TAPPE.some(t => t.id === key)) ? key : null;
+
+  syncDerived();
+});
+
+$('list').addEventListener('click', ev => {
+  const more = ev.target.closest('button.more[data-task]');
+  if (more) { openEditor(more.dataset.task); return; }
+
+  const plus = ev.target.closest('button.plus[data-gws]');
+  if (plus) { openPesca(+plus.dataset.gws); return; }
+
+  const b = ev.target.closest('button[data-role="desc"]');
+  if (!b) return;
+  const open = b.getAttribute('aria-expanded') === 'true';
+  b.setAttribute('aria-expanded', open ? 'false' : 'true');
+  b.setAttribute('aria-label', open ? 'Mostra la descrizione' : 'Nascondi la descrizione');
+  b.closest('.ev').querySelector('.desc').hidden = open;
+});
+
+function goTo(d) {
+  view = d;
+  viewKey = dayKey(view);
+  riaperta = null;
+  render();
+}
+
+/* E' scattata la mezzanotte con l'app aperta, o ripresa dallo sfondo? Basta
+   ridisegnare: e' render() a spostare la vista sul nuovo oggi e ad applicare
+   la regola di mezzanotte. Un confronto di stringhe, nessuna rete. */
+function checkDay() {
+  if (dayKey(today()) !== renderedDay) render();
+}
+
+$('prev').addEventListener('click', () => goTo(shift(view, -1)));
+$('next').addEventListener('click', () => goTo(shift(view, 1)));
+$('dateBtn').addEventListener('click', () => goTo(today()));
+
+$('scarica').addEventListener('click', () => {
+  const m = $('mese').value;
+  if (!m) return;
+  download('storico-' + m + '.md', monthMarkdown(m), 'text/markdown;charset=utf-8');
+});
+
+/* ------------------------------------------------------------ chiusura --- */
+
+const dlg = $('chiusura');
+
+/* Dal rosso dell'1 al verde del 10: il numero e il cursore prendono lo stesso
+   colore, cosi' il voto si legge anche senza guardare la cifra. */
+function paintVoto(v) {
+  $('votoNum').textContent = v.toFixed(1);
+  document.documentElement.style.setProperty('--voto-col',
+    'hsl(' + Math.round((v - 1) / 9 * 120) + ' 80% 52%)');
+}
+
+let chiusuraKey = null;           /* il giorno per cui il pop-up e' aperto */
+
+function openChiusura() {
+  chiusuraKey = viewKey;
+  const d = diario[viewKey] || {};
+  const v = typeof d.voto === 'number' ? d.voto : 5.5;   /* il centro esatto della scala */
+  $('voto').value = v;
+  paintVoto(v);
+  $('commento').value = d.commento || '';
+  $('chiusuraDay').textContent = fmtLong.format(view);
+  dlg.returnValue = '';
+  dlg.showModal();
+}
+
+$('voto').addEventListener('input', e => paintVoto(+e.target.value));
+
+/* Annullare — bottone o tasto Esc — vuol dire che la giornata non e' chiusa:
+   la spunta torna indietro. Voto e commento gia' scritti restano dov'erano. */
+/* La casella sullo schermo segue lo stato scritto, ma solo se la lista mostra
+   ancora il giorno del pop-up: un ridisegno nel frattempo l'ha ricreata dallo
+   storage, spenta, e va riaccesa. */
+function paintClose(on) {
+  if (viewKey !== chiusuraKey) return;
+  const box = $('list').querySelector('input[data-key="' + CLOSE_ID + '"]');
+  if (!box) return;
+  box.checked = on;
+  box.closest('.row').classList.toggle('on', on);
+}
+
+function annullaChiusura() {
+  setCheck(chiusuraKey || viewKey, CLOSE_ID, false);
+  paintClose(false);
+  syncDerived();
+}
+
+/* Confermare scrive la spunta di chiusura insieme a voto e commento, sul
+   giorno per cui il pop-up era stato aperto: a cavallo della mezzanotte non
+   e' detto che sia ancora quello mostrato. */
+function confermaChiusura() {
+  const k = chiusuraKey || viewKey;
+  setCheck(k, CLOSE_ID, true);
+  setDiario(k, +$('voto').value, $('commento').value);
+  paintClose(true);
+  riaperta = null;
+  syncDerived();
+}
+
+$('chiusuraForm').addEventListener('submit', confermaChiusura);
+
+$('chiusuraAnnulla').addEventListener('click', () => {
+  annullaChiusura();
+  dlg.close();
+});
+
+/* Esc, e sul telefono il tasto indietro: il dialogo si chiude comunque, ma la
+   chiusura esplicita vale anche dove il browser non la fa da solo. */
+dlg.addEventListener('cancel', () => {
+  annullaChiusura();
+  dlg.close();
+});
+
+/* Rete di sicurezza: se il dialogo si chiude per una via che non ho previsto,
+   quello che conta e' se la conferma e' passata o no. Le due strade qui sopra
+   sono ripetibili senza danno, quindi ripassarci non cambia niente. */
+dlg.addEventListener('close', () => {
+  if (dlg.returnValue === 'ok') confermaChiusura();
+  else annullaChiusura();
+});
+
+/* ---------------------------------------------------------------- task --- */
+
+/* Il serbatoio. La copia che comanda e' quella nel telefono: ogni tocco e'
+   istantaneo e resta qui anche se non salvi. Le spunte sulle task stanno con
+   le altre spunte, in locale: nel file una task e' solo cosa, quanto conta e
+   quando. */
+let tstore = readStore(TASKS_KEY);
+if (!Array.isArray(tstore.tasks)) tstore = { tasks: [], sha: null, dirty: false, known: [] };
+if (!Array.isArray(tstore.known)) tstore.known = [];
+
+let archivio = readStore(ARCHIVIO_KEY);
+let mancate  = readStore(MANCATE_KEY);
+
+let token = '';
+try { token = localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { /* niente token */ }
+
+const newId    = () => 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const findTask = id => tstore.tasks.find(x => x.id === id) || null;
+const byRank   = (a, b) => a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.nome.localeCompare(b.nome);
+
+/* Si schedula su oggi, domani e dopodomani. Ieri no. */
+const canSchedule = k => isEditable(k) && k >= dayKey(today());
+
+/* Un file arrivato da fuori si prende con le pinze: solo campi noti, nella
+   forma attesa. Quello che non torna si ripulisce, non si scarta. */
+function validTask(x) {
+  if (!x || typeof x !== 'object' || typeof x.id !== 'string' || typeof x.nome !== 'string') return null;
+  const gws = Number.isInteger(x.gws) && x.gws >= 0 && x.gws <= 4 ? x.gws : null;
+  const giorno = typeof x.giorno === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.giorno) && gws != null ? x.giorno : null;
+  return {
+    id:     x.id,
+    nome:   x.nome,
+    desc:   typeof x.desc === 'string' ? x.desc : '',
+    rank:   RANKS.indexOf(x.rank) >= 0 ? x.rank : 'B',
+    giorno: giorno,
+    gws:    giorno ? gws : null,
+    creata: typeof x.creata === 'string' ? x.creata : ''
+  };
+}
+
+const sameTasks = (a, b) => JSON.stringify((a || []).map(validTask)) === JSON.stringify((b || []).map(validTask));
+
+function saveLocal() { writeStore(TASKS_KEY, tstore); }
+
+/* Ogni modifica passa di qui: si segna, e compare Salva. */
+function touch() {
+  tstore.dirty = true;
+  saveLocal();
+  paintSalva();
+  paintSync();
+}
+
+/* A mezzanotte le task lasciate indietro tornano nel serbatoio: il giorno
+   passato resta contato com'era, non fatta. Quelle fatte restano nel loro
+   giorno finche' e' in finestra, poi passano in archivio, da dove le legge lo
+   storico del mese. */
+function tidyTasks() {
+  const t0 = dayKey(today());
+  const win = windowKeys();
+  let changed = false;
+
+  tstore.tasks = tstore.tasks.filter(x => {
+    if (!x.giorno) return true;
+    if (dayChecks(x.giorno)[x.id]) {
+      if (win.indexOf(x.giorno) >= 0) return true;
+      if (!archivio[x.giorno]) archivio[x.giorno] = [];
+      archivio[x.giorno].push({ nome: x.nome, rank: x.rank, gws: x.gws });
+      changed = true;
+      return false;
+    }
+    if (x.giorno < t0) {
+      /* il giorno la ricorda com'era, non fatta: il conteggio di ieri non cambia */
+      if (!mancate[x.giorno]) mancate[x.giorno] = [];
+      mancate[x.giorno].push({ nome: x.nome, rank: x.rank, gws: x.gws });
+      x.giorno = null; x.gws = null; changed = true;
+    }
+    return true;
+  });
+
+  if (changed) {
+    writeStore(ARCHIVIO_KEY, archivio);
+    writeStore(MANCATE_KEY, mancate);
+    touch();
+  }
+}
+
+/* Una sessione gia' chiusa che riceve una task non e' piu' finita: si riapre,
+   cosi' la task si puo' spuntare e non nasce gia' contata come fatta. */
+function riapriSessione(x) {
+  if (!x.giorno || x.gws == null) return;
+  const t = routineFor(x.giorno).find(r => r.gws === x.gws);
+  if (t && dayChecks(x.giorno)[t.id]) setCheck(x.giorno, t.id, false);
+}
+
+/* ------------------------------------------------------------- menu' ---- */
+
+let tutte = false;               /* l'interruttore "mostra anche le schedulate" */
+
+function openMenu(on) {
+  $('drawer').classList.toggle('open', on);
+  $('velo').hidden = !on;
+  document.body.classList.toggle('menu-open', on);
+  $('menuBtn').setAttribute('aria-expanded', on ? 'true' : 'false');
+  if (on) paintDrawer();
+}
+
+function whenText(x) {
+  const t0 = today();
+  const lab = x.giorno === dayKey(t0)            ? 'oggi'
+            : x.giorno === dayKey(shift(t0, 1))  ? 'domani'
+            : x.giorno === dayKey(shift(t0, 2))  ? 'dopodomani'
+            : x.giorno === dayKey(shift(t0, -1)) ? 'ieri'
+            : fmtDate.format(new Date(x.giorno + 'T00:00:00'));
+  return lab + ' · GWS ' + (x.gws + 1);
+}
+
+/* Una riga del menu' (o dell'elenco da cui pescare, senza i tre puntini). */
+function trowNode(x, pick) {
+  const li = el('li', 'trow' + (x.giorno ? ' sched' : ''));
+  li.dataset.task = x.id;
+  li.appendChild(el('span', 'rank r' + x.rank, x.rank));
+  li.appendChild(el('span', 'tname', x.nome));
+  if (x.giorno) li.appendChild(el('span', 'twhen', whenText(x)));
+  if (!pick) {
+    const b = el('button', 'more', '⋯');
+    b.type = 'button';
+    b.dataset.task = x.id;
+    b.setAttribute('aria-label', 'Modifica la task');
+    li.appendChild(b);
+  }
+  return li;
+}
+
+/* Il menu': A, B, C. Di base solo il serbatoio; con l'interruttore anche le
+   schedulate, col bordino giallo. */
+function paintDrawer() {
+  const box = $('drawerList');
+  box.textContent = '';
+  let n = 0;
+  for (const r of RANKS) {
+    const list = tstore.tasks.filter(x => x.rank === r && (tutte || !x.giorno)).sort(byRank);
+    if (!list.length) continue;
+    n += list.length;
+    box.appendChild(el('p', 'grp', 'RANK ' + r));
+    const ul = el('ul', 'trows');
+    for (const x of list) ul.appendChild(trowNode(x, false));
+    box.appendChild(ul);
+  }
+  if (!n) box.appendChild(el('p', 'vuoto', tutte ? 'Nessuna task' : 'Serbatoio vuoto'));
+  paintSync();
+}
+
+$('menuBtn').addEventListener('click', () => openMenu(true));
+$('chiudiMenu').addEventListener('click', () => openMenu(false));
+$('velo').addEventListener('click', () => openMenu(false));
+$('tutte').addEventListener('change', e => { tutte = e.target.checked; paintDrawer(); });
+$('nuova').addEventListener('click', () => openEditor(null));
+$('impostazioniBtn').addEventListener('click', openImpostazioni);
+
+/* tutta la riga apre l'editor: i tre puntini sono il segnale, non l'unico posto */
+$('drawerList').addEventListener('click', ev => {
+  const li = ev.target.closest('.trow[data-task]');
+  if (li) openEditor(li.dataset.task);
+});
+
+/* ------------------------------------------------------------ editor ---- */
+
+const dlgEd = $('editor');
+let ed = null;                   /* { id, rank, giorno, gws }: lo stato dell'editor aperto */
+
+/* I giorni su cui si puo' mettere una task. Se la task sta gia' su un giorno
+   che non e' piu' fra questi, quel giorno si mostra com'e': si puo' lasciare
+   o togliere, non rimettere. */
+function dayChoices(current) {
+  const t0 = today();
+  const out = [{ k: '', lab: 'Non schedulata' }];
+  [['Oggi', 0], ['Domani', 1], ['Dopodomani', 2]].forEach(p => out.push({ k: dayKey(shift(t0, p[1])), lab: p[0] }));
+  if (current && !out.some(o => o.k === current)) {
+    out.push({ k: current, lab: fmtDate.format(new Date(current + 'T00:00:00')) });
+  }
+  return out;
+}
+
+function chips(box, items, sel) {
+  box.textContent = '';
+  for (const it of items) {
+    const b = el('button', 'chip' + (it.k === sel ? ' sel' : ''), it.lab);
+    b.type = 'button';
+    b.dataset.v = it.k;
+    box.appendChild(b);
+  }
+}
+
+function paintEditor() {
+  chips($('tRank'), RANKS.map(r => ({ k: r, lab: r })), ed.rank);
+  chips($('tGiorno'), dayChoices(ed.giorno), ed.giorno || '');
+  const sched = !!ed.giorno;
+  $('tGwsLab').hidden = !sched;
+  $('tGws').hidden = !sched;
+  if (sched) chips($('tGws'), [0, 1, 2, 3, 4].map(i => ({ k: String(i), lab: String(i + 1) })), String(ed.gws));
+}
+
+function openEditor(id, preset) {
+  const x = id ? findTask(id) : null;
+  ed = x ? { id: x.id, rank: x.rank, giorno: x.giorno, gws: x.gws }
+         : { id: null, rank: 'B',
+             giorno: (preset && preset.giorno) || null,
+             gws: preset && preset.gws != null ? preset.gws : null };
+  if (ed.giorno && ed.gws == null) ed.gws = 0;
+
+  $('editorTit').textContent = x ? 'Modifica task' : 'Nuova task';
+  $('tNome').value = x ? x.nome : '';
+  $('tDesc').value = x ? x.desc : '';
+  $('tElimina').hidden = !x;
+  $('tElimina').textContent = 'Elimina';
+  paintEditor();
+  dlgEd.showModal();
+  if (!x) $('tNome').focus();
+}
+
+$('editorForm').addEventListener('click', ev => {
+  const b = ev.target.closest('button.chip');
+  if (!b || !ed) return;
+  const v = b.dataset.v;
+  const box = b.parentNode.id;
+  if (box === 'tRank') ed.rank = v;
+  else if (box === 'tGws') ed.gws = +v;
+  else if (box === 'tGiorno') {
+    ed.giorno = v || null;
+    ed.gws = ed.giorno ? (ed.gws == null ? 0 : ed.gws) : null;
+  }
+  paintEditor();
+});
+
+$('editorForm').addEventListener('submit', ev => {
+  const nome = $('tNome').value.trim();
+  if (!nome) {
+    /* soli spazi: required passa, ma il dialogo resta aperto e niente si perde */
+    ev.preventDefault();
+    $('tNome').focus();
+    return;
+  }
+  if (!ed) return;
+  let x = ed.id ? findTask(ed.id) : null;
+  if (!x) {
+    x = { id: newId(), creata: new Date().toISOString() };
+    tstore.tasks.push(x);
+  }
+  /* l'editor puo' restare aperto oltre la mezzanotte: un giorno scelto come
+     "oggi" che nel frattempo e' diventato ieri si sposta sull'oggi vero. Una
+     task che stava gia' su quel giorno invece puo' restarci. */
+  const t0 = dayKey(today());
+  if (ed.giorno && ed.giorno < t0 && ed.giorno !== x.giorno) ed.giorno = t0;
+  const mossa = !ed.id || x.giorno !== ed.giorno || x.gws !== ed.gws;
+  /* cambiando giorno, o tornando nel serbatoio, la vecchia spunta non segue */
+  if (x.giorno && x.giorno !== ed.giorno) setCheck(x.giorno, x.id, false);
+  x.nome = nome;
+  x.desc = $('tDesc').value;
+  x.rank = ed.rank;
+  x.giorno = ed.giorno;
+  x.gws = ed.giorno ? ed.gws : null;
+  /* solo una task nuova o spostata riapre la sessione: un ritocco al nome no */
+  if (mossa) riapriSessione(x);
+  ed = null;
+  touch(); render(); paintDrawer();
+});
+
+$('tAnnulla').addEventListener('click', () => { ed = null; dlgEd.close(); });
+dlgEd.addEventListener('cancel', () => { ed = null; });
+
+/* due tocchi per eliminare: il primo chiede, il secondo fa */
+$('tElimina').addEventListener('click', () => {
+  const b = $('tElimina');
+  if (b.textContent !== 'Sicuro?') { b.textContent = 'Sicuro?'; return; }
+  if (ed && ed.id) {
+    const old = findTask(ed.id);
+    if (old && old.giorno) setCheck(old.giorno, old.id, false);   /* niente spunte orfane */
+    tstore.tasks = tstore.tasks.filter(x => x.id !== ed.id);
+  }
+  ed = null;
+  dlgEd.close();
+  touch(); render(); paintDrawer();
+});
+
+/* ------------------------------------------------------------- pesca ---- */
+
+const dlgPesca = $('pesca');
+let pescaGws = null;
+
+/* Il + della sessione: una task nuova gia' li' dentro, oppure una pescata dal
+   serbatoio con un tocco. */
+function openPesca(g) {
+  pescaGws = g;
+  $('pescaDay').textContent = 'GWS ' + (g + 1) + ' · ' + fmtLong.format(view);
+  const box = $('pescaList');
+  box.textContent = '';
+  const list = tstore.tasks.filter(x => !x.giorno).sort(byRank);
+  if (!list.length) {
+    box.appendChild(el('p', 'vuoto', 'Serbatoio vuoto'));
+  } else {
+    const ul = el('ul', 'trows');
+    for (const x of list) ul.appendChild(trowNode(x, true));
+    box.appendChild(ul);
+  }
+  dlgPesca.showModal();
+}
+
+$('pescaList').addEventListener('click', ev => {
+  const li = ev.target.closest('.trow[data-task]');
+  const x = li && findTask(li.dataset.task);
+  if (!x) return;
+  /* se nel frattempo il giorno mostrato e' diventato ieri, la task va su oggi */
+  x.giorno = canSchedule(viewKey) ? viewKey : dayKey(today());
+  x.gws = pescaGws;
+  riapriSessione(x);
+  dlgPesca.close();
+  touch(); render(); paintDrawer();
+});
+$('pescaNuova').addEventListener('click', () => {
+  dlgPesca.close();
+  openEditor(null, { giorno: viewKey, gws: pescaGws });
+});
+$('pescaAnnulla').addEventListener('click', () => dlgPesca.close());
+
+/* ------------------------------------------------------ impostazioni ---- */
+
+const dlgImp = $('impostazioni');
+
+function openImpostazioni() {
+  $('tokenInput').value = token;
+  const s = $('tokenStato');
+  s.className = 'nota';
+  s.textContent = token ? 'Token presente.' : 'Nessun token: le task si leggono ma non si salvano.';
+  dlgImp.showModal();
+}
+
+$('impostazioniForm').addEventListener('submit', () => {
+  token = $('tokenInput').value.trim();
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch (e) { /* resta solo in memoria */ }
+  salvaErr = '';
+  beatAuth = true;                /* col token nuovo il battito riprova la quota personale */
+  beatQuota = 0;
+  loadBeat();                     /* subito, senza aspettare il tick */
+  paintSalva();
+  if (token) provaToken();
+  else paintSync('nessun token');
+});
+$('tokenAnnulla').addEventListener('click', () => dlgImp.close());
+
+/* Una lettura autenticata: se passa, il token e' buono. Scrivere lo si
+   scopre al primo Salva, e se manca il permesso lo dice lui. */
+async function provaToken() {
+  try {
+    const r = await fetch(TASK_API + '?ref=' + TASK_BRANCH, { headers: ghHeaders(), cache: 'no-store' });
+    if (r.status === 401) paintSync('token rifiutato', true);
+    else if (r.ok || r.status === 404) paintSync('token accettato');
+    else paintSync('token: errore ' + r.status, true);
+  } catch (e) {
+    paintSync('rete assente', true);
+  }
+}
+
+/* -------------------------------------------------------------- sync ----- */
+
+let salvando = false, salvaErr = '';
+let syncMsg = '', syncErr = false;
+
+function ghHeaders() {
+  const h = { Accept: 'application/vnd.github+json' };
+  if (token) h.Authorization = 'Bearer ' + token;
+  return h;
+}
+
+/* base64 di testo UTF-8, in entrambe le direzioni: btoa da solo si rompe
+   sugli accenti. */
+function b64enc(s) {
+  const bytes = new TextEncoder().encode(s);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function b64dec(b) {
+  const bin = atob(String(b).replace(/\s/g, ''));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+/* Le ultime sha viste: una risposta dell'API rimasta in cache non deve
+   sovrascrivere il telefono con una versione vecchia. */
+function rememberSha(sha) {
+  tstore.sha = sha;
+  tstore.known = [sha].concat(tstore.known.filter(x => x !== sha)).slice(0, 4);
+}
+
+/* Due bottoni, uno stato: in alto nella pagina e in testa al menu'. */
+function paintSalva() {
+  for (const b of [$('salva'), $('salvaMenu')]) {
+    b.hidden = !tstore.dirty;
+    b.disabled = salvando;
+    b.classList.toggle('err', !!salvaErr);
+    b.textContent = salvando ? 'Salvo…' : salvaErr ? 'Salva — ' + salvaErr : 'Salva';
+  }
+}
+
+function paintSync(msg, err) {
+  if (msg !== undefined) { syncMsg = msg; syncErr = !!err; }
+  const s = $('sync');
+  s.textContent = syncErr ? syncMsg : tstore.dirty ? 'modifiche non salvate' : syncMsg;
+  s.classList.toggle('err', syncErr);
+}
+
+/* Il file dal branch task. Senza token si legge lo stesso. Se il telefono ha
+   modifiche non salvate, vince il telefono: online si guarda soltanto. */
+async function pullTasks() {
+  let r;
+  try {
+    r = await fetch(TASK_API + '?ref=' + TASK_BRANCH, { headers: ghHeaders(), cache: 'no-store' });
+  } catch (e) {
+    return;                       /* offline: si va avanti con la copia locale */
+  }
+  /* token scaduto o revocato: lo si dice, ma leggere si puo' lo stesso, anonimi.
+     L'avviso resta anche dopo la rilettura, altrimenti "allineato" lo coprirebbe. */
+  let tokenKo = false;
+  if (r.status === 401 && token) {
+    tokenKo = true;
+    paintSync('token rifiutato', true);
+    try {
+      r = await fetch(TASK_API + '?ref=' + TASK_BRANCH, { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } });
+    } catch (e) { return; }
+  }
+  const fine = msg => paintSync(tokenKo ? 'token rifiutato' : msg, tokenKo);
+  if (r.status === 404) { if (!tstore.sha) fine('nessun file online ancora'); return; }
+  if (!r.ok) return;
+
+  let j;
+  try { j = await r.json(); } catch (e) { return; }
+  if (!j || !j.sha || tstore.known.indexOf(j.sha) >= 0) return;   /* gia' vista */
+
+  let data;
+  try { data = JSON.parse(b64dec(j.content)); } catch (e) { paintSync('file online illeggibile', true); return; }
+  const remote = Array.isArray(data.tasks) ? data.tasks.map(validTask).filter(Boolean) : [];
+
+  if (tstore.dirty) {
+    /* e' la nostra stessa versione, salvata dal salvagente senza risposta? */
+    if (sameTasks(remote, tstore.tasks)) {
+      rememberSha(j.sha); tstore.dirty = false; saveLocal(); paintSalva();
+      fine('allineato');
+    } else {
+      fine('online c\'e` una versione diversa: salvando la sovrascrivi');
+    }
+    return;
+  }
+
+  tstore.tasks = remote;
+  rememberSha(j.sha);
+  tstore.dirty = false;
+  saveLocal();
+  tidyTasks(); render(); paintDrawer(); paintSalva();
+  fine('allineato alle ' + fmtTime.format(new Date()));
+}
+
+/* Un commit solo, con tutto dentro. */
+async function pushTasks(opts) {
+  opts = opts || {};
+  if (!tstore.dirty || salvando) return;
+  if (!token) { salvaErr = 'manca il token'; paintSalva(); paintSync('manca il token', true); return; }
+
+  salvando = true; salvaErr = '';
+  paintSalva();
+
+  /* la fotografia di cio' che parte: se nel frattempo si tocca qualcosa,
+     dirty deve restare acceso anche a salvataggio riuscito */
+  const sent = JSON.stringify(tstore.tasks);
+  const n = tstore.tasks.filter(x => !x.giorno).length;
+  const payload = {
+    message: 'task: ' + n + ' in serbatoio, ' + (tstore.tasks.length - n) + ' schedulate',
+    content: b64enc(JSON.stringify({ tasks: tstore.tasks }, null, 2) + '\n'),
+    branch:  TASK_BRANCH
+  };
+  if (tstore.sha) payload.sha = tstore.sha;
+  const body = JSON.stringify(payload);
+
+  const salvato = () => {
+    if (JSON.stringify(tstore.tasks) === sent) tstore.dirty = false;
+    saveLocal(); paintSalva();
+    paintSync('salvato alle ' + fmtTime.format(new Date()));
+  };
+
+  let r;
+  try {
+    r = await fetch(TASK_API, {
+      method: 'PUT',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, ghHeaders()),
+      body: body,
+      /* keepalive rifiuta corpi oltre 64 KiB: sopra soglia meglio un tentativo
+         normale che un rifiuto certo spacciato per rete assente */
+      keepalive: !!opts.keepalive && body.length < 60000
+    });
+  } catch (e) {
+    salvando = false; salvaErr = 'rete assente'; paintSalva(); return;
+  }
+  salvando = false;
+
+  /* sha vecchia: online e' cambiato qualcosa nel frattempo — di solito e' il
+     salvagente di una chiusura precedente, arrivato senza che lo sapessimo.
+     Si rilegge, e se e' la nostra stessa versione si e' gia' a posto;
+     altrimenti si riprova una volta con la sha giusta. Vince il telefono. */
+  if ((r.status === 409 || r.status === 422) && !opts.retry) {
+    try {
+      const cur = await fetch(TASK_API + '?ref=' + TASK_BRANCH, { headers: ghHeaders(), cache: 'no-store' });
+      if (cur.status === 404) {
+        /* non e' un conflitto: manca il branch, o il file */
+        salvaErr = 'branch task assente'; paintSalva(); paintSync(salvaErr, true);
+        return;
+      }
+      if (cur.ok) {
+        const j = await cur.json();
+        rememberSha(j.sha);
+        let data = null;
+        try { data = JSON.parse(b64dec(j.content)); } catch (e) { /* si riprova comunque */ }
+        if (data && sameTasks(data.tasks, tstore.tasks)) { salvato(); return; }
+        return pushTasks(Object.assign({}, opts, { retry: true }));
+      }
+    } catch (e) { /* si cade nell'errore qui sotto */ }
+    salvaErr = 'conflitto online'; paintSalva(); paintSync(salvaErr, true);
+    return;
+  }
+
+  if (!r.ok) {
+    salvaErr = r.status === 401 ? 'token rifiutato'
+             : r.status === 403 ? 'token senza permesso'
+             : r.status === 404 ? 'branch task assente'
+             :                    'errore ' + r.status;
+    paintSalva(); paintSync(salvaErr, true);
+    return;
+  }
+
+  let j = null;
+  try { j = await r.json(); } catch (e) { /* salvato comunque */ }
+  if (j && j.content && j.content.sha) rememberSha(j.content.sha);
+  salvato();
+}
+
+/* Il salvagente: si chiama chiudendo l'app. keepalive chiede al browser di
+   finire la richiesta anche se la pagina muore. Di solito basta, non sempre:
+   per questo la copia locale resta comunque, e Salva ricompare alla riapertura. */
+function salvagente() {
+  if (!tstore.dirty || !token || salvando) return;
+  pushTasks({ keepalive: true });
+}
+
+$('salva').addEventListener('click', () => pushTasks());
+$('salvaMenu').addEventListener('click', () => pushTasks());
+
+/* ---------------------------------------------------------- avviamento --- */
+
+try {
+  localStorage.removeItem(LEGACY_KEY);   /* lo storico precedente va eliminato, non migrato */
+} catch (e) {
+  /* niente da rimuovere */
+}
+
+async function loadCalendar() {
+  const before = cal ? cal.generatedAt : null;
+  try {
+    const r = await fetch(CAL_URL, { cache: 'no-store' });
+    if (!r.ok) throw new Error(String(r.status));
+    const j = await r.json();
+    cal = (j && typeof j === 'object' && j.days && typeof j.days === 'object') ? j : null;
+  } catch (e) {
+    cal = null;
+  }
+  const first = !loaded;
+  loaded = true;
+  refreshRecords();
+  paintFresh();
+  /* stesso file: non si ridisegna, cosi' le descrizioni aperte restano aperte */
+  if (first || !cal || cal.generatedAt !== before) render();
+}
+
+render();
+paintDrawer();
+paintSalva();
+loadCalendar();
+loadBeat();                       /* subito, all'apertura */
+pullTasks();                      /* il serbatoio, subito */
+
+setInterval(() => { checkDay(); paintFresh(); }, 30000);   /* invecchia la riga, e vede la mezzanotte */
+setInterval(loadCalendar, 30000);
+setInterval(loadBeat, BEAT_MS);   /* solo mentre l'app resta aperta */
+
+/* Riaprendola si ricontrolla tutto: e' il momento in cui la barra serve.
+   Chiudendola parte il salvagente: un tentativo di salvare quello che e'
+   rimasto in sospeso, nei pochi istanti che il browser concede. */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) salvagente();
+  else { checkDay(); loadCalendar(); loadBeat(); pullTasks(); }
+});
+window.addEventListener('pagehide', salvagente);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
