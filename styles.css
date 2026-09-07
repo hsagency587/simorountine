@@ -353,6 +353,13 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
   transform:translateX(100%);visibility:hidden;
   transition:transform 200ms cubic-bezier(.2,.7,.3,1),visibility 0s 200ms;
 }
+/* il piano dei workout entra da sinistra: il dito va a destra e il pannello lo
+   segue, altrimenti due pannelli dallo stesso lato con gesti opposti confondono */
+.drawer.sx{
+  left:0;right:auto;
+  border-left:0;border-right:1px solid var(--line);
+  transform:translateX(-100%);
+}
 .drawer.open{transform:none;visibility:visible;transition:transform 200ms cubic-bezier(.2,.7,.3,1)}
 body.menu-open{overflow:hidden}
 
@@ -384,6 +391,66 @@ body.menu-open{overflow:hidden}
 .switch input{width:19px;height:19px;margin:0;accent-color:var(--giallo)}
 
 .drawer-list{flex:1;overflow-y:auto;padding:var(--s2) 0 var(--s4)}
+
+/* ---------- piano dei workout ---------- */
+
+/* il selettore fra piano dei workout e dieta: quello acceso e' verde */
+.wtabs{display:flex;border-bottom:1px solid var(--line)}
+.wtab{
+  flex:1;min-height:38px;
+  background:none;border:0;border-bottom:2px solid transparent;
+  font-size:13px;font-weight:600;color:var(--muted);
+}
+.wtab.on{color:var(--accent);border-bottom-color:var(--accent)}
+/* flex:0 0 auto: dentro il pannello, che e' una colonna flessibile, il flex:1
+   della classe .switch la farebbe crescere fino a riempire tutta l'altezza.
+   Scorrendo in giu' si ritira, come una barra che si toglie di mezzo. */
+.wswitch{
+  flex:0 0 auto;overflow:hidden;
+  border-bottom:1px solid var(--line);
+  max-height:44px;
+  transition:max-height 180ms ease,opacity 180ms ease;
+}
+/* min-height:0 e' necessario: .switch ne impone 38, e il min vince sul max */
+.wswitch.via{min-height:0;max-height:0;opacity:0;border-bottom-color:transparent}
+.wswitch input{accent-color:var(--accent)}
+
+/* la testata di una casella: nome della tappa, poi orario e durata in chiaro */
+.wcapo{
+  margin:0;padding:var(--s2) var(--s3) 2px;
+  font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);
+}
+
+/* la riga di un pasto: nome, orario e durata a sinistra, la casella accanto */
+.dgiorno{
+  margin:0;padding:var(--s2) var(--s3) 2px;
+  font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);
+}
+.dora{font-weight:400;letter-spacing:0;text-transform:none}
+.wgiorno{
+  margin:0;padding:var(--s2) var(--s3) 2px;
+  font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);
+}
+.wgiorno.oggi{color:var(--accent)}
+.wrow{display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3) var(--s1)}
+.wslot{
+  flex:0 0 34px;font-size:11px;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.wcampo{
+  flex:1;min-width:0;min-height:34px;padding:0 var(--s2);
+  background:var(--surface-2);color:var(--text);
+  border:1px solid var(--line);border-radius:var(--radius);
+  font:inherit;font-size:13px;
+}
+.wcampo:focus{outline:none;border-color:var(--accent)}
+.wcampo::placeholder{color:var(--line)}
+
+/* la durata della tappa: piccola, grigia, all'estremita' della riga */
+.dur{flex:0 0 auto;margin-right:var(--s3);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .grp{margin:0;padding:var(--s3) var(--s4) var(--s1);font-size:11px;letter-spacing:.08em;color:var(--muted)}
 .grpcli{display:flex;align-items:center;gap:var(--s2);width:100%;
   background:none;border:0;text-align:left;letter-spacing:0;font-size:13px;
@@ -410,10 +477,16 @@ body.menu-open{overflow:hidden}
   cursor:pointer;
 }
 .trow:active{background:var(--surface-2)}
-/* riga con il cliente davanti: gli spazi si stringono, altrimenti fra casella,
-   rank, cliente, nome e orario non ci sta piu' niente */
-.trow:has(.tcli){gap:var(--s2)}
-.trow .tcli{max-width:32%}
+/* riga su due piani: il cliente sopra in piccolo, sotto la riga di sempre */
+.trow.duecli{
+  flex-direction:column;align-items:stretch;gap:0;
+  padding:var(--s1) var(--s1) var(--s1) var(--s4);
+}
+.tclisu{
+  font-size:11px;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.trowmain{display:flex;align-items:center;gap:var(--s3);min-height:34px}
 .tcheck{flex:none;width:20px;height:20px;margin:0;accent-color:var(--accent)}
 /* Nella riga di una task il titolo comanda: il cliente si stringe per primo e
    non passa mai il 40% della riga. */
@@ -466,8 +539,6 @@ body.menu-open{overflow:hidden}
   font-size:13px;font-weight:600;
 }
 .chip.sel{background:var(--accent);border-color:var(--accent);color:var(--bg)}
-/* la chip dei giorni lontani sta sotto il campo Day, staccata di poco */
-.chips-oltre{margin-top:var(--s2)}
 .btn-del{flex:0 0 auto;color:var(--danger);border-color:rgba(255,69,58,.45)}
 .btn-largo{width:100%;margin-bottom:var(--s3)}
 .nota{margin:var(--s2) 0 0;font-size:12px;line-height:1.4;color:var(--muted)}

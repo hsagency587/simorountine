@@ -93,6 +93,23 @@ const isWingChun = k => {
    ricavano dal campo `da` delle tappe — l'ora d'inizio in minuti dalla
    mezzanotte — e ognuna arriva fino all'inizio di quella dopo. La prima parte
    da mezzanotte e l'ultima ci arriva, cosi' nessun evento resta fuori. */
+/* La durata dei due workout e' fissa: mezz'ora il primo, un'ora il secondo.
+   Non si legge dagli orari della routine, che nei giorni di wing chun darebbero
+   due ore. */
+const DUR_WORKOUT = ['30\u2032', '1h'];
+
+/* Quanto dura una tappa: la distanza dall'orario di quella dopo. Serve ai pasti,
+   che durano quanto lo spazio che hanno. */
+function durataTappa(k, i) {
+  const f = finestre(k)[i];
+  if (!f) return '';
+  const m = f[1] - f[0];
+  if (m <= 0 || m >= 300) return '';        /* le tappe lunghe non hanno bisogno di dirlo */
+  return m < 60 ? m + '\u2032'
+       : m % 60 === 0 ? (m / 60) + 'h'
+       : Math.floor(m / 60) + 'h' + pad(m % 60);
+}
+
 function finestre(k) {
   const r = routineFor(k);
   return r.map((t, i) => [
@@ -117,17 +134,17 @@ const ROUTINE_GIORNO = [
     { id: 'sveglia-walk',     t: 'WALK 15 MIN' }
   ]},
   { id: 'gws1', da: 450, t: '7:30 | 1ST G WORK SESSION', gws: 0 },
-  { id: 'snack-mattina', da: 600, t: '10:00 | SNACK + REC', sub: [
+  { id: 'snack-mattina', da: 600, t: '10:00 | SNACK + REC', pasto: 'Morning snack', sub: [
     { id: 'snack-sole', t: '10’ OF SUN' }
   ]},
   { id: 'gws2', da: 615, t: '10:15 | 2ND G WORK SESSION', gws: 1 },
-  { id: 'workout-1', da: 750, t: '12:30 | 1ST WORKOUT' },
-  { id: 'pranzo', da: 780, t: '13:00 | LUNCH + ROUTINE', sub: [
+  { id: 'workout-1', da: 750, t: '12:30 | 1ST WORKOUT', slot: 0 },
+  { id: 'pranzo', da: 780, t: '13:00 | LUNCH + ROUTINE', pasto: 'Lunch', sub: [
     { id: 'pranzo-doccia',    t: 'SHOWER' },
     { id: 'pranzo-movimento', t: '10’ OF MOVEMENT' }
   ]},
   { id: 'gws3', da: 840, t: '14:00 | 3RD G WORK SESSION', gws: 2 },
-  { id: 'snack-pomeriggio', da: 1020, t: '17:00 | SNACK + REC', sub: [
+  { id: 'snack-pomeriggio', da: 1020, t: '17:00 | SNACK + REC', pasto: 'Afternoon snack', sub: [
     { id: 'snack-pomeriggio-sole', t: '10’ OF SUN' }
   ]}
 ];
@@ -135,8 +152,8 @@ const ROUTINE_GIORNO = [
 const SERA_WC = [
   { id: 'gws4', da: 1035, t: '17:15 | 4TH G WORK SESSION', gws: 3 },
   { id: 'prep-cena', da: 1095, t: '18:15 | DINNER PREP' },
-  { id: 'workout-2', da: 1110, t: '18:30 | 2ND WORKOUT', nota: 'WING CHUN' },
-  { id: 'cena', da: 1230, t: '20:30 | DINNER' },
+  { id: 'workout-2', da: 1110, t: '18:30 | 2ND WORKOUT', slot: 1 },
+  { id: 'cena', da: 1230, t: '20:30 | DINNER', pasto: 'Dinner' },
   { id: 'gws5', da: 1260, t: '21:00 | 5TH G WORK SESSION', gws: 4 },
   { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
     { id: 'serale-target',   t: "TOMORROW'S G WORK SESSION TARGET" },
@@ -149,8 +166,8 @@ const SERA_WC = [
 const SERA_STD = [
   { id: 'gws4', da: 1035, t: '17:15 | 4TH G WORK SESSION', gws: 3 },
   { id: 'prep-cena', da: 1125, t: '18:45 | DINNER PREP' },
-  { id: 'workout-2', da: 1140, t: '19:00 | 2ND WORKOUT' },
-  { id: 'cena', da: 1200, t: '20:00 | DINNER' },
+  { id: 'workout-2', da: 1140, t: '19:00 | 2ND WORKOUT', slot: 1 },
+  { id: 'cena', da: 1200, t: '20:00 | DINNER', pasto: 'Dinner' },
   { id: 'gws5', da: 1230, t: '20:30 | 5TH G WORK SESSION', gws: 4 },
   { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
     { id: 'serale-target',   t: "TOMORROW'S G WORK SESSION TARGET" },
@@ -763,7 +780,10 @@ function render() {
       }
       li.appendChild(head);
     } else {
-      li.appendChild(checkRow(t.id, t.t, 'row-t', !!c[t.id]));
+      const riga = checkRow(t.id, t.t, 'row-t', !!c[t.id]);
+      /* solo sui workout: dice quanto dura lo slot, piccolo e grigio in fondo */
+      if (t.slot != null) riga.appendChild(el('span', 'dur', DUR_WORKOUT[t.slot]));
+      li.appendChild(riga);
     }
 
     if (t.choice) {
@@ -774,12 +794,15 @@ function render() {
 
     /* la nota: dice cosa si fa in quella tappa, non e' una cosa da spuntare.
        Sta nel suo riquadro come le sottotappe, ma non conta nel totale. */
-    if (t.nota) {
+    const nota = t.nota
+              || (t.slot != null && mostra.w ? workoutDi(viewKey, t.slot) : '')
+              || (t.pasto && mostra.d ? (tstore.dieta[t.id] || '') : '');
+    if (nota) {
       const ul = el('ul', 'sub info');
       const nli = el('li');
       const r = el('div', 'row');
       r.appendChild(el('span', 'pallino'));
-      r.appendChild(el('span', 'ttl', t.nota));
+      r.appendChild(el('span', 'ttl', nota));
       nli.appendChild(r);
       ul.appendChild(nli);
       li.appendChild(ul);
@@ -1240,6 +1263,11 @@ dlg.addEventListener('close', () => {
 let tstore = readStore(TASKS_KEY);
 if (!Array.isArray(tstore.tasks)) tstore = { tasks: [], sha: null, dirty: false, known: [] };
 if (!Array.isArray(tstore.known)) tstore.known = [];
+/* Il piano dei workout: due caselle per giorno della settimana, scritte a mano.
+   Non ha date: e' un'abitudine, e torna ogni settimana finche' non si cambia. */
+if (!tstore.workout || typeof tstore.workout !== 'object') tstore.workout = {};
+/* La dieta: una casella per pasto, uguale tutti i giorni. */
+if (!tstore.dieta || typeof tstore.dieta !== 'object') tstore.dieta = {};
 
 let archivio = readStore(ARCHIVIO_KEY);
 let mancate  = readStore(MANCATE_KEY);
@@ -1310,6 +1338,41 @@ function validTask(x) {
 }
 
 const sameTasks = (a, b) => JSON.stringify((a || []).map(validTask)) === JSON.stringify((b || []).map(validTask));
+
+/* Il piano che arriva dal file: solo i sette giorni, due caselle, testo corto.
+   Le caselle vuote non si scrivono, cosi' un piano vuoto e' un oggetto vuoto. */
+function validWorkout(w) {
+  const out = {};
+  if (!w || typeof w !== 'object') return out;
+  for (let g = 0; g < 7; g++) {
+    const r = Array.isArray(w[g]) ? w[g] : [];
+    const a = [0, 1].map(i => String(r[i] == null ? '' : r[i]).slice(0, 60).trim());
+    if (a[0] || a[1]) out[g] = a;
+  }
+  return out;
+}
+
+/* La dieta che arriva dal file: una casella per pasto, testo corto. */
+function validDieta(w) {
+  const out = {};
+  if (!w || typeof w !== 'object') return out;
+  for (const t of PASTI) {
+    const v = String(w[t.id] == null ? '' : w[t.id]).slice(0, 120).trim();
+    if (v) out[t.id] = v;
+  }
+  return out;
+}
+
+/* I pasti della giornata, nell'ordine in cui capitano. Uguali tutti i giorni:
+   si prendono dalla routine standard, che li ha tutti. */
+const PASTI = ROUTINE_GIORNO.concat(SERA_STD).filter(t => t.pasto);
+
+/* Cosa si fa in quel workout, quel giorno: la casella del piano, se c'e'. */
+function workoutDi(k, slot) {
+  const g = new Date(k + 'T00:00:00').getDay();
+  const r = tstore.workout[g];
+  return r && r[slot] ? r[slot] : '';
+}
 
 function saveLocal() { writeStore(TASKS_KEY, tstore); }
 
@@ -1390,6 +1453,21 @@ let tutte = false;               /* l'interruttore "mostra anche le schedulate" 
 /* Il filtro "Calendar": acceso, gli eventi del calendario a cui si e' dato un
    cliente entrano nel menu', con giorno e ora, primi fra i rank A. Spento, nel
    menu' non esistono: stanno gia' nella giornata. Si ricorda. */
+/* Piano e dieta si possono spegnere: la tabella resta scritta, ma sotto le
+   tappe non compare niente. E' una preferenza di questo schermo, quindi sta nel
+   telefono e non nel file: spegnerla qui non accende il tasto Salva. */
+const MOSTRA_KEY = 'gwork-mostra-v1';
+let mostra = (() => {
+  try {
+    const v = JSON.parse(localStorage.getItem(MOSTRA_KEY) || 'null');
+    if (v && typeof v === 'object') return { w: v.w !== false, d: v.d !== false };
+  } catch (e) { /* si parte accesi */ }
+  return { w: true, d: true };
+})();
+function salvaMostra() {
+  try { localStorage.setItem(MOSTRA_KEY, JSON.stringify(mostra)); } catch (e) {}
+}
+
 const CALENDAR_KEY = 'gwork-calendar-v1';
 let calendar = (() => {
   try { return localStorage.getItem(CALENDAR_KEY) === '1'; } catch (e) { return false; }
@@ -1423,6 +1501,18 @@ function trowNode(x, pick, conCliente) {
   const li = el('li', 'trow' + (x.evento ? (ev && ev.alarm ? ' evento alarm' : ' evento')
                                          : x.giorno ? ' sched' : ''));
   li.dataset.task = x.id;
+
+  /* Nei blocchi RANK le task di tutti stanno mescolate: senza il nome del
+     cliente non si sa di chi sono. Ci sta su due piani, il cliente sopra in
+     piccolo, perche' in fila con rank, titolo e data non si leggeva piu' niente. */
+  const cli = conCliente ? clienteCorto(x.cliente) : '';
+  const riga = cli ? el('div', 'trowmain') : li;
+  if (cli) {
+    li.classList.add('duecli');
+    li.appendChild(el('span', 'tclisu', cli));
+    li.appendChild(riga);
+  }
+
   if (!pick) {
     /* la casella per spuntarla senza aprirla: sta fuori dall'area che apre
        l'editor, cosi' un tocco storto non fa l'una per l'altra */
@@ -1433,25 +1523,17 @@ function trowNode(x, pick, conCliente) {
                                          : taskFatta(x, dayChecks(x.giorno))));
     i.disabled = !!(x.giorno && !isEditable(x.giorno));
     i.setAttribute('aria-label', 'Mark done');
-    li.appendChild(i);
+    riga.appendChild(i);
   }
-  li.appendChild(el('span', 'rank r' + x.rank, x.rank));
-  /* nei blocchi RANK il cliente sta davanti al nome, come dentro la sessione:
-     li' le task di tutti stanno mescolate e senza non si sa di chi sono.
-     Dentro un cliente non serve: lo dice la testata sopra. */
-  const cli = conCliente ? clienteCorto(x.cliente) : '';
-  if (cli) {
-    li.appendChild(el('span', 'tcli', cli));
-    li.appendChild(el('span', 'tsep', '|'));
-  }
-  li.appendChild(el('span', 'tname', titoloEvento(x)));
-  if (x.giorno) li.appendChild(el('span', 'twhen', whenText(x)));
+  riga.appendChild(el('span', 'rank r' + x.rank, x.rank));
+  riga.appendChild(el('span', 'tname', titoloEvento(x)));
+  if (x.giorno) riga.appendChild(el('span', 'twhen', whenText(x)));
   if (!pick) {
     const b = el('button', 'more', '⋯');
     b.type = 'button';
     b.dataset.task = x.id;
     b.setAttribute('aria-label', 'Edit the task');
-    li.appendChild(b);
+    riga.appendChild(b);
   }
   return li;
 }
@@ -1577,7 +1659,8 @@ function paintDrawer() {
   const DECISO = 1.5;             /* quanto dev'essere piu' orizzontale che verticale */
   let x0 = 0, y0 = 0, valido = false;
 
-  const aperto = () => $('drawer').classList.contains('open');
+  const aperto  = () => $('drawer').classList.contains('open');
+  const apertoW = () => $('wdrawer').classList.contains('open');
 
   document.addEventListener('touchstart', ev => {
     if (ev.touches.length !== 1 || document.querySelector('dialog[open]')) {
@@ -1595,14 +1678,161 @@ function paintDrawer() {
     const dx = ev.changedTouches[0].clientX - x0;
     const dy = ev.changedTouches[0].clientY - y0;
     if (Math.abs(dx) < CORSA || Math.abs(dx) < Math.abs(dy) * DECISO) return;
-    if (!aperto() && dx < 0) openMenu(true);
-    else if (aperto() && dx > 0) openMenu(false);
+    /* verso sinistra il Menu Task, verso destra il piano dei workout. Con uno
+       gia' aperto, il gesto contrario lo chiude. */
+    if (aperto())       { if (dx > 0) openMenu(false); return; }
+    if (apertoW())      { if (dx < 0) openW(false); return; }
+    if (dx < 0) openMenu(true); else openW(true);
   }, { passive: true });
 })();
 
+/* ------------------------------------------------ piano dei workout ---- */
+
+const GIORNI = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+/* Il pannello ha due sezioni: il piano dei workout e la dieta. */
+let wTab = 'w';
+
+function openW(on) {
+  $('wdrawer').classList.toggle('open', on);
+  $('velo').hidden = !on;
+  document.body.classList.toggle('menu-open', on);
+  if (on) { $('wMostra').checked = wTab === 'w' ? mostra.w : mostra.d; paintW(); riportaSu(); }
+}
+
+function setTab(t) {
+  wTab = t;
+  $('tabW').classList.toggle('on', t === 'w');
+  $('tabD').classList.toggle('on', t === 'd');
+  $('tabW').setAttribute('aria-pressed', t === 'w' ? 'true' : 'false');
+  $('tabD').setAttribute('aria-pressed', t === 'd' ? 'true' : 'false');
+  $('wMostra').checked = t === 'w' ? mostra.w : mostra.d;
+  paintW();
+  riportaSu();
+}
+
+$('wMostra').addEventListener('change', e => {
+  if (wTab === 'w') mostra.w = e.target.checked; else mostra.d = e.target.checked;
+  salvaMostra();
+  render();
+});
+
+$('tabW').addEventListener('click', () => setTab('w'));
+$('tabD').addEventListener('click', () => setTab('d'));
+
+/* Sette giorni, due caselle per giorno. La durata di ogni casella si legge
+   dalla routine di quel giorno: il secondo workout del wing chun e' piu' lungo
+   di quello degli altri giorni, e la tabella lo dice invece di fingere. */
+function paintW() {
+  if (wTab === 'd') return paintD();
+  const box = $('wlist');
+  box.textContent = '';
+  const t0 = today();
+  /* Il piano e' generico, non parte da oggi: da lunedi' a domenica, sempre
+     uguale. Per gli orari serve pero' una data vera con quel giorno della
+     settimana, e la si pesca nei sette giorni davanti. */
+  for (const g of [1, 2, 3, 4, 5, 6, 0]) {
+    let d = t0;
+    for (let n = 0; n < 7 && d.getDay() !== g; n++) d = shift(t0, n + 1);
+    const k = dayKey(d);
+    box.appendChild(el('p', 'wgiorno', GIORNI[g]));
+    const r = routineFor(k);
+    for (const slot of [0, 1]) {
+      const t = r.find(v => v.slot === slot);
+      const ora = t ? t.t.split('|')[0].trim() : '';
+      const capo = el('p', 'wcapo', (slot === 0 ? '1st workout' : '2nd workout'));
+      capo.appendChild(el('span', 'dora', '  ' + ora + ' \u00b7 ' + DUR_WORKOUT[slot]));
+      box.appendChild(capo);
+      const row = el('div', 'wrow');
+      const inp = el('input', 'wcampo');
+      inp.type = 'text';
+      inp.maxLength = 60;
+      inp.dataset.g = g;
+      inp.dataset.slot = slot;
+      inp.value = (tstore.workout[g] || [])[slot] || '';
+      inp.placeholder = 'What you do';
+      row.appendChild(inp);
+      box.appendChild(row);
+    }
+  }
+}
+
+/* La dieta: un pasto per riga, con il suo orario e quanto dura. Non ha giorni:
+   i pasti sono uguali tutti i giorni. Gli orari si leggono dalla routine di
+   oggi, cosi' non c'e' un secondo posto dove tenerli aggiornati. */
+function paintD() {
+  const box = $('wlist');
+  box.textContent = '';
+  const k = dayKey(today());
+  const r = routineFor(k);
+  for (const t of PASTI) {
+    const i = r.findIndex(v => v.id === t.id);
+    const tappa = i >= 0 ? r[i] : t;
+    const ora = tappa.t.split('|')[0].trim();
+    const dur = i >= 0 ? durataTappa(k, i) : '';
+    const tit = el('p', 'dgiorno', t.pasto);
+    tit.appendChild(el('span', 'dora', '  ' + ora + (dur ? ' \u00b7 ' + dur : '')));
+    box.appendChild(tit);
+    const row = el('div', 'wrow');
+    const inp = el('input', 'wcampo');
+    inp.type = 'text';
+    inp.maxLength = 120;
+    inp.dataset.pasto = t.id;
+    inp.value = tstore.dieta[t.id] || '';
+    inp.placeholder = 'What you eat';
+    row.appendChild(inp);
+    box.appendChild(row);
+  }
+}
+
+/* Si scrive quando si esce dalla casella: cosi' non si segna il file da salvare
+   a ogni lettera battuta. */
+$('wlist').addEventListener('change', ev => {
+  const i = ev.target.closest('input.wcampo');
+  if (!i) return;
+  if (i.dataset.pasto) {
+    const v = i.value.slice(0, 120).trim();
+    if ((tstore.dieta[i.dataset.pasto] || '') === v) return;
+    if (v) tstore.dieta[i.dataset.pasto] = v; else delete tstore.dieta[i.dataset.pasto];
+    touch();
+    render();
+    return;
+  }
+  const g = +i.dataset.g, slot = +i.dataset.slot;
+  const r = (tstore.workout[g] || ['', '']).slice();
+  const v = i.value.slice(0, 60).trim();
+  if (r[slot] === v) return;
+  r[slot] = v;
+  if (r[0] || r[1]) tstore.workout[g] = r; else delete tstore.workout[g];
+  touch();
+  /* si ridisegna solo la giornata: rifare la tabella qui cancellerebbe quello
+     che si sta scrivendo nella casella accanto */
+  render();
+});
+
+/* Scorrendo in giu' l'interruttore si ritira, come una barra che si toglie di
+   mezzo; risalendo torna. In cima c'e' sempre. */
+let wY = 0;
+$('wlist').addEventListener('scroll', () => {
+  const y = $('wlist').scrollTop;
+  const sw = $('wdrawer').querySelector('.wswitch');
+  if (y > wY + 4 && y > 24) sw.classList.add('via');
+  else if (y < wY - 4 || y <= 4) sw.classList.remove('via');
+  wY = y;
+}, { passive: true });
+
+function riportaSu() {
+  wY = 0;
+  $('wlist').scrollTop = 0;
+  $('wdrawer').querySelector('.wswitch').classList.remove('via');
+}
+
+$('wBtn').addEventListener('click', () => openW(true));
+$('chiudiW').addEventListener('click', () => openW(false));
+
 $('menuBtn').addEventListener('click', () => openMenu(true));
 $('chiudiMenu').addEventListener('click', () => openMenu(false));
-$('velo').addEventListener('click', () => openMenu(false));
+$('velo').addEventListener('click', () => { openMenu(false); openW(false); });
 $('tutte').addEventListener('change', e => { tutte = e.target.checked; paintDrawer(); });
 $('calendar').checked = calendar;
 $('calendar').addEventListener('change', e => {
@@ -1690,6 +1920,8 @@ function dayChoices(current) {
   const t0 = today();
   const out = [{ k: '', lab: 'Not scheduled' }];
   [['Today', 0], ['Tomorrow', 1], ['In 2 days', 2]].forEach(p => out.push({ k: dayKey(shift(t0, p[1])), lab: p[0] }));
+  /* e i cinque giorni lontani, di seguito agli altri: la finestra arriva a sette */
+  for (const o of giorniOltre()) out.push(o);
   if (current && !out.some(o => o.k === current)) {
     out.push({ k: current, lab: fmtDate.format(new Date(current + 'T00:00:00')) });
   }
@@ -1759,11 +1991,6 @@ function paintEditor() {
   if (ed.evento) return;          /* di un evento si sceglie soltanto il cliente */
   chips($('tRank'), RANKS.map(r => ({ k: r, lab: r })), ed.rank);
   $('tGiorno').textContent  = etichetta(dayChoices(ed.giorno), ed.giorno || '');
-  /* la chip mostra il giorno lontano scelto, oppure invita ad aprirla */
-  const oltre = giorniOltre().find(o => o.k === ed.giorno);
-  const chip = $('tOltre');
-  chip.textContent = oltre ? oltre.lab : 'In 3–7 days';
-  chip.classList.toggle('sel', !!oltre);
   const sched = !!ed.giorno;
   $('tGwsLab').hidden = !sched;
   $('tGws').hidden = !sched;
@@ -1853,19 +2080,6 @@ $('tGiorno').addEventListener('click', () => {
   apriPicker('Day', dayChoices(ed.giorno), ed.giorno || '', v => {
     ed.giorno = v || null;
     ed.gws = ed.giorno ? (ed.gws.length ? ed.gws : [0]) : [];
-    paintEditor();
-  });
-});
-
-/* La chip dei giorni lontani: apre la stessa tendina del campo Day, ma con i
-   cinque giorni che li' non ci sono. Sceglierne uno e' come scegliere un
-   giorno qualunque: la sessione compare come sempre. */
-$('tOltre').addEventListener('click', () => {
-  if (!ed) return;
-  apriPicker('Day', giorniOltre(), ed.giorno || '', v => {
-    if (!v) return;
-    ed.giorno = v;
-    if (!ed.gws.length) ed.gws = [0];
     paintEditor();
   });
 });
@@ -2185,6 +2399,8 @@ async function pullTasks() {
     return;
   }
   const remote = Array.isArray(data.tasks) ? data.tasks.map(validTask).filter(Boolean) : [];
+  const piano  = validWorkout(data.workout);
+  const dieta  = validDieta(data.dieta);
 
   if (tstore.dirty) {
     /* e' la nostra stessa versione, salvata dal salvagente senza risposta? */
@@ -2198,6 +2414,8 @@ async function pullTasks() {
   }
 
   tstore.tasks = remote;
+  tstore.workout = piano;
+  tstore.dieta = dieta;
   rememberSha(j.sha);
   tstore.dirty = false;
   saveLocal();
@@ -2219,7 +2437,7 @@ async function pushTasks(opts) {
   const sent = JSON.stringify(tstore.tasks);
   const n = tstore.tasks.filter(x => !x.giorno).length;
   /* con la chiave impostata il file parte chiuso; senza, in chiaro come prima */
-  const testo = JSON.stringify({ tasks: tstore.tasks }, null, 2) + '\n';
+  const testo = JSON.stringify({ tasks: tstore.tasks, workout: tstore.workout, dieta: tstore.dieta }, null, 2) + '\n';
   let corpo;
   try {
     corpo = await cifra(testo);

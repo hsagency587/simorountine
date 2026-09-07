@@ -37,6 +37,7 @@
   <div class="bar">
     <p class="fresh" id="fresh">Loading…</p>
     <button type="button" class="salva" id="salva" hidden>Save</button>
+    <button type="button" class="menu" id="wBtn" aria-label="Open the Workout plan" aria-controls="wdrawer">▤</button>
     <button type="button" class="menu" id="menuBtn" aria-label="Open the Task Menu" aria-controls="drawer">☰</button>
   </div>
 
@@ -106,6 +107,24 @@
   </div>
 </aside>
 
+<!-- Il piano dei workout: due caselle per giorno, si riempiono a mano e si
+     ripetono ogni settimana finche' non si cambiano. -->
+<aside class="drawer sx" id="wdrawer" aria-label="Workout plan">
+  <div class="drawer-top">
+    <h2 class="drawer-tit">Workout plan</h2>
+    <button type="button" class="chiudi" id="chiudiW" aria-label="Close the panel">×</button>
+  </div>
+  <div class="wtabs">
+    <button type="button" class="wtab on" id="tabW" aria-pressed="true">Workout</button>
+    <button type="button" class="wtab" id="tabD" aria-pressed="false">Diet</button>
+  </div>
+  <label class="switch wswitch">
+    <input type="checkbox" id="wMostra">
+    <span>Show in the day</span>
+  </label>
+  <div class="drawer-list" id="wlist"></div>
+</aside>
+
 <!-- Un editor solo, per creare e per modificare. -->
 <dialog class="chiusura" id="editor" tabindex="-1" aria-labelledby="editorTit">
   <form method="dialog" class="chiusura-box" id="editorForm">
@@ -130,8 +149,6 @@
     <div id="tCampiGiorno">
       <p class="commento-lab">Day</p>
       <button type="button" class="campo tendina" id="tGiorno"></button>
-      <!-- i giorni piu' lontani della finestra: da fra 3 a fra 7 -->
-      <div class="chips chips-oltre"><button type="button" class="chip" id="tOltre"></button></div>
 
       <p class="commento-lab" id="tGwsLab">Sessions</p>
       <div class="chips" id="tGws"></div>
