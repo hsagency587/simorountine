@@ -61,7 +61,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
   padding:var(--s2) var(--s3);
   padding-top:calc(var(--s2) + env(safe-area-inset-top));
 }
-.top.has-siren{padding-left:56px}
+/* La sirena e' appoggiata sopra la barra, in alto a sinistra: fa posto solo
+   alla riga del battito, che le sta sotto. Spostare tutta la barra stringerebbe
+   anche i giorni, la progressione e i numeri, che non c'entrano niente. */
+.top.has-siren .bar{padding-left:46px}
 
 .siren{
   position:absolute;
