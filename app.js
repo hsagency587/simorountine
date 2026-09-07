@@ -135,8 +135,8 @@ const ROUTINE_GIORNO = [
 const SERA_WC = [
   { id: 'gws4', da: 1035, t: '17:15 | 4TH G WORK SESSION', gws: 3 },
   { id: 'prep-cena', da: 1095, t: '18:15 | DINNER PREP' },
-  { id: 'workout-2', da: 1110, t: '18:30 | 2ND WORKOUT — WING CHUN' },
-  { id: 'cena', da: 1230, t: '20:30 | DINNER + ROUTINE' },
+  { id: 'workout-2', da: 1110, t: '18:30 | 2ND WORKOUT', nota: 'WING CHUN' },
+  { id: 'cena', da: 1230, t: '20:30 | DINNER' },
   { id: 'gws5', da: 1260, t: '21:00 | 5TH G WORK SESSION', gws: 4 },
   { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
     { id: 'serale-target',   t: "TOMORROW'S G WORK SESSION TARGET" },
@@ -675,6 +675,19 @@ function render() {
       const box = el('div', 'choice');
       for (const o of t.choice) box.appendChild(checkRow(o.id, o.t, null, !!c[o.id], t.id));
       li.appendChild(box);
+    }
+
+    /* la nota: dice cosa si fa in quella tappa, non e' una cosa da spuntare.
+       Sta nel suo riquadro come le sottotappe, ma non conta nel totale. */
+    if (t.nota) {
+      const ul = el('ul', 'sub info');
+      const nli = el('li');
+      const r = el('div', 'row');
+      r.appendChild(el('span', 'pallino'));
+      r.appendChild(el('span', 'ttl', t.nota));
+      nli.appendChild(r);
+      ul.appendChild(nli);
+      li.appendChild(ul);
     }
 
     if (t.sub) {

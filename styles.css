@@ -220,6 +220,16 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 .row-t{min-height:var(--row)}
 .row-t .ttl{font-size:15px;font-weight:600}
 .row.on .ttl{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+
+/* la nota della tappa: si legge e basta, non si spunta. Il pallino sta dove
+   starebbe la casella, cosi' il testo resta in colonna con le sottotappe. */
+.info .row{cursor:default}
+.pallino{
+  flex:0 0 auto;
+  width:9px;height:9px;margin:0 5px 0 calc(var(--s3) + 5px);
+  background:var(--accent);border-radius:50%;
+}
+.info .ttl{color:var(--text-2)}
 .row:active{background:rgba(255,255,255,.04)}
 
 /* Il secondo riquadro: staccato dal primo e rientrato da sinistra, con dentro
