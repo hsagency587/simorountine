@@ -1,3 +1,14 @@
 {
-  "tasks": []
+  "tasks": [
+    {
+      "id": "tmtrfgb1gmmgu",
+      "creata": "2026-09-07T16:00:39.653Z",
+      "nome": "website",
+      "desc": "",
+      "rank": "A",
+      "cliente": "di-nucci",
+      "giorno": "2026-09-07",
+      "gws": 3
+    }
+  ]
 }
