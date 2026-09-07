@@ -33,7 +33,8 @@ const CLIENTI = [
   { id: 'omnia',        nome: 'Omnia Ristrutturazioni (Top 3)' },
   { id: 'bergamaschi',  nome: 'Bergamaschi Giardini (Top 3)' },
   { id: 'fisio-leone',  nome: 'Fisio Leone (Top 3)' },
-  { id: 'osteria-anna', nome: 'Osteria Da Anna (Top 3 + ADS)' }
+  { id: 'osteria-anna', nome: 'Osteria Da Anna (Top 3 + ADS)' },
+  { id: 'hs-agency',    nome: 'HS Agency' }
 ];
 /* i clienti aperti nel menu': restano aperti fra un'apertura e l'altra */
 const CLIAPERTI_KEY = 'gwork-clientiaperti-v1';
