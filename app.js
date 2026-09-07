@@ -1179,23 +1179,20 @@ function salvaAperti() {
 /* L'ordine dei gruppi e' quello di CLIENTI, con le task senza cliente in
    fondo. Dentro un gruppo l'ordine resta quello di sempre: prima il rank. */
 /* Tutti i clienti compaiono sempre, anche quelli senza niente dentro: l'elenco
-   e' anche la mappa di chi si sta seguendo. "Senza cliente" invece appare solo
-   quando ha qualcosa, altrimenti sarebbe una riga per nessuno. */
+   e' anche la mappa di chi si sta seguendo. Le task senza cliente qui non
+   entrano: stanno nel serbatoio qui sotto, che le mostra tutte. */
 function gruppiCliente(list) {
-  return CLIENTI.map(c => ({ k: c.id, nome: c.nome, tag: c.tag }))
-    .concat([{ k: '', nome: 'Senza cliente' }])
-    .map(g => ({ g: g, tasks: list.filter(x => (x.cliente || '') === g.k).sort(byRank) }))
-    .filter(o => o.g.k !== '' || o.tasks.length);
+  return CLIENTI.map(c => ({
+    g: { k: c.id, nome: c.nome, tag: c.tag },
+    tasks: list.filter(x => x.cliente === c.id).sort(byRank)
+  }));
 }
 
 function paintDrawer() {
   const box = $('drawerList');
   box.textContent = '';
   const list = tstore.tasks.filter(x => tutte || !x.giorno);
-  let n = 0;
-
   const gruppi = gruppiCliente(list);
-  for (const o of gruppi) n += o.tasks.length;
 
   {
     const r = el('button', 'grp grpcli grproot' + (cliRoot ? ' open' : ''));
@@ -1240,9 +1237,42 @@ function paintDrawer() {
     box.appendChild(ul);
   }
 
-  if (!n) box.appendChild(el('p', 'vuoto', tutte ? 'Nessuna task' : 'Serbatoio vuoto'));
+  if (!list.length) box.appendChild(el('p', 'vuoto', tutte ? 'Nessuna task' : 'Serbatoio vuoto'));
   paintSync();
 }
+
+/* Il menu' si apre e si chiude anche con il dito. Entra da destra, quindi il
+   dito va a sinistra per aprirlo e a destra per chiuderlo. Da chiuso il gesto
+   vale solo se parte dal bordo destro: altrimenti ruberebbe lo scorrimento
+   all'elenco della giornata. Un movimento piu' verticale che orizzontale non
+   conta, e con una finestra aperta il gesto e' spento del tutto. */
+(function () {
+  const BORDO = 28;               /* la striscia da cui si apre, in pixel */
+  const CORSA = 60;               /* quanto deve correre il dito per contare */
+  let x0 = 0, y0 = 0, valido = false;
+
+  const aperto = () => $('drawer').classList.contains('open');
+
+  document.addEventListener('touchstart', ev => {
+    if (ev.touches.length !== 1 || document.querySelector('dialog[open]')) {
+      valido = false;
+      return;
+    }
+    x0 = ev.touches[0].clientX;
+    y0 = ev.touches[0].clientY;
+    valido = aperto() || (window.innerWidth - x0) <= BORDO;
+  }, { passive: true });
+
+  document.addEventListener('touchend', ev => {
+    if (!valido) return;
+    valido = false;
+    const dx = ev.changedTouches[0].clientX - x0;
+    const dy = ev.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) < CORSA || Math.abs(dx) <= Math.abs(dy)) return;
+    if (!aperto() && dx < 0) openMenu(true);
+    else if (aperto() && dx > 0) openMenu(false);
+  }, { passive: true });
+})();
 
 $('menuBtn').addEventListener('click', () => openMenu(true));
 $('chiudiMenu').addEventListener('click', () => openMenu(false));
