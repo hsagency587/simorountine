@@ -88,11 +88,18 @@ const isWingChun = k => {
   return d >= 2 && d <= 5;                        /* martedi' - venerdi' */
 };
 
-/* Le cinque fasce delle G Work Session, in minuti dalla mezzanotte.
-   Coprono le 24 ore: nessun evento puo' restare fuori. */
-const FASCE_WC  = [[0, 600], [600, 840], [840, 1035], [1035, 1260], [1260, 1440]];
-const FASCE_STD = [[0, 600], [600, 840], [840, 1035], [1035, 1230], [1230, 1440]];
-const fasceOf = k => isWingChun(k) ? FASCE_WC : FASCE_STD;
+/* Un evento del calendario finisce nella tappa che copre la sua ora di inizio,
+   qualunque tappa sia: una sessione, il pranzo, il wing chun. Le finestre si
+   ricavano dal campo `da` delle tappe — l'ora d'inizio in minuti dalla
+   mezzanotte — e ognuna arriva fino all'inizio di quella dopo. La prima parte
+   da mezzanotte e l'ultima ci arriva, cosi' nessun evento resta fuori. */
+function finestre(k) {
+  const r = routineFor(k);
+  return r.map((t, i) => [
+    i === 0 ? 0 : t.da,
+    i === r.length - 1 ? 1440 : r[i + 1].da
+  ]);
+}
 
 /* Le finestre protette: sonno, workout e pranzo, sera dopo cena, notte.
    Nessun rapporto con le fasce, nessun nome visibile. */
@@ -104,32 +111,32 @@ const protetteOf = k => isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
    non e' una costante. La parte fino alle 17:15 e' uguale per tutti i giorni;
    cambia solo la sera. */
 const ROUTINE_GIORNO = [
-  { id: 'sveglia', t: '6:45 | WAKE UP + MORNING ROUTINE', sub: [
+  { id: 'sveglia', da: 405, t: '6:45 | WAKE UP + MORNING ROUTINE', sub: [
     { id: 'sveglia-finestra', t: 'OPEN WINDOW + MAKE BED + GET DRESSED' },
     { id: 'sveglia-acqua',    t: 'WATER + FIREBLOOD + TEETH' },
     { id: 'sveglia-walk',     t: 'WALK 15 MIN + SET TARGET 1ST G WORK SESSION' }
   ]},
-  { id: 'gws1', t: '7:30 | 1ST G WORK SESSION', gws: 0 },
-  { id: 'snack-mattina', t: '10:00 | SNACK + REC', sub: [
+  { id: 'gws1', da: 450, t: '7:30 | 1ST G WORK SESSION', gws: 0 },
+  { id: 'snack-mattina', da: 600, t: '10:00 | SNACK + REC', sub: [
     { id: 'snack-sole', t: '10’ OF SUN' }
   ]},
-  { id: 'gws2', t: '10:15 | 2ND G WORK SESSION', gws: 1 },
-  { id: 'workout-1', t: '12:30 | 1ST WORKOUT' },
-  { id: 'pranzo', t: '13:00 | LUNCH + ROUTINE', sub: [
+  { id: 'gws2', da: 615, t: '10:15 | 2ND G WORK SESSION', gws: 1 },
+  { id: 'workout-1', da: 750, t: '12:30 | 1ST WORKOUT' },
+  { id: 'pranzo', da: 780, t: '13:00 | LUNCH + ROUTINE', sub: [
     { id: 'pranzo-doccia',    t: 'SHOWER' },
     { id: 'pranzo-movimento', t: '10’ OF MOVEMENT' }
   ]},
-  { id: 'gws3', t: '14:00 | 3RD G WORK SESSION', gws: 2 },
-  { id: 'snack-pomeriggio', t: '17:00 | SNACK + REC' }
+  { id: 'gws3', da: 840, t: '14:00 | 3RD G WORK SESSION', gws: 2 },
+  { id: 'snack-pomeriggio', da: 1020, t: '17:00 | SNACK + REC' }
 ];
 
 const SERA_WC = [
-  { id: 'gws4', t: '17:15 | 4TH G WORK SESSION', gws: 3 },
-  { id: 'prep-cena', t: '18:15 | DINNER PREP' },
-  { id: 'workout-2', t: '18:30 | 2ND WORKOUT — WING CHUN' },
-  { id: 'cena', t: '20:30 | DINNER + ROUTINE' },
-  { id: 'gws5', t: '21:00 | 5TH G WORK SESSION', gws: 4 },
-  { id: 'serale', t: '22:00 | EVENING ROUTINE', sub: [
+  { id: 'gws4', da: 1035, t: '17:15 | 4TH G WORK SESSION', gws: 3 },
+  { id: 'prep-cena', da: 1095, t: '18:15 | DINNER PREP' },
+  { id: 'workout-2', da: 1110, t: '18:30 | 2ND WORKOUT — WING CHUN' },
+  { id: 'cena', da: 1230, t: '20:30 | DINNER + ROUTINE' },
+  { id: 'gws5', da: 1260, t: '21:00 | 5TH G WORK SESSION', gws: 4 },
+  { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
     { id: 'serale-telefono', t: 'PHONE AWAY FROM BED' },
     { id: 'serale-voto',     t: '(MINIMUM) SCORE + ONE LINE ON THE DAY' },
     { id: 'serale-gambe',    t: 'LEGS UP THE WALL' }
@@ -137,12 +144,12 @@ const SERA_WC = [
 ];
 
 const SERA_STD = [
-  { id: 'gws4', t: '17:15 | 4TH G WORK SESSION', gws: 3 },
-  { id: 'prep-cena', t: '18:45 | DINNER PREP' },
-  { id: 'workout-2', t: '19:00 | 2ND WORKOUT' },
-  { id: 'cena', t: '20:00 | DINNER' },
-  { id: 'gws5', t: '20:30 | 5TH G WORK SESSION', gws: 4 },
-  { id: 'serale', t: '22:00 | EVENING ROUTINE', sub: [
+  { id: 'gws4', da: 1035, t: '17:15 | 4TH G WORK SESSION', gws: 3 },
+  { id: 'prep-cena', da: 1125, t: '18:45 | DINNER PREP' },
+  { id: 'workout-2', da: 1140, t: '19:00 | 2ND WORKOUT' },
+  { id: 'cena', da: 1200, t: '20:00 | DINNER' },
+  { id: 'gws5', da: 1230, t: '20:30 | 5TH G WORK SESSION', gws: 4 },
+  { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
     { id: 'serale-telefono', t: 'PHONE AWAY FROM BED' },
     { id: 'serale-voto',     t: '(MINIMUM) SCORE + ONE LINE ON THE DAY' },
     { id: 'serale-gambe',    t: 'LEGS UP THE WALL' }
@@ -264,7 +271,7 @@ function prepEvent(ev, k) {
   }
 
   const span = Math.max(eMin, sMin + 1);
-  const fascia = fasceOf(k).findIndex(f => sMin >= f[0] && sMin < f[1]);
+  const fascia = finestre(k).findIndex(f => sMin >= f[0] && sMin < f[1]);
 
   return {
     id:     String(ev.id || (start + '|' + ev.title)),
@@ -278,7 +285,7 @@ function prepEvent(ev, k) {
 
 /* Le cinque fasce coprono le 24 ore: nessun evento puo' restare fuori. */
 function groupEvents(k) {
-  const out = [[], [], [], [], []];
+  const out = routineFor(k).map(() => []);
   if (!isCovered(k)) return out;
   const list = Array.isArray(cal.days[k]) ? cal.days[k] : [];
   for (const raw of list) {
@@ -288,11 +295,19 @@ function groupEvents(k) {
   return out;
 }
 
-/* Le task schedulate in un giorno, sessione per sessione, in ordine di rank. */
+/* Le task si schedulano ancora per sessione, non per ora: qui il numero della
+   sessione diventa la posizione della sua tappa nell'elenco del giorno. */
+function postoDellaSessione(k) {
+  const posto = {};
+  routineFor(k).forEach((t, i) => { if (t.gws != null) posto[t.gws] = i; });
+  return posto;
+}
+
 function dayTasks(k) {
-  const out = [[], [], [], [], []];
+  const out = routineFor(k).map(() => []);
+  const posto = postoDellaSessione(k);
   for (const x of tstore.tasks) {
-    if (x.giorno === k && x.gws != null && out[x.gws]) out[x.gws].push(x);
+    if (x.giorno === k && x.gws != null && posto[x.gws] != null) out[posto[x.gws]].push(x);
   }
   for (const l of out) l.sort(byRank);
   return out;
@@ -306,9 +321,11 @@ function childrenOf(k) {
   const m = mancate[k] || [];
   /* le task lasciate indietro restano figlie del giorno, non fatte, con un id
      che nessuno spuntera' mai: cosi' il conteggio di ieri non cambia */
+  const posto = postoDellaSessione(k);
   return g.map((evs, i) => evs
     .concat(t[i].map(x => ({ id: x.id, task: x })))
-    .concat(m.filter(x => x.gws === i).map((x, n) => ({ id: 'mancata:' + k + ':' + i + ':' + n, mancata: x }))));
+    .concat(m.filter(x => posto[x.gws] === i)
+             .map((x, n) => ({ id: 'mancata:' + k + ':' + i + ':' + n, mancata: x }))));
 }
 
 /* ---------------------------------------------------------- conteggio --- */
@@ -334,11 +351,11 @@ function tally(k) {
   const c = dayChecks(k);
   const g = childrenOf(k);
   let total = 0, done = 0;
-  for (const t of routineFor(k)) {
-    const st = tappaState(t, c, t.gws != null ? g[t.gws] : null);
+  routineFor(k).forEach((t, i) => {
+    const st = tappaState(t, c, g[i]);
     total += st.total;
     done  += st.done;
-  }
+  });
   return { total, done };
 }
 
@@ -628,8 +645,8 @@ function render() {
   list.textContent = '';
   rows = [];
 
-  for (const t of routineFor(viewKey)) {
-    const evs = t.gws != null ? g[t.gws] : null;
+  routineFor(viewKey).forEach((t, i) => {
+    const evs = g[i];
     const li = el('li', 'tappa');
 
     if (t.gws != null) {
@@ -664,10 +681,10 @@ function render() {
       li.appendChild(ul);
     }
 
-    if (t.gws != null) {
-      /* prima del primo caricamento non si annuncia ancora niente; le task
-         invece si vedono comunque, il calendario non c'entra */
-      if (!covered && loaded) li.appendChild(el('p', 'nocov', 'Eventi non coperti per questa data'));
+    {
+      /* prima del primo caricamento non si annuncia ancora niente; l'avviso sta
+         solo sulle sessioni, dove il calendario e' la cosa che ci si aspetta */
+      if (t.gws != null && !covered && loaded) li.appendChild(el('p', 'nocov', 'Eventi non coperti per questa data'));
       if (evs.length) {
         const ul = el('ul', 'evs');
         for (const e of evs) {
@@ -681,7 +698,7 @@ function render() {
 
     list.appendChild(li);
     rows.push({ t: t, el: li, evs: evs });
-  }
+  });
 
   /* fuori dalla finestra si consulta soltanto */
   const readOnly = !isEditable(viewKey);
