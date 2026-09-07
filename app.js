@@ -1592,6 +1592,10 @@ function paintDrawer() {
      schedulate vale per i blocchi RANK qui sotto, non per i clienti: aprire un
      cliente e' gia' chiedere di vedere le sue cose. */
   const perCli = tstore.tasks.filter(x => !x.evento).concat(eventi);
+  /* Quello che si e' gia' letto dentro un cliente aperto non si ripete nei
+     blocchi RANK: aprire un cliente e' gia' averlo guardato. Chiuso il cliente,
+     le sue task tornano sotto. */
+  const gia = new Set();
 
   for (const rad of RADICI) {
     const gruppi = gruppiCliente(perCli, rad.mie);
@@ -1622,17 +1626,16 @@ function paintDrawer() {
         continue;
       }
       const ul = el('ul', 'trows');
-      for (const x of o.tasks) ul.appendChild(trowNode(x, false));
+      for (const x of o.tasks) { gia.add(x.id); ul.appendChild(trowNode(x, false)); }
       box.appendChild(ul);
     }
   }
 
-  /* Sotto la tendina, il serbatoio per intero, diviso per rank come e' sempre
-     stato. La stessa task compare due volte quando la tendina e' aperta: qui e
-     dentro il suo cliente. E' voluto — i clienti sono un modo in piu' di
-     guardare le stesse task, non un posto dove finiscono. */
+  /* Sotto le tendine, il resto diviso per rank come e' sempre stato. Quello che
+     si e' gia' visto dentro un cliente aperto non si ripete qui: si guarda una
+     cosa sola per volta. Chiuso il cliente, le sue task tornano. */
   for (const r of RANKS) {
-    const l = tutto.filter(x => x.rank === r).sort(byMenu);
+    const l = tutto.filter(x => x.rank === r && !gia.has(x.id)).sort(byMenu);
     if (!l.length) continue;
     box.appendChild(el('p', 'grp', 'RANK ' + r));
     const ul = el('ul', 'trows');

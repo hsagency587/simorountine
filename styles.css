@@ -402,6 +402,8 @@ body.menu-open{overflow:hidden}
   font-size:13px;font-weight:600;color:var(--muted);
 }
 .wtab.on{color:var(--accent);border-bottom-color:var(--accent)}
+/* la chiusura sta in fondo alla riga del selettore: sopra non c'e' piu' niente */
+.wchiudi{flex:0 0 auto;width:40px;height:38px;border-radius:0}
 /* flex:0 0 auto: dentro il pannello, che e' una colonna flessibile, il flex:1
    della classe .switch la farebbe crescere fino a riempire tutta l'altezza.
    Scorrendo in giu' si ritira, come una barra che si toglie di mezzo. */
