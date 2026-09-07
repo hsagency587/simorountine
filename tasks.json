@@ -145,6 +145,66 @@
       "cliente": "hs-agency",
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmtrqadf9div0",
+      "creata": "2026-09-07T21:03:58.581Z",
+      "nome": "Check citazioni bergamaschi",
+      "desc": "Controllare se ci sono cose da aggiustare o citazioni da aggiungere. ",
+      "rank": "B",
+      "cliente": "bergamaschi",
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmtrqccn12xlp",
+      "creata": "2026-09-07T21:05:30.877Z",
+      "nome": "Fix sito e start citazioni",
+      "desc": "Aggiustare il sito esattamente come lo vorrei io, Paolo, poi creare una versione SEO corretta e iniziare le citazioni. ",
+      "rank": "B",
+      "cliente": "fisio-leone",
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmtrqdmez9du8",
+      "creata": "2026-09-07T21:06:30.204Z",
+      "nome": "Check citazioni Omnia",
+      "desc": "Controllare se ci sono errori nelle citazioni attuali e aggiungere quelli mancati. ",
+      "rank": "B",
+      "cliente": "omnia",
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmtrqe8624qro",
+      "creata": "2026-09-07T21:06:58.394Z",
+      "nome": "Check citazioni Manuela Lovo",
+      "desc": "Controllare le citazioni attuali e aggiungere quelle mancanti. ",
+      "rank": "B",
+      "cliente": "manuela-lovo",
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmtrqetwxdpyv",
+      "creata": "2026-09-07T21:07:26.577Z",
+      "nome": "Completamento GBP",
+      "desc": "Completa al 100% il profilo Google Business. ",
+      "rank": "A",
+      "cliente": "osteria-anna",
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmtrqg9xeb077",
+      "creata": "2026-09-07T21:08:33.986Z",
+      "nome": "Fix sito web + check citaizoni",
+      "desc": "Aggiusta le pagine rank 2. E controlla le citazioni che sono in giro. ",
+      "rank": "C",
+      "cliente": "longkai",
+      "giorno": null,
+      "gws": null
     }
   ]
 }
