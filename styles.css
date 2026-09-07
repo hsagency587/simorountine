@@ -215,7 +215,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 .sub{
   position:relative;
   list-style:none;
-  margin:var(--s2) 0 0 var(--s4);
+  margin:3px 0 0 var(--s4);
   padding:0;
   background:var(--surface);
   border:1px solid var(--line);
