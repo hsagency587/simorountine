@@ -122,7 +122,9 @@ function finestre(k) {
    Nessun rapporto con le fasce, nessun nome visibile. */
 const PROTETTE_WC  = [[0, 450], [750, 840], [1095, 1230], [1320, 1440]];
 const PROTETTE_STD = [[0, 450], [750, 840], [1125, 1230], [1320, 1440]];
-const protetteOf = k => isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
+/* il sabato il pranzo comincia dopo e la cena si sposta: le finestre lo seguono */
+const PROTETTE_SAB = [[0, 450], [765, 840], [1140, 1245], [1320, 1440]];
+const protetteOf = k => isSabato(k) ? PROTETTE_SAB : isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
 
 /* La routine fissa, giorno per giorno. Il totale del giorno si calcola da qui,
    non e' una costante. La parte fino alle 17:15 e' uguale per tutti i giorni;
@@ -177,7 +179,23 @@ const SERA_STD = [
   ]}
 ];
 
-const routineFor = k => ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD);
+/* Il sabato la giornata si stringe in due punti: la sessione prima del primo
+   workout finisce alle 12:45, e il workout dura un quarto d'ora invece di
+   mezz'ora; la sera il secondo workout finisce un quarto d'ora piu' tardi, e
+   quel quarto d'ora lo perde la sessione che viene dopo. */
+const SABATO = {
+  'workout-1': { da: 765,  t: '12:45 | 1ST WORKOUT', dur: '15\u2032' },
+  'workout-2': { dur: '1h15' },
+  'cena':      { da: 1215, t: '20:15 | DINNER' },
+  'gws5':      { da: 1245, t: '20:45 | 5TH G WORK SESSION' }
+};
+const isSabato = k => new Date(k + 'T00:00:00').getDay() === 6;
+
+const routineFor = k => {
+  const base = ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD);
+  if (!isSabato(k)) return base;
+  return base.map(t => SABATO[t.id] ? Object.assign({}, t, SABATO[t.id]) : t);
+};
 
 /* L'elenco di tutti gli id esistenti, per le ricerche che non dipendono dal
    giorno. Le due sere condividono gli id: cambia solo il testo. */
@@ -714,7 +732,11 @@ function taskNode(x, on, key) {
   li.appendChild(bar);
 
   if (x.desc) {
-    const p = el('p', 'desc', x.desc);
+    /* aperta, la descrizione porta sopra il titolo intero: nella riga sta
+       stretto e viene tagliato, qui c'e' posto */
+    const p = el('p', 'desc');
+    p.appendChild(el('span', 'desctit', x.nome));
+    p.appendChild(document.createTextNode(x.desc));
     p.hidden = true;
     li.appendChild(p);
   }
@@ -782,7 +804,7 @@ function render() {
     } else {
       const riga = checkRow(t.id, t.t, 'row-t', !!c[t.id]);
       /* solo sui workout: dice quanto dura lo slot, piccolo e grigio in fondo */
-      if (t.slot != null) riga.appendChild(el('span', 'dur', DUR_WORKOUT[t.slot]));
+      if (t.slot != null) riga.appendChild(el('span', 'dur', t.dur || DUR_WORKOUT[t.slot]));
       li.appendChild(riga);
     }
 
@@ -1265,11 +1287,10 @@ if (!Array.isArray(tstore.tasks)) tstore = { tasks: [], sha: null, dirty: false,
 if (!Array.isArray(tstore.known)) tstore.known = [];
 /* Il piano dei workout: due caselle per giorno della settimana, scritte a mano.
    Non ha date: e' un'abitudine, e torna ogni settimana finche' non si cambia. */
+/* Piano, dieta e limiti: la forma buona la danno le tre funzioni piu' sotto,
+   chiamate appena esistono. Fino ad allora bastano tre contenitori vuoti. */
 if (!tstore.workout || typeof tstore.workout !== 'object') tstore.workout = {};
-/* La dieta: una casella per pasto, uguale tutti i giorni. */
 if (!tstore.dieta || typeof tstore.dieta !== 'object') tstore.dieta = {};
-/* I limiti: regole che non stanno dentro un pasto — un orario oltre il quale
-   una cosa non si prende, o una quantita' massima. */
 if (!Array.isArray(tstore.limiti)) tstore.limiti = [];
 
 let archivio = readStore(ARCHIVIO_KEY);
@@ -1355,36 +1376,25 @@ function validWorkout(w) {
   return out;
 }
 
-/* I tre tipi di limite. 'cosa' dice se serve il soggetto, 'ora' se il valore e'
-   un orario invece di un testo libero, 'lab' come si chiama il campo. */
-const TIPI_LIMITE = [
-  { k: 'until', nome: 'Only until a time', cosa: true,  ora: true,  lab: 'Until' },
-  { k: 'max',   nome: 'Max amount',        cosa: true,  ora: false, lab: 'How much' },
-  { k: 'stop',  nome: 'Nothing after',     cosa: false, ora: true,  lab: 'After' }
-];
-const tipoLimite = k => TIPI_LIMITE.find(t => t.k === k) || TIPI_LIMITE[0];
+/* Un limite e' due testi liberi: a sinistra la cosa, a destra il limite.
+   Nessun tipo da scegliere: si scrive come si vuole, e la forma resta la stessa
+   perche' a disporli e' la tabella, non il testo. */
 
-/* Come si legge un limite: due pezzi, il soggetto e il valore. */
-function testoLimite(x) {
-  const t = tipoLimite(x.tipo);
-  return { cosa: t.k === 'stop' ? 'Nothing after' : x.cosa,
-           val:  t.k === 'until' ? 'until ' + x.valore
-               : t.k === 'max'   ? 'max ' + x.valore
-               :                   x.valore };
-}
-
-/* I limiti che arrivano dal file: tipo noto, testi corti, niente vuoti. */
+/* I limiti che arrivano dal file. I file scritti prima avevano un 'tipo' e il
+   valore senza la parolina davanti: si convertono, cosi' non si perde niente. */
 function validLimiti(l) {
   if (!Array.isArray(l)) return [];
+  const vecchio = { until: 'until ', max: 'max ' };
   return l.map(x => {
     if (!x || typeof x !== 'object') return null;
-    const t = TIPI_LIMITE.find(v => v.k === x.tipo);
-    if (!t) return null;
-    const cosa = String(x.cosa == null ? '' : x.cosa).slice(0, 40).trim();
-    const valore = String(x.valore == null ? '' : x.valore).slice(0, 30).trim();
-    if (!valore || (t.cosa && !cosa)) return null;
-    return { id: typeof x.id === 'string' && x.id ? x.id : newId(),
-             tipo: t.k, cosa: t.cosa ? cosa : '', valore: valore };
+    let cosa = String(x.cosa == null ? '' : x.cosa).slice(0, 40).trim();
+    let valore = String(x.valore == null ? '' : x.valore).slice(0, 40).trim();
+    if (x.tipo) {
+      if (x.tipo === 'stop' && !cosa) cosa = 'Nothing after';
+      else if (vecchio[x.tipo]) valore = vecchio[x.tipo] + valore;
+    }
+    if (!cosa && !valore) return null;
+    return { id: typeof x.id === 'string' && x.id ? x.id : newId(), cosa: cosa, valore: valore };
   }).filter(Boolean);
 }
 
@@ -1402,6 +1412,14 @@ function validDieta(w) {
 /* I pasti della giornata, nell'ordine in cui capitano. Uguali tutti i giorni:
    si prendono dalla routine standard, che li ha tutti. */
 const PASTI = ROUTINE_GIORNO.concat(SERA_STD).filter(t => t.pasto);
+
+/* Anche quello che sta gia' nel telefono passa dal controllo, non solo quello
+   che arriva dal file: cosi' un piano scritto da una versione precedente si
+   converte all'apertura invece di restare a meta'. Sta qui e non piu' in alto
+   perche' le tre funzioni hanno bisogno di PASTI e di newId. */
+tstore.workout = validWorkout(tstore.workout);
+tstore.dieta   = validDieta(tstore.dieta);
+tstore.limiti  = validLimiti(tstore.limiti);
 
 /* Cosa si fa in quel workout, quel giorno: la casella del piano, se c'e'. */
 function workoutDi(k, slot) {
@@ -1529,7 +1547,7 @@ function whenText(x) {
 }
 
 /* Una riga del menu' (o dell'elenco da cui pescare, senza i tre puntini). */
-function trowNode(x, pick, conCliente) {
+function trowNode(x, pick) {
   /* il colore del bordino: verde se e' una task messa su un giorno, blu se e'
      un evento del calendario, rosso se quell'evento cade in finestra protetta —
      gli stessi colori che ha nella giornata */
@@ -1538,16 +1556,7 @@ function trowNode(x, pick, conCliente) {
                                          : x.giorno ? ' sched' : ''));
   li.dataset.task = x.id;
 
-  /* Nei blocchi RANK le task di tutti stanno mescolate: senza il nome del
-     cliente non si sa di chi sono. Ci sta su due piani, il cliente sopra in
-     piccolo, perche' in fila con rank, titolo e data non si leggeva piu' niente. */
-  const cli = conCliente ? clienteCorto(x.cliente) : '';
-  const riga = cli ? el('div', 'trowmain') : li;
-  if (cli) {
-    li.classList.add('duecli');
-    li.appendChild(el('span', 'tclisu', cli));
-    li.appendChild(riga);
-  }
+  const riga = li;
 
   if (!pick) {
     /* la casella per spuntarla senza aprirla: sta fuori dall'area che apre
@@ -1674,9 +1683,24 @@ function paintDrawer() {
     const l = tutto.filter(x => x.rank === r && !gia.has(x.id)).sort(byMenu);
     if (!l.length) continue;
     box.appendChild(el('p', 'grp', 'RANK ' + r));
-    const ul = el('ul', 'trows');
-    for (const x of l) ul.appendChild(trowNode(x, false, true));
-    box.appendChild(ul);
+    /* dentro il rank, le task dello stesso cliente stanno insieme e il nome si
+       scrive una volta sola sopra il gruppo, invece che su ogni riga. L'ordine
+       dei gruppi e' quello della prima task di ognuno, cioe' sempre per data. */
+    const ordine = [], per = new Map();
+    for (const x of l) {
+      const c = x.cliente || '';
+      if (!per.has(c)) { per.set(c, []); ordine.push(c); }
+      per.get(c).push(x);
+    }
+    /* quelle senza cliente per prime: non hanno un nome sopra, e sotto il nome
+       di un cliente ci deve stare solo roba sua */
+    ordine.sort((a, b) => (a ? 1 : 0) - (b ? 1 : 0));
+    for (const c of ordine) {
+      if (c) box.appendChild(el('p', 'grpsub', clienteCorto(c)));
+      const ul = el('ul', 'trows');
+      for (const x of per.get(c)) ul.appendChild(trowNode(x, false));
+      box.appendChild(ul);
+    }
   }
 
   if (!tutto.length) box.appendChild(el('p', 'vuoto', tutte ? 'No tasks' : 'Pool empty'));
@@ -1734,6 +1758,27 @@ function paintDrawer() {
 /* ------------------------------------------------ piano dei workout ---- */
 
 const GIORNI = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const GIORNI3 = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+/* Una riga di tabella: le celle in ordine, ognuna con le sue classi. */
+function tabRiga(celle, cls) {
+  const r = el('div', 'tabr' + (cls ? ' ' + cls : ''));
+  for (const c of celle) {
+    const d = el('div', 'tabc' + (c.cls ? ' ' + c.cls : ''), c.t);
+    if (c.k) d.dataset.cella = c.k;
+    r.appendChild(d);
+  }
+  return r;
+}
+
+/* Scrivendo in una casella si aggiorna solo la sua cella nella tabella: rifare
+   la tabella intera cancellerebbe quello che si sta scrivendo accanto. */
+function aggiornaCella(k, v) {
+  const c = $('wlist').querySelector('.tabc[data-cella="' + k + '"]');
+  if (!c) return;
+  c.textContent = v || '—';
+  c.classList.toggle('vuota', !v);
+}
 
 /* Il pannello ha due sezioni: il piano dei workout e la dieta. */
 let wTab = 'w';
@@ -1773,6 +1818,20 @@ function paintW() {
   const box = $('wlist');
   box.textContent = '';
   const t0 = today();
+  const oggi = t0.getDay();
+
+  /* prima la tabella, per leggere la settimana in un colpo */
+  const tab = el('div', 'tab tab-w');
+  tab.appendChild(tabRiga([{ t: '' }, { t: '1st' }, { t: '2nd' }], 'capo'));
+  for (const g of [1, 2, 3, 4, 5, 6, 0]) {
+    const r = tstore.workout[g] || [];
+    tab.appendChild(tabRiga([
+      { t: GIORNI3[g], cls: 'eti' },
+      { t: r[0] || '—', cls: r[0] ? '' : 'vuota', k: 'w' + g + '-0' },
+      { t: r[1] || '—', cls: r[1] ? '' : 'vuota', k: 'w' + g + '-1' }
+    ], g === oggi ? 'oggi' : ''));
+  }
+  box.appendChild(tab);
   /* Il piano e' generico, non parte da oggi: da lunedi' a domenica, sempre
      uguale. Per gli orari serve pero' una data vera con quel giorno della
      settimana, e la si pesca nei sette giorni davanti. */
@@ -1786,7 +1845,7 @@ function paintW() {
       const t = r.find(v => v.slot === slot);
       const ora = t ? t.t.split('|')[0].trim() : '';
       const capo = el('p', 'wcapo', (slot === 0 ? '1st workout' : '2nd workout'));
-      capo.appendChild(el('span', 'dora', '  ' + ora + ' \u00b7 ' + DUR_WORKOUT[slot]));
+      capo.appendChild(el('span', 'dora', '  ' + ora + ' \u00b7 ' + (t && t.dur || DUR_WORKOUT[slot])));
       box.appendChild(capo);
       const row = el('div', 'wrow');
       const inp = el('input', 'wcampo');
@@ -1810,6 +1869,21 @@ function paintD() {
   box.textContent = '';
   const k = dayKey(today());
   const r = routineFor(k);
+
+  /* prima la tabella: pasto, ora, cosa */
+  const tab = el('div', 'tab tab-d');
+  tab.appendChild(tabRiga([{ t: 'Meal' }, { t: 'Time' }, { t: 'What' }], 'capo'));
+  for (const t of PASTI) {
+    const i = r.findIndex(v => v.id === t.id);
+    const ora = (i >= 0 ? r[i] : t).t.split('|')[0].trim();
+    const v = tstore.dieta[t.id] || '';
+    tab.appendChild(tabRiga([
+      { t: t.pasto, cls: 'eti' },
+      { t: ora, cls: 'ora' },
+      { t: v || '—', cls: v ? '' : 'vuota', k: 'd' + t.id }
+    ]));
+  }
+  box.appendChild(tab);
   for (const t of PASTI) {
     const i = r.findIndex(v => v.id === t.id);
     const tappa = i >= 0 ? r[i] : t;
@@ -1832,11 +1906,10 @@ function paintD() {
   /* i limiti: regole che non stanno dentro un pasto */
   box.appendChild(el('p', 'dgiorno', 'Limits'));
   for (const x of tstore.limiti) {
-    const t = testoLimite(x);
     const row = el('div', 'lrow');
     row.dataset.limite = x.id;
-    row.appendChild(el('span', 'lcosa', t.cosa));
-    row.appendChild(el('span', 'lval', t.val));
+    row.appendChild(el('span', 'lcosa', x.cosa));
+    row.appendChild(el('span', 'lval', x.valore));
     box.appendChild(row);
   }
   const piu = el('button', 'lpiu', '+  Add a limit');
@@ -1855,6 +1928,7 @@ $('wlist').addEventListener('change', ev => {
     if ((tstore.dieta[i.dataset.pasto] || '') === v) return;
     if (v) tstore.dieta[i.dataset.pasto] = v; else delete tstore.dieta[i.dataset.pasto];
     touch();
+    aggiornaCella('d' + i.dataset.pasto, v);
     render();
     return;
   }
@@ -1865,6 +1939,7 @@ $('wlist').addEventListener('change', ev => {
   r[slot] = v;
   if (r[0] || r[1]) tstore.workout[g] = r; else delete tstore.workout[g];
   touch();
+  aggiornaCella('w' + g + '-' + slot, v);
   /* si ridisegna solo la giornata: rifare la tabella qui cancellerebbe quello
      che si sta scrivendo nella casella accanto */
   render();
@@ -1896,55 +1971,29 @@ let lim = null;                   /* il limite che si sta scrivendo, o null */
    conseguenza, cosi' non si chiede un orario a chi vuole dire "tre cucchiai". */
 function apriLimite(id) {
   const x = id ? tstore.limiti.find(v => v.id === id) : null;
-  lim = x ? { id: x.id, tipo: x.tipo, cosa: x.cosa, valore: x.valore }
-          : { id: null, tipo: 'until', cosa: '', valore: '' };
+  lim = x ? { id: x.id } : { id: null };
   $('limiteTit').textContent = x ? 'Limit' : 'New limit';
+  $('lCosa').value = x ? x.cosa : '';
+  $('lVal').value = x ? x.valore : '';
   $('lElimina').hidden = !x;
   $('lElimina').textContent = 'Delete';
-  paintLimite();
   dlgLim.showModal();
   dlgLim.focus();                 /* niente tastiera addosso appena si apre */
 }
 
-function paintLimite() {
-  const t = tipoLimite(lim.tipo);
-  $('lTipo').textContent = t.nome;
-  $('lCosaBox').hidden = !t.cosa;
-  $('lCosa').disabled = !t.cosa;
-  $('lCosa').value = lim.cosa || '';
-  $('lValLab').textContent = t.lab;
-  const v = $('lVal');
-  v.type = t.ora ? 'time' : 'text';
-  v.placeholder = t.ora ? '' : 'e.g. 3 spoons';
-  v.value = lim.valore || '';
-}
-
-$('lTipo').addEventListener('click', () => {
-  if (!lim) return;
-  apriPicker('Kind', TIPI_LIMITE.map(t => ({ k: t.k, lab: t.nome })), lim.tipo, v => {
-    if (!v || v === lim.tipo) return;
-    lim.tipo = v;
-    /* cambiando tipo il valore vecchio non ha piu' senso: un orario non e' una
-       quantita' e viceversa */
-    lim.valore = '';
-    paintLimite();
-  });
-});
-
 $('limiteForm').addEventListener('submit', ev => {
   if (!lim) return;
-  const t = tipoLimite(lim.tipo);
-  const cosa = t.cosa ? $('lCosa').value.trim() : '';
-  const valore = $('lVal').value.trim();
-  if (!valore || (t.cosa && !cosa)) {
-    /* manca qualcosa: la finestra resta aperta e niente si perde */
+  const cosa = $('lCosa').value.slice(0, 40).trim();
+  const valore = $('lVal').value.slice(0, 40).trim();
+  if (!cosa && !valore) {
+    /* vuoto da tutte e due le parti: la finestra resta aperta */
     ev.preventDefault();
-    (t.cosa && !cosa ? $('lCosa') : $('lVal')).focus();
+    $('lCosa').focus();
     return;
   }
   const x = lim.id ? tstore.limiti.find(v => v.id === lim.id) : null;
-  if (x) { x.tipo = lim.tipo; x.cosa = cosa; x.valore = valore; }
-  else tstore.limiti.push({ id: newId(), tipo: lim.tipo, cosa: cosa, valore: valore });
+  if (x) { x.cosa = cosa; x.valore = valore; }
+  else tstore.limiti.push({ id: newId(), cosa: cosa, valore: valore });
   lim = null;
   touch();
   paintW();

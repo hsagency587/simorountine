@@ -451,6 +451,45 @@ body.menu-open{overflow:hidden}
 .wcampo:focus{outline:none;border-color:var(--accent)}
 .wcampo::placeholder{color:var(--line)}
 
+/* aperta la descrizione, sopra c'e' il titolo intero: nella riga sta stretto */
+.desctit{display:block;margin-bottom:2px;color:var(--text);font-weight:600}
+
+/* il cliente sopra il suo gruppo di task, dentro un blocco RANK */
+.grpsub{
+  margin:0;padding:var(--s2) var(--s3) 2px var(--s4);
+  font-size:11px;color:var(--muted);
+}
+
+/* ---------- le tabelle di lettura ---------- */
+
+/* Sopra le caselle, quello che c'e' scritto tutto insieme: si legge in un
+   colpo, senza scorrere sette giorni di caselle. */
+.tab{
+  margin:0 var(--s3) var(--s3);
+  border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;font-size:12px;
+}
+.tabr{display:grid;align-items:stretch;border-top:1px solid var(--line)}
+.tabr:first-child{border-top:0}
+.tab-w .tabr{grid-template-columns:38px 1fr 1fr}
+.tab-d .tabr{grid-template-columns:1fr 46px 1.2fr}
+.tabc{
+  min-width:0;padding:6px var(--s2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:var(--text-2);
+}
+.tabc + .tabc{border-left:1px solid var(--line)}
+/* la testata e la colonna di sinistra: piccole, maiuscole, grigie */
+.tabr.capo{background:var(--surface-2)}
+.tabr.capo .tabc,
+.tabc.eti{
+  font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);
+}
+.tabc.ora{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+.tabr.oggi .tabc.eti{color:var(--accent)}
+.tabc.vuota{color:var(--line)}
+
 /* i limiti della dieta: una riga per limite, e in fondo il bottone per
    aggiungerne uno. Si leggono, si toccano per cambiarli. */
 .lrow{
@@ -498,16 +537,6 @@ body.menu-open{overflow:hidden}
   cursor:pointer;
 }
 .trow:active{background:var(--surface-2)}
-/* riga su due piani: il cliente sopra in piccolo, sotto la riga di sempre */
-.trow.duecli{
-  flex-direction:column;align-items:stretch;gap:0;
-  padding:var(--s1) var(--s1) var(--s1) var(--s4);
-}
-.tclisu{
-  font-size:11px;color:var(--muted);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-.trowmain{display:flex;align-items:center;gap:var(--s3);min-height:34px}
 .tcheck{flex:none;width:20px;height:20px;margin:0;accent-color:var(--accent)}
 /* Nella riga di una task il titolo comanda: il cliente si stringe per primo e
    non passa mai il 40% della riga. */

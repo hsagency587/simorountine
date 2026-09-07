@@ -128,16 +128,13 @@
   <form method="dialog" class="chiusura-box" id="limiteForm">
     <h2 class="chiusura-tit" id="limiteTit">New limit</h2>
 
-    <p class="commento-lab">Kind</p>
-    <button type="button" class="campo tendina" id="lTipo"></button>
+    <label class="commento-lab" for="lCosa">What</label>
+    <input class="campo" id="lCosa" type="text" maxlength="40" autocomplete="off"
+           placeholder="e.g. Coffee">
 
-    <div id="lCosaBox">
-      <label class="commento-lab" for="lCosa">What</label>
-      <input class="campo" id="lCosa" type="text" maxlength="40" autocomplete="off">
-    </div>
-
-    <label class="commento-lab" for="lVal" id="lValLab">Until</label>
-    <input class="campo" id="lVal" type="time" maxlength="30" autocomplete="off">
+    <label class="commento-lab" for="lVal">Limit</label>
+    <input class="campo" id="lVal" type="text" maxlength="40" autocomplete="off"
+           placeholder="e.g. until 06:00, max 3 spoons">
 
     <div class="chiusura-btn">
       <button type="button" class="btn btn-del" id="lElimina">Delete</button>
