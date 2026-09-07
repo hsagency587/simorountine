@@ -1,14 +1,3 @@
 {
-  "tasks": [
-    {
-      "id": "tmtrctpktx03p",
-      "creata": "2026-09-07T14:47:06.173Z",
-      "nome": "A",
-      "desc": "A",
-      "rank": "B",
-      "cliente": null,
-      "giorno": null,
-      "gws": null
-    }
-  ]
+  "tasks": []
 }
