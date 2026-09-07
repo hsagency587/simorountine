@@ -1,0 +1,300 @@
+name: Aggiorna calendario
+
+on:
+  # La sveglia vera: un cron esterno chiama l'API ogni due minuti.
+  repository_dispatch:
+    types: [refresh-calendar]
+  # Rete di sicurezza se la sveglia esterna smette di funzionare. Il cron di
+  # GitHub salta molte esecuzioni, quindi non ci si conta sopra.
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+# Il calendario vive sul branch "dati" e non passa piu` da Pages: aggiornarlo
+# e` un commit, non una pubblicazione del sito. Ripubblicare tutto ogni due
+# minuti aveva finito per bloccare Pages, che smetteva di applicare i deploy
+# continuando a dichiararli riusciti. Un commit non ha quel tetto.
+permissions:
+  contents: write
+
+concurrency:
+  group: dati
+  cancel-in-progress: false
+
+jobs:
+  dati:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Installa la libreria iCal
+        run: |
+          mkdir -p "$RUNNER_TEMP/deps"
+          npm install --prefix "$RUNNER_TEMP/deps" --no-audit --no-fund --loglevel=error "ical.js@^2.0.0"
+
+      - name: Genera calendar.json
+        env:
+          GCAL_ICAL_URL: ${{ secrets.GCAL_ICAL_URL }}
+          CALENDAR_OUT: ${{ runner.temp }}/calendar.json
+        run: |
+          cat > "$RUNNER_TEMP/deps/build-calendar.mjs" <<'SCRIPT'
+          import { writeFileSync } from 'node:fs';
+          import * as ICALmod from 'ical.js';
+
+          const ICAL = ICALmod.default || ICALmod;
+          const TZ = 'Europe/Rome';
+          const DAY = 86400000;
+
+          const pad = n => String(n).padStart(2, '0');
+
+          const romeFmt = new Intl.DateTimeFormat('en-CA', {
+            timeZone: TZ, hour12: false,
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+          });
+
+          function romeParts(date) {
+            const o = {};
+            for (const p of romeFmt.formatToParts(date)) {
+              if (p.type !== 'literal') o[p.type] = Number(p.value);
+            }
+            if (o.hour === 24) o.hour = 0;
+            return o;
+          }
+
+          function romeOffsetMin(date) {
+            const p = romeParts(date);
+            const asUTC = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+            return Math.round((asUTC - (date.getTime() - date.getMilliseconds())) / 60000);
+          }
+
+          /* L'istante UTC corrispondente a un orario da parete di Roma. */
+          function romeWall(y, mo, d, h, mi, s) {
+            const guess = Date.UTC(y, mo - 1, d, h || 0, mi || 0, s || 0);
+            let off = romeOffsetMin(new Date(guess));
+            off = romeOffsetMin(new Date(guess - off * 60000));
+            return new Date(guess - off * 60000);
+          }
+
+          function romeDayKey(date) {
+            const p = romeParts(date);
+            return p.year + '-' + pad(p.month) + '-' + pad(p.day);
+          }
+
+          function romeISO(date) {
+            const p = romeParts(date);
+            const off = romeOffsetMin(date);
+            const a = Math.abs(off);
+            return p.year + '-' + pad(p.month) + '-' + pad(p.day)
+              + 'T' + pad(p.hour) + ':' + pad(p.minute) + ':' + pad(p.second)
+              + (off < 0 ? '-' : '+') + pad(Math.floor(a / 60)) + ':' + pad(a % 60);
+          }
+
+          /* Qualunque cosa vada storta qui sotto ferma il job prima del commit:
+             meglio lasciare sul branch dati la versione buona di prima invece di scriverci
+             sopra un calendario mezzo scritto. */
+          function muori(motivo) {
+            console.error(motivo + ' Non pubblico niente.');
+            process.exit(1);
+          }
+
+          const target = process.env.CALENDAR_OUT;
+          if (!target) muori('CALENDAR_OUT non e` impostato.');
+
+          /* --- la finestra: ieri, oggi, domani, dopodomani in ora di Roma --- */
+
+          const nowParts = romeParts(new Date());
+          const civil = Date.UTC(nowParts.year, nowParts.month - 1, nowParts.day);
+
+          const days = [-1, 0, 1, 2].map(n => {
+            const d = new Date(civil + n * DAY);
+            return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate() };
+          });
+          const keys = days.map(x => x.y + '-' + pad(x.m) + '-' + pad(x.d));
+
+          const first = days[0];
+          const afterLast = new Date(civil + 3 * DAY + DAY);
+          const winStart = romeWall(first.y, first.m, first.d, 0, 0, 0).getTime();
+          const winEnd = romeWall(
+            afterLast.getUTCFullYear(), afterLast.getUTCMonth() + 1, afterLast.getUTCDate(), 0, 0, 0
+          ).getTime();
+
+          /* --- scarico --- */
+
+          const url = process.env.GCAL_ICAL_URL;
+          if (!url) muori('Il secret GCAL_ICAL_URL non e` impostato.');
+
+          let res;
+          try {
+            res = await fetch(url, { redirect: 'follow' });
+          } catch (e) {
+            muori('Download dell`iCal fallito: ' + e.message + '.');
+          }
+          if (!res.ok) muori('Download dell`iCal fallito: HTTP ' + res.status + '.');
+
+          const text = await res.text();
+          if (!text || text.indexOf('BEGIN:VCALENDAR') < 0) {
+            muori('La risposta non e` un iCal: manca BEGIN:VCALENDAR.');
+          }
+
+          /* --- parsing --- */
+
+          let root;
+          try {
+            root = new ICAL.Component(ICAL.parse(text));
+          } catch (e) {
+            muori('iCal illeggibile: ' + e.message + '.');
+          }
+          if (!root || root.name !== 'vcalendar') {
+            muori('Il componente radice non e` un VCALENDAR.');
+          }
+
+          for (const vt of root.getAllSubcomponents('vtimezone')) {
+            const tz = new ICAL.Timezone(vt);
+            if (tz.tzid && !ICAL.TimezoneService.has(tz.tzid)) {
+              ICAL.TimezoneService.register(tz.tzid, tz);
+            }
+          }
+
+          const masters = new Map();
+          const overrides = new Map();
+
+          for (const v of root.getAllSubcomponents('vevent')) {
+            const uid = v.getFirstPropertyValue('uid');
+            if (!uid) continue;
+            if (v.hasProperty('recurrence-id')) {
+              if (!overrides.has(uid)) overrides.set(uid, []);
+              overrides.get(uid).push(v);
+            } else if (!masters.has(uid)) {
+              masters.set(uid, v);
+            }
+          }
+
+          /* Un ICAL.Time diventa un istante assoluto. Le date secche e gli orari
+             flottanti si leggono come ora da parete di Roma. */
+          function toInstant(t) {
+            if (t.isDate) return romeWall(t.year, t.month, t.day, 0, 0, 0);
+            if (!t.zone || t.zone === ICAL.Timezone.localTimezone) {
+              return romeWall(t.year, t.month, t.day, t.hour, t.minute, t.second);
+            }
+            return t.toJSDate();
+          }
+
+          const bucket = [];
+
+          function collect(id, ev, start, end) {
+            if (String(ev.component.getFirstPropertyValue('status') || '').toUpperCase() === 'CANCELLED') return;
+            const key = romeDayKey(start);
+            if (keys.indexOf(key) < 0) return;
+            bucket.push({
+              key: key,
+              at: start.getTime(),
+              item: {
+                id: id,
+                title: String(ev.summary || ''),
+                start: romeISO(start),
+                end: romeISO(end),
+                description: String(ev.description || '')
+              }
+            });
+          }
+
+          for (const [uid, comp] of masters) {
+            const event = new ICAL.Event(comp);
+
+            for (const ex of (overrides.get(uid) || [])) {
+              try { event.relateException(ex); } catch (e) { /* eccezione slegata: la ignoro */ }
+            }
+
+            if (!event.isRecurring()) {
+              const s = toInstant(event.startDate);
+              const e = toInstant(event.endDate);
+              if (e.getTime() > winStart && s.getTime() < winEnd) collect(uid, event, s, e);
+              continue;
+            }
+
+            const it = event.iterator();
+            let next, guard = 0;
+            while ((next = it.next()) && guard++ < 20000) {
+              if (toInstant(next).getTime() > winEnd + 2 * DAY) break;
+              let det;
+              try { det = event.getOccurrenceDetails(next); } catch (e) { continue; }
+              const s = toInstant(det.startDate);
+              const e = toInstant(det.endDate);
+              if (e.getTime() <= winStart || s.getTime() >= winEnd) continue;
+              collect(uid + '::' + det.recurrenceId.toString(), det.item, s, e);
+            }
+          }
+
+          /* Le eccezioni di serie di cui manca il master restano eventi singoli. */
+          for (const [uid, list] of overrides) {
+            if (masters.has(uid)) continue;
+            for (const comp of list) {
+              const ev = new ICAL.Event(comp);
+              const s = toInstant(ev.startDate);
+              const e = toInstant(ev.endDate);
+              if (e.getTime() > winStart && s.getTime() < winEnd) {
+                collect(uid + '::' + comp.getFirstPropertyValue('recurrence-id').toString(), ev, s, e);
+              }
+            }
+          }
+
+          /* --- scrittura --- */
+
+          bucket.sort((a, b) => a.at - b.at || (a.item.id < b.item.id ? -1 : a.item.id > b.item.id ? 1 : 0));
+
+          const out = {};
+          for (const k of keys) out[k] = [];
+          for (const b of bucket) out[b.key].push(b.item);
+
+          /* Qui si genera e basta, a ogni giro. E il passo dopo che decide se questa
+             versione va committata, confrontando gli eventi con quelli gia pubblicati. */
+          writeFileSync(target, JSON.stringify({ generatedAt: romeISO(new Date()), days: out }, null, 2) + '\n');
+          console.log('calendar.json generato: ' + bucket.length + ' occorrenze su ' + keys.join(', ') + '.');
+          SCRIPT
+          node "$RUNNER_TEMP/deps/build-calendar.mjs"
+
+
+      - name: Committa solo se gli eventi sono cambiati
+        env:
+          BRANCH: dati
+          NUOVO: ${{ runner.temp }}/calendar.json
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          rm -rf spinta && mkdir spinta && cd spinta
+
+          git init -q
+          git remote add origin \
+            "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+
+          # La copia pubblicata si legge da git e non da raw: raw ha cinque
+          # minuti di cache e ci farebbe riscrivere due volte la stessa cosa.
+          if git fetch -q --depth=1 origin "$BRANCH" 2>/dev/null; then
+            git show FETCH_HEAD:calendar.json > vecchio.json 2>/dev/null || true
+          fi
+
+          # Il confronto ignora generatedAt: cambia per definizione a ogni giro
+          # e non e` un evento del calendario. Cosi' si committa solo quando su
+          # Google e` cambiato qualcosa davvero, o quando scatta la mezzanotte
+          # e la finestra dei quattro giorni scorre.
+          if [ -s vecchio.json ] \
+             && jq -S 'del(.generatedAt)' vecchio.json > prima.json 2>/dev/null \
+             && jq -S 'del(.generatedAt)' "$NUOVO" > dopo.json \
+             && cmp -s prima.json dopo.json; then
+            echo "Eventi invariati: non committo."
+            exit 0
+          fi
+
+          cp "$NUOVO" calendar.json
+          git add calendar.json
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -q -m "calendario $(jq -r '.generatedAt' calendar.json)"
+
+          # Il branch e` orfano e si riscrive per intero a ogni cambio: resta a
+          # un commit solo, e il repository non cresce di commit al giorno.
+          git push -q --force origin "HEAD:$BRANCH"
+          echo "Eventi cambiati: branch $BRANCH riscritto."
