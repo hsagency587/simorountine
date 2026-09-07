@@ -176,8 +176,6 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 .tappa.done{opacity:.62}
 /* tappa chiusa: le figlie sono congelate come stanno, non si toccano piu' */
 .tappa.closed input[type=checkbox]:disabled{opacity:.35}
-.tappa.closed .row:not(.row-t){cursor:default}
-.tappa.closed .row:not(.row-t):active{background:none}
 
 .row{
   display:flex;align-items:center;gap:var(--s3);

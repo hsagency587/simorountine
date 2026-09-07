@@ -568,7 +568,6 @@ function render() {
   if (renderedDay && t !== renderedDay && viewKey === renderedDay) {
     view = today();
     viewKey = t;
-    riaperta = null;
   }
   renderedDay = t;
   tidyTasks();                    /* mezzanotte: chi torna nel serbatoio, chi va in archivio */
@@ -669,44 +668,17 @@ function paintSiren(c) {
   $('top').classList.toggle('has-siren', any);
 }
 
-/* La tappa che l'utente ha appena riaperto a mano: non si richiude nello
-   stesso tocco, altrimenti una figlia spuntata per sbaglio non si potrebbe
-   piu' correggere. Al tocco successivo su qualunque casella torna tutto
-   normale. */
-let riaperta = null;
-
-/* Spuntate tutte le figlie, la tappa che le conteneva si chiude da sola. */
-function autoClose() {
-  if (!isEditable(viewKey)) return;
-  /* con il calendario non ancora arrivato le sessioni hanno solo le task:
-     chiuderle adesso congelerebbe gli eventi in arrivo come gia' fatti */
-  const senzaCal = !isCovered(viewKey);
-  const c = dayChecks(viewKey);
-  for (const r of rows) {
-    if (r.t.gws != null && senzaCal) continue;
-    if (r.t.id === riaperta) continue;
-    const ch = childState(r.t, c, r.evs);
-    if (!ch.total || ch.done !== ch.total || c[r.t.id]) continue;
-    setCheck(viewKey, r.t.id, true);
-    const box = r.el.querySelector('input[data-key="' + r.t.id + '"]');
-    if (box) {
-      box.checked = true;
-      box.closest('.row').classList.add('on');
-    }
-  }
-}
-
-/* Tappa chiusa: le figlie restano allo stato in cui sono — gli incompleti
-   incompleti, i completi completi — e non si toccano piu'. */
+/* Tappa spuntata: resta segnata come chiusa (il + della sessione sparisce),
+   ma le figlie restano spuntabili. Si blocca solo fuori dalla finestra dei
+   quattro giorni, dove tutto e' in sola lettura. */
 function lockRow(r, closed, ro) {
   r.el.classList.toggle('closed', closed);
   r.el.querySelectorAll('input[data-key]').forEach(i => {
-    if (i.dataset.key !== r.t.id && !i.dataset.mancata) i.disabled = closed || ro;
+    if (i.dataset.key !== r.t.id && !i.dataset.mancata) i.disabled = ro;
   });
 }
 
 function syncDerived() {
-  autoClose();
   const c = dayChecks(viewKey);
   const ro = !isEditable(viewKey);
   let total = 0, done = 0, active = null;
@@ -897,9 +869,6 @@ $('list').addEventListener('change', ev => {
 
   i.closest('.row').classList.toggle('on', i.checked);
 
-  /* una tappa riaperta a mano non si richiude nello stesso tocco */
-  riaperta = (!i.checked && ALL_TAPPE.some(t => t.id === key)) ? key : null;
-
   syncDerived();
 });
 
@@ -921,7 +890,6 @@ $('list').addEventListener('click', ev => {
 function goTo(d) {
   view = d;
   viewKey = dayKey(view);
-  riaperta = null;
   render();
 }
 
@@ -997,7 +965,6 @@ function confermaChiusura() {
   setCheck(k, CLOSE_ID, true);
   setDiario(k, +$('voto').value, $('commento').value);
   paintClose(true);
-  riaperta = null;
   syncDerived();
 }
 
