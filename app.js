@@ -114,7 +114,7 @@ const ROUTINE_GIORNO = [
   { id: 'sveglia', da: 405, t: '6:45 | WAKE UP + MORNING ROUTINE', sub: [
     { id: 'sveglia-finestra', t: 'OPEN WINDOW + MAKE BED + GET DRESSED' },
     { id: 'sveglia-acqua',    t: 'WATER + FIREBLOOD + TEETH' },
-    { id: 'sveglia-walk',     t: 'WALK 15 MIN + SET TARGET 1ST G WORK SESSION' }
+    { id: 'sveglia-walk',     t: 'WALK 15 MIN + TARGET G WORK SESSION' }
   ]},
   { id: 'gws1', da: 450, t: '7:30 | 1ST G WORK SESSION', gws: 0 },
   { id: 'snack-mattina', da: 600, t: '10:00 | SNACK + REC', sub: [
