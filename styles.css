@@ -195,12 +195,27 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 .row.on .ttl{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
 .row:active{background:rgba(255,255,255,.04)}
 
+/* Le sottotappe sono un livello sotto, e si deve vedere: il loro riquadro
+   rientra da sinistra invece di partire dal bordo come la tappa, ha i suoi
+   angoli tondi, e un filo verticale le tiene insieme. `overflow:hidden` serve
+   perche' l'evidenziazione del tocco segua la curva e non esca dagli angoli,
+   come fa il riquadro della tappa. */
 .sub{
-  list-style:none;margin:0;padding:0;
-  border-top:1px solid var(--line);
+  position:relative;
+  list-style:none;
+  margin:var(--s1) var(--s2) var(--s2) var(--s4);
+  padding:0;
   background:var(--surface-2);
+  border-radius:var(--radius);
+  overflow:hidden;
 }
-.sub .row{min-height:var(--row-sub)}
+.sub::before{
+  content:'';position:absolute;z-index:1;
+  left:9px;top:6px;bottom:6px;width:2px;
+  background:var(--line);border-radius:2px;
+}
+.sub .row{min-height:var(--row-sub);padding-left:10px}
+.sub .row input[type=checkbox]{width:16px;height:16px}
 .sub .ttl{font-size:13px;color:var(--text-2)}
 
 /* FULL | MED — alternative: spuntarne una esclude l'altra, insieme valgono 1 */
