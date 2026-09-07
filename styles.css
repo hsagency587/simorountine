@@ -249,7 +249,6 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 /* ---------- eventi del calendario ---------- */
 
 .ev{border-left:3px solid transparent}
-.ev + .ev{border-top:1px solid var(--line)}
 .ev.alarm{border-left-color:var(--danger);background:rgba(255,69,58,.10)}
 
 .evrow{display:flex;align-items:center}
