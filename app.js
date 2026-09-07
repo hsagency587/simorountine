@@ -1167,11 +1167,14 @@ function salvaAperti() {
 
 /* L'ordine dei gruppi e' quello di CLIENTI, con le task senza cliente in
    fondo. Dentro un gruppo l'ordine resta quello di sempre: prima il rank. */
+/* Tutti i clienti compaiono sempre, anche quelli senza niente dentro: l'elenco
+   e' anche la mappa di chi si sta seguendo. "Senza cliente" invece appare solo
+   quando ha qualcosa, altrimenti sarebbe una riga per nessuno. */
 function gruppiCliente(list) {
   return CLIENTI.map(c => ({ k: c.id, nome: c.nome, tag: c.tag }))
     .concat([{ k: '', nome: 'Senza cliente' }])
     .map(g => ({ g: g, tasks: list.filter(x => (x.cliente || '') === g.k).sort(byRank) }))
-    .filter(o => o.tasks.length);
+    .filter(o => o.g.k !== '' || o.tasks.length);
 }
 
 function paintDrawer() {
@@ -1183,7 +1186,7 @@ function paintDrawer() {
   const gruppi = gruppiCliente(list);
   for (const o of gruppi) n += o.tasks.length;
 
-  if (n) {
+  {
     const r = el('button', 'grp grpcli grproot' + (cliRoot ? ' open' : ''));
     r.type = 'button';
     r.dataset.root = '1';
@@ -1204,12 +1207,16 @@ function paintDrawer() {
     if (o.g.tag) h.appendChild(el('span', 'grptag', o.g.tag));
     box.appendChild(h);
     if (!open) continue;
+    if (!o.tasks.length) {
+      box.appendChild(el('p', 'vuoto vuotocli', tutte ? 'Nessuna task' : 'Niente nel serbatoio'));
+      continue;
+    }
     const ul = el('ul', 'trows');
     for (const x of o.tasks) ul.appendChild(trowNode(x, false));
     box.appendChild(ul);
   }
 
-  if (!n) box.appendChild(el('p', 'vuoto', tutte ? 'Nessuna task' : 'Serbatoio vuoto'));
+  if (!n && !cliRoot) box.appendChild(el('p', 'vuoto', tutte ? 'Nessuna task' : 'Serbatoio vuoto'));
   paintSync();
 }
 

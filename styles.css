@@ -336,6 +336,7 @@ body.menu-open{overflow:hidden}
 .grproot{font-size:11px;letter-spacing:.08em;color:var(--muted)}
 .grproot.open{color:var(--muted)}
 .grpfiglio{padding-left:var(--s5,28px)}
+.vuotocli{padding-left:44px;padding-top:0;font-size:12px}
 .trows{list-style:none;margin:0;padding:0}
 .trow{
   display:flex;align-items:center;gap:var(--s3);
