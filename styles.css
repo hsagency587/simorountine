@@ -177,17 +177,24 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
   border-radius:0;
   margin-bottom:var(--s2);
 }
-/* il riquadro della tappa: tutto tranne il gruppo delle sottotappe */
-.tappa > :not(.sub){
+/* Il riquadro della tappa: tutto tranne i due gruppi che vanno per conto loro,
+   le sottotappe e gli eventi della sessione. */
+.tappa > :not(.sub):not(.evs){
   background:var(--surface);
   border-left:1px solid var(--line);
   border-right:1px solid var(--line);
   overflow:hidden;
 }
 .tappa > :first-child{border-top:1px solid var(--line);border-radius:var(--radius) var(--radius) 0 0}
-.tappa > :last-child:not(.sub){border-bottom:1px solid var(--line);border-radius:0 0 var(--radius) var(--radius)}
+.tappa > :last-child:not(.sub):not(.evs){border-bottom:1px solid var(--line);border-radius:0 0 var(--radius) var(--radius)}
+/* dove finisce il primo riquadro: l'ultima riga prima del gruppo staccato */
 .tappa > :first-child:last-child,
-.tappa > :first-child:has(+ .sub){border:1px solid var(--line);border-radius:var(--radius)}
+.tappa > :first-child:has(+ .sub),
+.tappa > :first-child:has(+ .evs){border:1px solid var(--line);border-radius:var(--radius)}
+.tappa > :not(:first-child):not(.sub):not(.evs):has(+ .sub),
+.tappa > :not(:first-child):not(.sub):not(.evs):has(+ .evs){
+  border-bottom:1px solid var(--line);border-radius:0 0 var(--radius) var(--radius);
+}
 .tappa.active > :first-child{box-shadow:inset 3px 0 0 var(--accent)}
 .tappa.done{opacity:.62}
 /* tappa chiusa: le figlie sono congelate come stanno, non si toccano piu' */
@@ -211,8 +218,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 .row:active{background:rgba(255,255,255,.04)}
 
 /* Il secondo riquadro: staccato dal primo e rientrato da sinistra, con dentro
-   il filo verticale che tiene insieme le sottotappe. */
-.sub{
+   il filo verticale che tiene insieme le righe. Vale per le sottotappe e per
+   gli eventi di una G Work Session: sono la stessa cosa, un livello sotto. */
+.sub,
+.evs{
   position:relative;
   list-style:none;
   margin:3px 0 0 var(--s4);
@@ -222,7 +231,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
   border-radius:var(--radius);
   overflow:hidden;
 }
-.sub::before{
+.sub::before,
+.evs::before{
   content:'';position:absolute;z-index:1;
   left:9px;top:6px;bottom:6px;width:2px;
   background:var(--line);border-radius:2px;
@@ -238,17 +248,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 
 /* ---------- eventi del calendario ---------- */
 
-.evs{
-  list-style:none;margin:0;padding:0;
-  border-top:1px solid var(--line);
-  background:var(--surface-2);
-}
 .ev{border-left:3px solid transparent}
 .ev + .ev{border-top:1px solid var(--line)}
 .ev.alarm{border-left-color:var(--danger);background:rgba(255,69,58,.10)}
 
 .evrow{display:flex;align-items:center}
-.evrow .row{flex:1;min-width:0;min-height:var(--row-sub);padding-right:var(--s2)}
+.evrow .row{flex:1;min-width:0;min-height:var(--row-sub);padding-right:var(--s2);padding-left:10px}
 .time{
   flex:0 0 auto;font-size:12px;color:var(--muted);
   font-variant-numeric:tabular-nums;letter-spacing:.01em;
