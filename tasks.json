@@ -248,10 +248,31 @@
     ]
   },
   "dieta": {
-    "snack-mattina": "60-100g goat/sheep cheese",
+    "snack-mattina": "100g goat/sheep cheese",
     "pranzo": "4 eggs + 80-100g carbs",
     "snack-pomeriggio": "Fruits",
     "cena": "Loads of meat"
   },
-  "limiti": []
+  "limiti": [
+    {
+      "id": "tmtrsrtulv866",
+      "cosa": "Coffee",
+      "valore": "Until 18:00"
+    },
+    {
+      "id": "tmtrss4kyir1d",
+      "cosa": "Honey",
+      "valore": "Max 3 spoon"
+    },
+    {
+      "id": "tmtrssz14h6mb",
+      "cosa": "Eating window",
+      "valore": "10:00 - 21:00"
+    },
+    {
+      "id": "tmtrsto6nh201",
+      "cosa": "Spezie/Condimenti",
+      "valore": "Pepe - sale - origano - olio"
+    }
+  ]
 }
