@@ -19,6 +19,18 @@
       "cliente": null,
       "giorno": "2026-09-08",
       "gws": 0
+    },
+    {
+      "id": "ev:6so6coj564p6cbb36kojgb9k6sp62b9p68s34b9g6ss62dpj6ks66oplcc@google.com",
+      "creata": "2026-09-07T19:39:59.317Z",
+      "evento": "6so6coj564p6cbb36kojgb9k6sp62b9p68s34b9g6ss62dpj6ks66oplcc@google.com",
+      "nome": "Di nucci - Incontro",
+      "ora": "08:30–12:30",
+      "desc": "",
+      "rank": "A",
+      "cliente": "di-nucci",
+      "giorno": "2026-09-09",
+      "gws": null
     }
   ]
 }
