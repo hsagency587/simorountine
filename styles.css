@@ -505,10 +505,20 @@ button.tendina:active{background-color:var(--line)}
   border:1px solid var(--line);border-radius:var(--radius);
 }
 .pickrow{
-  display:flex;align-items:center;min-height:44px;
-  padding:0 var(--s3);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;gap:var(--s3);min-height:52px;
+  padding:0 var(--s3);font-size:16px;cursor:pointer;
   border-bottom:1px solid var(--line);
 }
 .pickrow:last-child{border-bottom:0}
 .pickrow:active{background:var(--surface-2)}
-.pickrow.sel{color:var(--bg);background:var(--accent);font-weight:600}
+/* il pallino: vuoto, e pieno di verde su quella scelta */
+.pickrow::before{
+  content:'';flex:none;box-sizing:border-box;
+  width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--muted);
+}
+.pickrow.sel{color:var(--accent);font-weight:600}
+.pickrow.sel::before{
+  border-color:var(--accent);
+  background:radial-gradient(circle at center, var(--accent) 0 5px, transparent 5px);
+}
