@@ -124,14 +124,15 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 
 .daybar{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;gap:var(--s2)}
 .nav{
-  height:34px;border-radius:var(--radius);
+  height:30px;border-radius:var(--radius);
   font-size:26px;line-height:1;color:var(--muted);
 }
 .nav:active{background:var(--surface-2);color:var(--text)}
 .date{
   display:flex;align-items:baseline;justify-content:center;gap:6px;
-  height:34px;border-radius:var(--radius);
+  height:30px;border-radius:var(--radius);
   font-size:17px;font-weight:600;
+  line-height:30px;
 }
 .rel{font-size:12px;font-weight:500;color:var(--muted)}
 /* fuori dalla finestra: e` una scelta, non un guasto */
@@ -141,7 +142,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 }
 
 .prog{
-  height:4px;margin-top:2px;
+  height:4px;margin-top:0;
   background:var(--surface-2);border-radius:2px;overflow:hidden;
 }
 .prog-fill{
