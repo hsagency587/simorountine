@@ -332,6 +332,9 @@ body.menu-open{overflow:hidden}
 .grpfrec{width:1em;flex:none;color:var(--muted)}
 .grpnome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .grpn{flex:none;font-size:11px;color:var(--muted)}
+.grproot{font-size:11px;letter-spacing:.08em;color:var(--muted)}
+.grproot.open{color:var(--muted)}
+.grpfiglio{padding-left:var(--s5,28px)}
 .trows{list-style:none;margin:0;padding:0}
 .trow{
   display:flex;align-items:center;gap:var(--s3);
@@ -474,4 +477,18 @@ body.menu-open{overflow:hidden}
   /* la sirena si ferma ma resta leggibile: bagliore rosso fisso */
   .siren-rot{animation:none}
   .dome{filter:drop-shadow(0 0 5px var(--danger))}
+}
+
+/* Le tendine dell'editor: la freccetta e' disegnata a mano, perche' quella
+   di sistema su Android non segue il tema scuro. Deve stare dopo .campo:
+   la scorciatoia `background` di quella regola cancellerebbe l'immagine. */
+select.tendina{
+  -webkit-appearance:none;appearance:none;
+  padding-right:26px;cursor:pointer;
+  background-color:var(--surface-2);
+  background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
+                   linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 16px) calc(50% - 2px),calc(100% - 11px) calc(50% - 2px);
+  background-size:5px 5px,5px 5px;
+  background-repeat:no-repeat;
 }

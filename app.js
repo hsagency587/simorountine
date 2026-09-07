@@ -34,6 +34,7 @@ const CLIENTI = [
 ];
 /* i clienti aperti nel menu': restano aperti fra un'apertura e l'altra */
 const CLIAPERTI_KEY = 'gwork-clientiaperti-v1';
+const CLIROOT_KEY   = 'gwork-clientiroot-v1';
 /* Il calendario sta sul branch "dati" e non dentro il sito: si aggiorna con un
    commit, non ripubblicando Pages. La cache di raw dura cinque minuti, che e'
    la vera freschezza del file. */
@@ -1148,8 +1149,16 @@ let cliAperti = (() => {
   } catch (e) { return new Set(); }
 })();
 
+/* La tendina che contiene tutti i clienti. Chiusa, il menu' e' una riga sola. */
+let cliRoot = (() => {
+  try { return localStorage.getItem(CLIROOT_KEY) === '1'; } catch (e) { return false; }
+})();
+
 function salvaAperti() {
-  try { localStorage.setItem(CLIAPERTI_KEY, JSON.stringify([...cliAperti])); } catch (e) {}
+  try {
+    localStorage.setItem(CLIAPERTI_KEY, JSON.stringify([...cliAperti]));
+    localStorage.setItem(CLIROOT_KEY, cliRoot ? '1' : '0');
+  } catch (e) {}
 }
 
 /* L'ordine dei gruppi e' quello di CLIENTI, con le task senza cliente in
@@ -1167,10 +1176,23 @@ function paintDrawer() {
   const list = tstore.tasks.filter(x => tutte || !x.giorno);
   let n = 0;
 
-  for (const o of gruppiCliente(list)) {
-    n += o.tasks.length;
+  const gruppi = gruppiCliente(list);
+  for (const o of gruppi) n += o.tasks.length;
+
+  if (n) {
+    const r = el('button', 'grp grpcli grproot' + (cliRoot ? ' open' : ''));
+    r.type = 'button';
+    r.dataset.root = '1';
+    r.setAttribute('aria-expanded', cliRoot ? 'true' : 'false');
+    r.appendChild(el('span', 'grpfrec', cliRoot ? '\u25be' : '\u25b8'));
+    r.appendChild(el('span', 'grpnome', 'CLIENTI'));
+    r.appendChild(el('span', 'grpn', String(n)));
+    box.appendChild(r);
+  }
+
+  for (const o of cliRoot ? gruppi : []) {
     const open = cliAperti.has(o.g.k);
-    const h = el('button', 'grp grpcli' + (open ? ' open' : ''));
+    const h = el('button', 'grp grpcli grpfiglio' + (open ? ' open' : ''));
     h.type = 'button';
     h.dataset.cli = o.g.k;
     h.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -1197,6 +1219,13 @@ $('impostazioniBtn').addEventListener('click', openImpostazioni);
 
 /* tutta la riga apre l'editor: i tre puntini sono il segnale, non l'unico posto */
 $('drawerList').addEventListener('click', ev => {
+  const root = ev.target.closest('button.grproot');
+  if (root) {
+    cliRoot = !cliRoot;
+    salvaAperti();
+    paintDrawer();
+    return;
+  }
   const g = ev.target.closest('button.grpcli');
   if (g) {
     const k = g.dataset.cli;
@@ -1227,6 +1256,19 @@ function dayChoices(current) {
   return out;
 }
 
+/* Le tendine: stessa forma di chips(), ma in un <select>. Occupano una riga
+   sola anche quando le voci sono tante. */
+function tendina(box, items, sel) {
+  box.textContent = '';
+  for (const it of items) {
+    const o = document.createElement('option');
+    o.value = it.k;
+    o.textContent = it.lab;
+    if (it.k === sel) o.selected = true;
+    box.appendChild(o);
+  }
+}
+
 function chips(box, items, sel) {
   box.textContent = '';
   for (const it of items) {
@@ -1239,9 +1281,9 @@ function chips(box, items, sel) {
 
 function paintEditor() {
   chips($('tRank'), RANKS.map(r => ({ k: r, lab: r })), ed.rank);
-  chips($('tCliente'), [{ k: '', lab: 'Nessuno' }]
-        .concat(CLIENTI.map(c => ({ k: c.id, lab: c.nome }))), ed.cliente || '');
-  chips($('tGiorno'), dayChoices(ed.giorno), ed.giorno || '');
+  tendina($('tCliente'), [{ k: '', lab: 'Nessuno' }]
+          .concat(CLIENTI.map(c => ({ k: c.id, lab: c.nome }))), ed.cliente || '');
+  tendina($('tGiorno'), dayChoices(ed.giorno), ed.giorno || '');
   const sched = !!ed.giorno;
   $('tGwsLab').hidden = !sched;
   $('tGws').hidden = !sched;
@@ -1272,12 +1314,19 @@ $('editorForm').addEventListener('click', ev => {
   const v = b.dataset.v;
   const box = b.parentNode.id;
   if (box === 'tRank') ed.rank = v;
-  else if (box === 'tCliente') ed.cliente = v || null;
   else if (box === 'tGws') ed.gws = +v;
-  else if (box === 'tGiorno') {
+  paintEditor();
+});
+
+/* Le due tendine: cambiando giorno la sessione compare o sparisce, come prima. */
+$('editorForm').addEventListener('change', ev => {
+  if (!ed) return;
+  const v = ev.target.value;
+  if (ev.target.id === 'tCliente') ed.cliente = v || null;
+  else if (ev.target.id === 'tGiorno') {
     ed.giorno = v || null;
     ed.gws = ed.giorno ? (ed.gws == null ? 0 : ed.gws) : null;
-  }
+  } else return;
   paintEditor();
 });
 
