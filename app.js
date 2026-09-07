@@ -290,6 +290,23 @@ function prepEvent(ev, k) {
 }
 
 /* Le cinque fasce coprono le 24 ore: nessun evento puo' restare fuori. */
+/* L'evento vivo dietro una riga 'ev:...', se il calendario copre ancora quel
+   giorno. Null se il giorno non e' coperto o se l'evento non c'e' piu'. */
+function eventoDi(x) {
+  if (!x.evento || !isCovered(x.giorno)) return null;
+  const raw = cal.days[x.giorno];
+  if (!Array.isArray(raw)) return null;
+  return raw.map(v => prepEvent(v, x.giorno)).find(v => v.id === x.evento) || null;
+}
+
+/* Il titolo salvato e' una copia presa quando si e' dato il cliente. Finche' il
+   calendario copre quel giorno si rilegge da li': un evento rinominato su
+   Google cambia nome anche nel menu'. */
+function titoloEvento(x) {
+  const e = x.evento ? eventoDi(x) : null;
+  return e && e.title ? e.title : x.nome;
+}
+
 function groupEvents(k) {
   const out = routineFor(k).map(() => []);
   if (!isCovered(k)) return out;
@@ -309,11 +326,34 @@ function postoDellaSessione(k) {
   return posto;
 }
 
+/* Il contrario: dalla posizione nell'elenco al numero della sessione. */
+function sessioneDelPosto(k) {
+  const s = {};
+  routineFor(k).forEach((t, i) => { if (t.gws != null) s[i] = t.gws; });
+  return s;
+}
+
+/* Le sessioni di una task, sempre come elenco: nel file puo' esserci un numero
+   solo, com'era prima, o l'elenco di adesso. */
+const gwsDi = v => v == null ? [] : Array.isArray(v) ? v : [v];
+
+/* Una task puo' stare su piu' sessioni, e in ognuna ha la sua spunta: la
+   chiave se la porta dentro. Da qui passa ogni spunta di task, cosi' la
+   giornata e il menu' non possono guardare due caselle diverse. */
+const chiaveTask = (x, g) => x.id + '@' + g;
+
+/* Fatta vuol dire fatta in tutte le sessioni su cui sta. */
+const taskFatta = (x, c) => {
+  const l = gwsDi(x.gws);
+  return l.length > 0 && l.every(g => c[chiaveTask(x, g)]);
+};
+
 function dayTasks(k) {
   const out = routineFor(k).map(() => []);
   const posto = postoDellaSessione(k);
   for (const x of tstore.tasks) {
-    if (x.giorno === k && x.gws != null && posto[x.gws] != null) out[posto[x.gws]].push(x);
+    if (x.giorno !== k) continue;
+    for (const g of gwsDi(x.gws)) if (posto[g] != null) out[posto[g]].push(x);
   }
   for (const l of out) l.sort(byRank);
   return out;
@@ -327,10 +367,10 @@ function childrenOf(k) {
   const m = mancate[k] || [];
   /* le task lasciate indietro restano figlie del giorno, non fatte, con un id
      che nessuno spuntera' mai: cosi' il conteggio di ieri non cambia */
-  const posto = postoDellaSessione(k);
+  const sess = sessioneDelPosto(k);
   return g.map((evs, i) => evs
-    .concat(t[i].map(x => ({ id: x.id, task: x })))
-    .concat(m.filter(x => posto[x.gws] === i)
+    .concat(t[i].map(x => ({ id: chiaveTask(x, sess[i]), task: x })))
+    .concat(m.filter(x => gwsDi(x.gws).indexOf(sess[i]) >= 0)
              .map((x, n) => ({ id: 'mancata:' + k + ':' + i + ':' + n, mancata: x }))));
 }
 
@@ -436,7 +476,7 @@ function storicoMonths() {
    file, se il giorno e' in finestra e la spunta c'e'. */
 function doneTasks(k) {
   const c = dayChecks(k);
-  const vive = tstore.tasks.filter(x => x.giorno === k && c[x.id])
+  const vive = tstore.tasks.filter(x => x.giorno === k && taskFatta(x, c))
                            .map(x => ({ nome: x.nome, rank: x.rank, gws: x.gws }));
   return (archivio[k] || []).concat(vive).sort(byRank);
 }
@@ -535,6 +575,14 @@ function eventNode(e, on) {
   i.dataset.key = e.id;           /* la chiave e' l'id dell'evento, mai il titolo */
   l.appendChild(i);
   l.appendChild(el('span', 'time', e.txt));
+  /* se all'evento e' stato dato un cliente, il nome sta davanti al titolo,
+     come nelle task dentro la sessione */
+  const rec = findTask('ev:' + e.id);
+  const cli = rec ? clienteCorto(rec.cliente) : '';
+  if (cli) {
+    l.appendChild(el('span', 'tcli', cli));
+    l.appendChild(el('span', 'tsep', '|'));
+  }
   l.appendChild(el('span', 'ttl', e.title));
   bar.appendChild(l);
 
@@ -568,7 +616,7 @@ function eventNode(e, on) {
 
 /* Una task dentro la sessione: come un evento, con la lettera del rank al
    posto dell'orario e i tre puntini che aprono l'editor. Tutta la riga spunta. */
-function taskNode(x, on) {
+function taskNode(x, on, key) {
   const li = el('li', 'ev task');
   const bar = el('div', 'evrow');
 
@@ -576,7 +624,7 @@ function taskNode(x, on) {
   const i = el('input');
   i.type = 'checkbox';
   i.checked = on;
-  i.dataset.key = x.id;
+  i.dataset.key = key;
   l.appendChild(i);
   /* niente rank qui: A, B e C dicono quanto una cosa puo' aspettare, e una
      task messa su un giorno non aspetta piu'. Servono nel menu', dove si
@@ -718,7 +766,7 @@ function render() {
         const ul = el('ul', 'evs');
         for (const e of evs) {
           ul.appendChild(e.mancata ? ghostNode(e.mancata, e.id)
-                       : e.task    ? taskNode(e.task, !!c[e.id])
+                       : e.task    ? taskNode(e.task, !!c[e.id], e.id)
                        :             eventNode(e, !!c[e.id]));
         }
         li.appendChild(ul);
@@ -1132,7 +1180,11 @@ function validTask(x) {
      giorno non ha senso, e non c'e'. */
   const evento = typeof x.evento === 'string' && x.evento ? x.evento : null;
   const cliente = CLIENTI.some(c => c.id === x.cliente) ? x.cliente : null;
-  const gws = Number.isInteger(x.gws) && x.gws >= 0 && x.gws <= 4 ? x.gws : null;
+  /* le sessioni: un numero solo nei file di prima, un elenco adesso. Ordinate
+     e senza doppioni, cosi' due file con le stesse sessioni sono lo stesso
+     file e non si committa per niente. */
+  const s = gwsDi(x.gws).filter(n => Number.isInteger(n) && n >= 0 && n <= 4);
+  const gws = s.length ? s.filter((n, i) => s.indexOf(n) === i).sort((a, b) => a - b) : null;
   const giorno = typeof x.giorno === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.giorno)
                  && (gws != null || evento) ? x.giorno : null;
   if (evento && (!giorno || !cliente)) return null;
@@ -1172,14 +1224,19 @@ function tidyTasks() {
   let changed = false;
 
   tstore.tasks = tstore.tasks.filter(x => {
-    /* un evento del calendario vive quanto la finestra dei quattro giorni */
+    /* un evento del calendario vive quanto la finestra dei quattro giorni, e
+       solo finche' esiste su Google: cancellato la', qui non ha piu' niente a
+       cui appartenere. Se il calendario non copre quel giorno non si tocca:
+       assente non vuol dire cancellato. */
     if (x.evento) {
-      if (win.indexOf(x.giorno) >= 0) return true;
-      changed = true;
-      return false;
+      if (win.indexOf(x.giorno) < 0 || (isCovered(x.giorno) && !eventoDi(x))) {
+        changed = true;
+        return false;
+      }
+      return true;
     }
     if (!x.giorno) return true;
-    if (dayChecks(x.giorno)[x.id]) {
+    if (taskFatta(x, dayChecks(x.giorno))) {
       if (win.indexOf(x.giorno) >= 0) return true;
       if (!archivio[x.giorno]) archivio[x.giorno] = [];
       archivio[x.giorno].push({ nome: x.nome, rank: x.rank, gws: x.gws });
@@ -1205,9 +1262,18 @@ function tidyTasks() {
 /* Una sessione gia' chiusa che riceve una task non e' piu' finita: si riapre,
    cosi' la task si puo' spuntare e non nasce gia' contata come fatta. */
 function riapriSessione(x) {
-  if (!x.giorno || x.gws == null) return;
-  const t = routineFor(x.giorno).find(r => r.gws === x.gws);
-  if (t && dayChecks(x.giorno)[t.id]) setCheck(x.giorno, t.id, false);
+  if (!x.giorno) return;
+  for (const g of gwsDi(x.gws)) {
+    const t = routineFor(x.giorno).find(r => r.gws === g);
+    if (t && dayChecks(x.giorno)[t.id]) setCheck(x.giorno, t.id, false);
+  }
+}
+
+/* Le spunte di una task dove sta adesso: si tolgono quando cambia giorno,
+   quando torna nel serbatoio e quando la task viene eliminata. */
+function togliSpunte(x) {
+  if (!x.giorno) return;
+  for (const g of gwsDi(x.gws)) setCheck(x.giorno, chiaveTask(x, g), false);
 }
 
 /* ------------------------------------------------------------- menu' ---- */
@@ -1237,7 +1303,8 @@ function whenText(x) {
             : x.giorno === dayKey(shift(t0, 2))  ? 'in 2 days'
             : x.giorno === dayKey(shift(t0, -1)) ? 'yesterday'
             : fmtDate.format(new Date(x.giorno + 'T00:00:00'));
-  return lab + ' · ' + (x.evento ? x.ora : 'GWS ' + (x.gws + 1));
+  return lab + ' · ' + (x.evento ? x.ora
+                                 : 'GWS ' + gwsDi(x.gws).map(g => g + 1).join(','));
 }
 
 /* Una riga del menu' (o dell'elenco da cui pescare, senza i tre puntini). */
@@ -1250,13 +1317,14 @@ function trowNode(x, pick) {
     const i = el('input', 'tcheck');
     i.type = 'checkbox';
     i.dataset.tcheck = x.id;
-    i.checked = !!(x.giorno && dayChecks(x.giorno)[x.evento || x.id]);
+    i.checked = !!(x.giorno && (x.evento ? dayChecks(x.giorno)[x.evento]
+                                         : taskFatta(x, dayChecks(x.giorno))));
     i.disabled = !!(x.giorno && !isEditable(x.giorno));
     i.setAttribute('aria-label', 'Mark done');
     li.appendChild(i);
   }
   li.appendChild(el('span', 'rank r' + x.rank, x.rank));
-  li.appendChild(el('span', 'tname', x.nome));
+  li.appendChild(el('span', 'tname', titoloEvento(x)));
   if (x.giorno) li.appendChild(el('span', 'twhen', whenText(x)));
   if (!pick) {
     const b = el('button', 'more', '⋯');
@@ -1430,15 +1498,18 @@ function spuntaDalMenu(id, on) {
   if (!x.giorno) {
     if (!on) return;
     x.giorno = dayKey(today());
-    x.gws = 0;
+    x.gws = [0];
     riapriSessione(x);
-    setCheck(x.giorno, x.id, true);
+    setCheck(x.giorno, chiaveTask(x, 0), true);
     touch();
   } else {
     if (!isEditable(x.giorno)) return;
     /* un evento si spunta con la chiave che usa la giornata, non con l'id
-       della riga: cosi' menu' e giornata restano la stessa spunta */
-    setCheck(x.giorno, x.evento || x.id, on);
+       della riga: cosi' menu' e giornata restano la stessa spunta. Nel menu'
+       una task ha una riga sola anche se sta su piu' sessioni: di li' si
+       spunta tutta in una volta. */
+    if (x.evento) setCheck(x.giorno, x.evento, on);
+    else for (const g of gwsDi(x.gws)) setCheck(x.giorno, chiaveTask(x, g), on);
   }
   render();
   paintDrawer();
@@ -1535,10 +1606,13 @@ const vociCliente = () => [{ k: '', lab: 'None' }]
 
 const etichetta = (items, k) => (items.find(o => o.k === k) || items[0]).lab;
 
+/* sel e' la voce scelta, oppure l'elenco delle voci scelte dove se ne puo'
+   segnare piu' d'una. */
 function chips(box, items, sel) {
   box.textContent = '';
   for (const it of items) {
-    const b = el('button', 'chip' + (it.k === sel ? ' sel' : ''), it.lab);
+    const on = Array.isArray(sel) ? sel.indexOf(it.k) >= 0 : it.k === sel;
+    const b = el('button', 'chip' + (on ? ' sel' : ''), it.lab);
     b.type = 'button';
     b.dataset.v = it.k;
     box.appendChild(b);
@@ -1553,21 +1627,23 @@ function paintEditor() {
   const sched = !!ed.giorno;
   $('tGwsLab').hidden = !sched;
   $('tGws').hidden = !sched;
-  if (sched) chips($('tGws'), [0, 1, 2, 3, 4].map(i => ({ k: String(i), lab: String(i + 1) })), String(ed.gws));
+  if (sched) chips($('tGws'), [0, 1, 2, 3, 4].map(i => ({ k: String(i), lab: String(i + 1) })),
+                   ed.gws.map(String));
 }
 
 function openEditor(id, preset) {
   const x = id ? findTask(id) : null;
   if (x && x.evento) {
-    ed = { id: x.id, evento: x.evento, giorno: x.giorno, nome: x.nome, ora: x.ora, cliente: x.cliente };
+    ed = { id: x.id, evento: x.evento, giorno: x.giorno, nome: titoloEvento(x),
+           ora: (eventoDi(x) || x).txt || x.ora, cliente: x.cliente };
     apriEditor(false);
     return;
   }
-  ed = x ? { id: x.id, rank: x.rank, cliente: x.cliente, giorno: x.giorno, gws: x.gws }
+  ed = x ? { id: x.id, rank: x.rank, cliente: x.cliente, giorno: x.giorno, gws: gwsDi(x.gws) }
          : { id: null, rank: 'B', cliente: null,
              giorno: (preset && preset.giorno) || null,
-             gws: preset && preset.gws != null ? preset.gws : null };
-  if (ed.giorno && ed.gws == null) ed.gws = 0;
+             gws: preset && preset.gws != null ? [preset.gws] : [] };
+  if (ed.giorno && !ed.gws.length) ed.gws = [0];
 
   $('tNome').value = x ? x.nome : '';
   $('tDesc').value = x ? x.desc : '';
@@ -1610,7 +1686,12 @@ $('editorForm').addEventListener('click', ev => {
   const v = b.dataset.v;
   const box = b.parentNode.id;
   if (box === 'tRank') ed.rank = v;
-  else if (box === 'tGws') ed.gws = +v;
+  else if (box === 'tGws') {
+    /* si accende e si spegne. L'ultima accesa non si spegne: una task messa
+       su un giorno deve stare almeno in una sessione. */
+    if (ed.gws.indexOf(+v) < 0) ed.gws = ed.gws.concat(+v).sort((a, b) => a - b);
+    else if (ed.gws.length > 1) ed.gws = ed.gws.filter(g => g !== +v);
+  }
   paintEditor();
 });
 
@@ -1628,7 +1709,7 @@ $('tGiorno').addEventListener('click', () => {
   if (!ed) return;
   apriPicker('Day', dayChoices(ed.giorno), ed.giorno || '', v => {
     ed.giorno = v || null;
-    ed.gws = ed.giorno ? (ed.gws == null ? 0 : ed.gws) : null;
+    ed.gws = ed.giorno ? (ed.gws.length ? ed.gws : [0]) : [];
     paintEditor();
   });
 });
@@ -1669,15 +1750,23 @@ $('editorForm').addEventListener('submit', ev => {
      task che stava gia' su quel giorno invece puo' restarci. */
   const t0 = dayKey(today());
   if (ed.giorno && ed.giorno < t0 && ed.giorno !== x.giorno) ed.giorno = t0;
-  const mossa = !ed.id || x.giorno !== ed.giorno || x.gws !== ed.gws;
-  /* cambiando giorno, o tornando nel serbatoio, la vecchia spunta non segue */
-  if (x.giorno && x.giorno !== ed.giorno) setCheck(x.giorno, x.id, false);
+  const mossa = !ed.id || x.giorno !== ed.giorno
+                || gwsDi(x.gws).join() !== ed.gws.join();
+  /* Cambiando giorno, o tornando nel serbatoio, le vecchie spunte non seguono.
+     Restando sullo stesso giorno se ne va solo quella delle sessioni lasciate:
+     se un domani la task ci torna, non deve trovarsi gia' spuntata. */
+  if (x.giorno && x.giorno !== ed.giorno) togliSpunte(x);
+  else if (x.giorno) {
+    for (const g of gwsDi(x.gws)) {
+      if (ed.gws.indexOf(g) < 0) setCheck(x.giorno, chiaveTask(x, g), false);
+    }
+  }
   x.nome = nome;
   x.desc = $('tDesc').value;
   x.rank = ed.rank;
   x.cliente = ed.cliente;
   x.giorno = ed.giorno;
-  x.gws = ed.giorno ? ed.gws : null;
+  x.gws = ed.giorno ? ed.gws.slice() : null;
   /* solo una task nuova o spostata riapre la sessione: un ritocco al nome no */
   if (mossa) riapriSessione(x);
   ed = null;
@@ -1693,7 +1782,7 @@ $('tElimina').addEventListener('click', () => {
   if (b.textContent !== 'Sure?') { b.textContent = 'Sure?'; return; }
   if (ed && ed.id) {
     const old = findTask(ed.id);
-    if (old && old.giorno) setCheck(old.giorno, old.id, false);   /* niente spunte orfane */
+    if (old) togliSpunte(old);                       /* niente spunte orfane */
     tstore.tasks = tstore.tasks.filter(x => x.id !== ed.id);
   }
   ed = null;
@@ -1730,7 +1819,7 @@ $('pescaList').addEventListener('click', ev => {
   if (!x) return;
   /* se nel frattempo il giorno mostrato e' diventato ieri, la task va su oggi */
   x.giorno = canSchedule(viewKey) ? viewKey : dayKey(today());
-  x.gws = pescaGws;
+  x.gws = [pescaGws];
   riapriSessione(x);
   dlgPesca.close();
   touch(); render(); paintDrawer();
