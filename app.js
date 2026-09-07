@@ -139,9 +139,9 @@ const SERA_WC = [
   { id: 'cena', da: 1230, t: '20:30 | DINNER + ROUTINE' },
   { id: 'gws5', da: 1260, t: '21:00 | 5TH G WORK SESSION', gws: 4 },
   { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
-    { id: 'serale-telefono', t: 'PHONE AWAY FROM BED' },
     { id: 'serale-voto',     t: '(MINIMUM) SCORE + ONE LINE ON THE DAY' },
-    { id: 'serale-gambe',    t: 'LEGS UP THE WALL' }
+    { id: 'serale-gambe',    t: 'LEGS UP THE WALL' },
+    { id: 'serale-telefono', t: 'PHONE AWAY FROM BED' }
   ]}
 ];
 
@@ -152,9 +152,9 @@ const SERA_STD = [
   { id: 'cena', da: 1200, t: '20:00 | DINNER' },
   { id: 'gws5', da: 1230, t: '20:30 | 5TH G WORK SESSION', gws: 4 },
   { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
-    { id: 'serale-telefono', t: 'PHONE AWAY FROM BED' },
     { id: 'serale-voto',     t: '(MINIMUM) SCORE + ONE LINE ON THE DAY' },
-    { id: 'serale-gambe',    t: 'LEGS UP THE WALL' }
+    { id: 'serale-gambe',    t: 'LEGS UP THE WALL' },
+    { id: 'serale-telefono', t: 'PHONE AWAY FROM BED' }
   ]}
 ];
 
