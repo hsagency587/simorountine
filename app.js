@@ -114,7 +114,7 @@ const ROUTINE_GIORNO = [
   { id: 'sveglia', da: 405, t: '6:45 | WAKE UP + MORNING ROUTINE', sub: [
     { id: 'sveglia-finestra', t: 'OPEN WINDOW + MAKE BED + GET DRESSED' },
     { id: 'sveglia-acqua',    t: 'WATER + FIREBLOOD + TEETH' },
-    { id: 'sveglia-walk',     t: 'WALK 15 MIN + TARGET G WORK SESSION' }
+    { id: 'sveglia-walk',     t: 'WALK 15 MIN' }
   ]},
   { id: 'gws1', da: 450, t: '7:30 | 1ST G WORK SESSION', gws: 0 },
   { id: 'snack-mattina', da: 600, t: '10:00 | SNACK + REC', sub: [
@@ -139,6 +139,7 @@ const SERA_WC = [
   { id: 'cena', da: 1230, t: '20:30 | DINNER + ROUTINE' },
   { id: 'gws5', da: 1260, t: '21:00 | 5TH G WORK SESSION', gws: 4 },
   { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
+    { id: 'serale-target',   t: "TOMORROW'S G WORK SESSION TARGET" },
     { id: 'serale-voto',     t: '(MINIMUM) SCORE + ONE LINE ON THE DAY' },
     { id: 'serale-gambe',    t: 'LEGS UP THE WALL' },
     { id: 'serale-telefono', t: 'PHONE AWAY FROM BED' }
@@ -152,6 +153,7 @@ const SERA_STD = [
   { id: 'cena', da: 1200, t: '20:00 | DINNER' },
   { id: 'gws5', da: 1230, t: '20:30 | 5TH G WORK SESSION', gws: 4 },
   { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
+    { id: 'serale-target',   t: "TOMORROW'S G WORK SESSION TARGET" },
     { id: 'serale-voto',     t: '(MINIMUM) SCORE + ONE LINE ON THE DAY' },
     { id: 'serale-gambe',    t: 'LEGS UP THE WALL' },
     { id: 'serale-telefono', t: 'PHONE AWAY FROM BED' }
@@ -164,8 +166,10 @@ const routineFor = k => ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD
    giorno. Le due sere condividono gli id: cambia solo il testo. */
 const ALL_TAPPE = ROUTINE_GIORNO.concat(SERA_WC);
 
-/* La tappa che chiude la giornata: spuntarla chiede il voto e il commento. */
-const CLOSE_ID = 'serale';
+/* La riga che chiude la giornata: spuntarla chiede il voto e il commento.
+   Prima stava sulla tappa intera: i giorni chiusi allora vanno letti lo stesso. */
+const CLOSE_ID  = 'serale-voto';
+const CLOSE_OLD = 'serale';
 
 /* ---------------------------------------------------------------- date --- */
 
@@ -228,7 +232,7 @@ const dayChecks = k => (checks[k] && typeof checks[k] === 'object') ? checks[k] 
 /* Un giorno e' chiuso quando la tappa di chiusura e' spuntata e il voto c'e'.
    Togliendo la spunta il giorno si riapre, ma voto e commento restano scritti:
    tornano nel pop-up se la giornata si richiude. */
-const isClosed = k => !!(dayChecks(k)[CLOSE_ID] && diario[k]);
+const isClosed = k => { const c = dayChecks(k); return !!((c[CLOSE_ID] || c[CLOSE_OLD]) && diario[k]); };
 
 function setDiario(k, voto, commento) {
   if (!isEditable(k)) return;
