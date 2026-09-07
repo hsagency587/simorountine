@@ -83,6 +83,18 @@
         2,
         3
       ]
+    },
+    {
+      "id": "ev:6co62e1kclijib9lcgqm2b9k75imcb9p60r3ab9ic4pjgc1n64rmae9m6g@google.com",
+      "creata": "2026-09-07T20:18:43.382Z",
+      "evento": "6co62e1kclijib9lcgqm2b9k75imcb9p60r3ab9ic4pjgc1n64rmae9m6g@google.com",
+      "nome": "Sifu - Evento Volantini",
+      "ora": "09:40–14:45",
+      "desc": "",
+      "rank": "A",
+      "cliente": "longkai",
+      "giorno": "2026-09-13",
+      "gws": null
     }
   ]
 }
