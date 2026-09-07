@@ -173,7 +173,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
   margin-bottom:var(--s2);
   overflow:hidden;
 }
-.tappa.active{box-shadow:inset 3px 0 0 var(--accent)}
+/* La barra verde della tappa attiva sta sulla sua riga, non su tutto il
+   riquadro: si ferma dove finisce il titolo e non scende lungo le sottovoci.
+   Il riquadro taglia quello che esce, quindi in cima segue comunque la curva. */
+.tappa.active > .row-t,
+.tappa.active > .head{box-shadow:inset 3px 0 0 var(--accent)}
 .tappa.done{opacity:.62}
 /* tappa chiusa: le figlie sono congelate come stanno, non si toccano piu' */
 .tappa.closed input[type=checkbox]:disabled{opacity:.35}
