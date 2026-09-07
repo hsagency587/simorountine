@@ -106,11 +106,11 @@
     <p class="commento-lab">Rank</p>
     <div class="chips" id="tRank"></div>
 
-    <label class="commento-lab" for="tCliente">Cliente</label>
-    <select class="campo tendina" id="tCliente"></select>
+    <p class="commento-lab">Cliente</p>
+    <button type="button" class="campo tendina" id="tCliente"></button>
 
-    <label class="commento-lab" for="tGiorno">Giorno</label>
-    <select class="campo tendina" id="tGiorno"></select>
+    <p class="commento-lab">Giorno</p>
+    <button type="button" class="campo tendina" id="tGiorno"></button>
 
     <p class="commento-lab" id="tGwsLab">Sessione</p>
     <div class="chips" id="tGws"></div>
@@ -170,6 +170,18 @@
       <button type="submit" class="btn btn-ok" value="ok">Chiudi la giornata</button>
     </div>
   </form>
+</dialog>
+
+<!-- Il pannello di scelta: sostituisce la tendina di sistema, che su Android
+     arriva bianca e non segue il tema. -->
+<dialog class="chiusura" id="picker" aria-labelledby="pickerTit">
+  <div class="chiusura-box">
+    <h2 class="chiusura-tit" id="pickerTit">Scegli</h2>
+    <ul class="picklist" id="pickList"></ul>
+    <div class="chiusura-btn">
+      <button type="button" class="btn" id="pickAnnulla">Annulla</button>
+    </div>
+  </div>
 </dialog>
 
 <script src="app.js"></script>

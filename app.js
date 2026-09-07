@@ -1319,18 +1319,50 @@ function dayChoices(current) {
   return out;
 }
 
-/* Le tendine: stessa forma di chips(), ma in un <select>. Occupano una riga
-   sola anche quando le voci sono tante. */
-function tendina(box, items, sel) {
-  box.textContent = '';
+/* Il pannello di scelta. La tendina di sistema non si puo' vestire: su Android
+   arriva bianca, con il suo carattere, e stona con tutto il resto. Qui il campo
+   e' un bottone che apre un pannello fatto con gli stessi pezzi del resto
+   dell'app. Un tocco per aprire, un tocco per scegliere: come prima. */
+const dlgPick = $('picker');
+let pickCb = null;
+
+function apriPicker(titolo, items, sel, cb) {
+  $('pickerTit').textContent = titolo;
+  const ul = $('pickList');
+  ul.textContent = '';
   for (const it of items) {
-    const o = document.createElement('option');
-    o.value = it.k;
-    o.textContent = it.lab;
-    if (it.k === sel) o.selected = true;
-    box.appendChild(o);
+    const li = el('li', 'pickrow' + (it.k === sel ? ' sel' : ''), it.lab);
+    li.dataset.v = it.k;
+    ul.appendChild(li);
   }
+  pickCb = cb;
+  dlgPick.showModal();
 }
+
+function chiudiPicker() {
+  pickCb = null;
+  dlgPick.close();
+}
+
+$('pickList').addEventListener('click', ev => {
+  const li = ev.target.closest('li[data-v]');
+  if (!li) return;
+  const v = li.dataset.v;
+  const cb = pickCb;
+  pickCb = null;
+  dlgPick.close();
+  if (cb) cb(v);
+});
+
+$('pickAnnulla').addEventListener('click', chiudiPicker);
+dlgPick.addEventListener('cancel', () => { pickCb = null; });
+
+/* Le voci delle due scelte, in un posto solo: le usa il pannello e le usa
+   l'etichetta del campo, cosi' non possono dire cose diverse. */
+const vociCliente = () => [{ k: '', lab: 'Nessuno' }]
+  .concat(CLIENTI.map(c => ({ k: c.id, lab: c.nome })));
+
+const etichetta = (items, k) => (items.find(o => o.k === k) || items[0]).lab;
 
 function chips(box, items, sel) {
   box.textContent = '';
@@ -1344,9 +1376,8 @@ function chips(box, items, sel) {
 
 function paintEditor() {
   chips($('tRank'), RANKS.map(r => ({ k: r, lab: r })), ed.rank);
-  tendina($('tCliente'), [{ k: '', lab: 'Nessuno' }]
-          .concat(CLIENTI.map(c => ({ k: c.id, lab: c.nome }))), ed.cliente || '');
-  tendina($('tGiorno'), dayChoices(ed.giorno), ed.giorno || '');
+  $('tCliente').textContent = etichetta(vociCliente(), ed.cliente || '');
+  $('tGiorno').textContent  = etichetta(dayChoices(ed.giorno), ed.giorno || '');
   const sched = !!ed.giorno;
   $('tGwsLab').hidden = !sched;
   $('tGws').hidden = !sched;
@@ -1381,16 +1412,23 @@ $('editorForm').addEventListener('click', ev => {
   paintEditor();
 });
 
-/* Le due tendine: cambiando giorno la sessione compare o sparisce, come prima. */
-$('editorForm').addEventListener('change', ev => {
+/* I due campi a tendina aprono il pannello di scelta. Cambiando giorno la
+   sessione compare o sparisce, come prima. */
+$('tCliente').addEventListener('click', () => {
   if (!ed) return;
-  const v = ev.target.value;
-  if (ev.target.id === 'tCliente') ed.cliente = v || null;
-  else if (ev.target.id === 'tGiorno') {
+  apriPicker('Cliente', vociCliente(), ed.cliente || '', v => {
+    ed.cliente = v || null;
+    paintEditor();
+  });
+});
+
+$('tGiorno').addEventListener('click', () => {
+  if (!ed) return;
+  apriPicker('Giorno', dayChoices(ed.giorno), ed.giorno || '', v => {
     ed.giorno = v || null;
     ed.gws = ed.giorno ? (ed.gws == null ? 0 : ed.gws) : null;
-  } else return;
-  paintEditor();
+    paintEditor();
+  });
 });
 
 $('editorForm').addEventListener('submit', ev => {

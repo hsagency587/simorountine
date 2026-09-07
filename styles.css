@@ -482,11 +482,11 @@ body.menu-open{overflow:hidden}
   .dome{filter:drop-shadow(0 0 5px var(--danger))}
 }
 
-/* Le tendine dell'editor: la freccetta e' disegnata a mano, perche' quella
-   di sistema su Android non segue il tema scuro. Deve stare dopo .campo:
-   la scorciatoia `background` di quella regola cancellerebbe l'immagine. */
-select.tendina{
-  -webkit-appearance:none;appearance:none;
+/* I due campi a tendina dell'editor. Sono bottoni, non <select>: la tendina di
+   sistema non si puo' vestire. Deve stare dopo .campo: la scorciatoia
+   `background` di quella regola cancellerebbe l'immagine della freccetta. */
+button.tendina{
+  display:flex;align-items:center;text-align:left;
   padding-right:26px;cursor:pointer;
   background-color:var(--surface-2);
   background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
@@ -495,3 +495,20 @@ select.tendina{
   background-size:5px 5px,5px 5px;
   background-repeat:no-repeat;
 }
+button.tendina:active{background-color:var(--line)}
+
+/* Il pannello di scelta: righe alte come quelle del menu', quella scelta
+   accesa come una pastiglia selezionata. */
+.picklist{
+  list-style:none;margin:var(--s3) 0 0;padding:0;
+  max-height:min(60vh,420px);overflow-y:auto;
+  border:1px solid var(--line);border-radius:var(--radius);
+}
+.pickrow{
+  display:flex;align-items:center;min-height:44px;
+  padding:0 var(--s3);font-size:14px;cursor:pointer;
+  border-bottom:1px solid var(--line);
+}
+.pickrow:last-child{border-bottom:0}
+.pickrow:active{background:var(--surface-2)}
+.pickrow.sel{color:var(--bg);background:var(--accent);font-weight:600}
