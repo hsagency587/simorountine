@@ -185,16 +185,17 @@ jobs:
           }
 
           const bucket = [];
+          let scartatiCancellati = 0, scartatiSenzaTitolo = 0;
 
           function collect(id, ev, start, end) {
-            if (String(ev.component.getFirstPropertyValue('status') || '').toUpperCase() === 'CANCELLED') return;
+            if (String(ev.component.getFirstPropertyValue('status') || '').toUpperCase() === 'CANCELLED') { scartatiCancellati++; return; }
             /* Un evento cancellato su Google resta nell'iCal ancora per ore, ma
                svuotato del titolo e senza STATUS:CANCELLED: resta l'ora e basta,
                la traccia di quello che c'era. Senza titolo non c'e` niente da
                mostrare, e tenerlo vorrebbe dire lasciare in barra un evento che
                e` gia` stato cancellato. */
             const title = String(ev.summary || '').trim();
-            if (!title) return;
+            if (!title) { scartatiSenzaTitolo++; return; }
             const key = romeDayKey(start);
             if (keys.indexOf(key) < 0) return;
             bucket.push({
@@ -297,7 +298,7 @@ jobs:
              versione va committata, confrontando gli eventi con quelli gia pubblicati. */
           writeFileSync(target, chiudi(JSON.stringify(dati, null, 2) + '\n', fp));
           console.log('calendar.json generato' + (chiave ? ' e cifrato' : '') + ': '
-            + bucket.length + ' occorrenze su ' + keys.join(', ') + '.');
+            + bucket.length + ' occorrenze su ' + keys.join(', ') + '. Scartati: ' + scartatiCancellati + ' cancellati, ' + scartatiSenzaTitolo + ' senza titolo.');
           SCRIPT
           node "$RUNNER_TEMP/deps/build-calendar.mjs"
 
