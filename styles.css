@@ -164,7 +164,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 
 /* ---------- elenco ---------- */
 
-.list{list-style:none;margin:0;padding:var(--s1) var(--s2) var(--s5)}
+.list{list-style:none;margin:0;padding:var(--s1) var(--s2) 0}
 
 /* sola lettura: le caselle restano visibili e leggibili, ma spente */
 .list.ro .row{cursor:default}
@@ -443,21 +443,21 @@ body.menu-open{overflow:hidden}
 /* ---------- piede ---------- */
 
 .foot{
-  padding:0 var(--s3) var(--s5);
+  padding:0 var(--s2) var(--s5);
   padding-bottom:calc(var(--s5) + env(safe-area-inset-bottom));
-  text-align:center;
+  text-align:left;
 }
 /* lo storico e' chiuso: in fondo resta solo la parolina che lo apre */
 .storico-tit{
   display:inline-block;list-style:none;cursor:pointer;
-  min-height:36px;line-height:36px;padding:0 var(--s2);
+  min-height:36px;line-height:36px;padding:0 var(--s2) 0 0;
   font-size:13px;color:var(--muted);
   text-decoration:underline;text-underline-offset:3px;
 }
 .storico-tit::-webkit-details-marker{display:none}
 .storico-box[open] .storico-tit{color:var(--text-2)}
 /* scegli il mese, poi scaricalo: due pezzi dello stesso oggetto */
-.storico{display:flex;justify-content:center;gap:var(--s2);margin-top:var(--s2)}
+.storico{display:flex;justify-content:flex-start;gap:var(--s2);margin-top:var(--s2)}
 .mese,.scarica{
   min-height:44px;padding:0 var(--s3);
   background:var(--surface);color:var(--text-2);
