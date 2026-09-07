@@ -216,5 +216,41 @@
       "giorno": null,
       "gws": null
     }
-  ]
+  ],
+  "workout": {
+    "0": [
+      "Stretching",
+      "Calisthenics"
+    ],
+    "1": [
+      "Deep roll",
+      "Sprint/running"
+    ],
+    "2": [
+      "Stretching",
+      "Wing chun"
+    ],
+    "3": [
+      "Fascia",
+      "Wing chun"
+    ],
+    "4": [
+      "Fascia",
+      "Wing chun"
+    ],
+    "5": [
+      "Deep roll",
+      "Wing chun"
+    ],
+    "6": [
+      "Abdominal",
+      "Fascia"
+    ]
+  },
+  "dieta": {
+    "snack-mattina": "60-100g goat/sheep cheese",
+    "pranzo": "4 egs + 80-100g carbs",
+    "snack-pomeriggio": "Fruits",
+    "cena": "Loads of meat"
+  }
 }
