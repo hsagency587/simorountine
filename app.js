@@ -31,7 +31,7 @@ const RANKS        = ['A', 'B', 'C'];
    dentro le task gia' fatte: non si cambia mai. Il nome invece si corregge
    quando si vuole. Per aggiungere un cliente si aggiunge una riga qui. */
 const CLIENTI = [
-  { id: 'hs-agency',    nome: 'HS Agency',              tag: 'My Agency', oro: true },
+  { id: 'hs-agency',    nome: 'HS Agency',              mia: true },
   { id: 'longkai',      nome: 'Lòngkai — Sifu Diego' },
   { id: 'di-nucci',     nome: 'Gioielleria Di Nucci',   tag: 'Top3' },
   { id: 'manuela-lovo', nome: 'Manuela Lovo Fotografa', tag: 'Top3' },
@@ -52,7 +52,14 @@ const clienteCorto = id => clienteNome(id).replace(/\s*\(.*$/, '').trim();
 
 /* i clienti aperti nel menu': restano aperti fra un'apertura e l'altra */
 const CLIAPERTI_KEY = 'gwork-clientiaperti-v1';
-const CLIROOT_KEY   = 'gwork-clientiroot-v1';
+const CLIROOT_KEY   = 'gwork-radiciaperte-v1';
+
+/* Le due tendine del menu': i clienti da una parte, le attivita' mie
+   dall'altra. Un cliente finisce nell'una o nell'altra a seconda di `mia`. */
+const RADICI = [
+  { k: 'mie',     nome: 'MY COMPANIES', mie: true,  oro: true },
+  { k: 'clienti', nome: 'CLIENTI',      mie: false }
+];
 /* Il calendario sta sul branch "dati" e non dentro il sito: si aggiorna con un
    commit, non ripubblicando Pages. La cache di raw dura cinque minuti, che e'
    la vera freschezza del file. */
@@ -1191,15 +1198,19 @@ let cliAperti = (() => {
   } catch (e) { return new Set(); }
 })();
 
-/* La tendina che contiene tutti i clienti. Chiusa, il menu' e' una riga sola. */
-let cliRoot = (() => {
-  try { return localStorage.getItem(CLIROOT_KEY) === '1'; } catch (e) { return false; }
+/* Quali delle due tendine sono aperte. Chiuse tutte e due, il menu' comincia
+   con due righe sole. */
+let rootAperte = (() => {
+  try {
+    const v = JSON.parse(localStorage.getItem(CLIROOT_KEY));
+    return new Set(Array.isArray(v) ? v : []);
+  } catch (e) { return new Set(); }
 })();
 
 function salvaAperti() {
   try {
     localStorage.setItem(CLIAPERTI_KEY, JSON.stringify([...cliAperti]));
-    localStorage.setItem(CLIROOT_KEY, cliRoot ? '1' : '0');
+    localStorage.setItem(CLIROOT_KEY, JSON.stringify([...rootAperte]));
   } catch (e) {}
 }
 
@@ -1208,9 +1219,9 @@ function salvaAperti() {
 /* Tutti i clienti compaiono sempre, anche quelli senza niente dentro: l'elenco
    e' anche la mappa di chi si sta seguendo. Le task senza cliente qui non
    entrano: stanno nel serbatoio qui sotto, che le mostra tutte. */
-function gruppiCliente(list) {
-  return CLIENTI.map(c => ({
-    g: { k: c.id, nome: c.nome, tag: c.tag, oro: c.oro },
+function gruppiCliente(list, mie) {
+  return CLIENTI.filter(c => !!c.mia === mie).map(c => ({
+    g: { k: c.id, nome: c.nome, tag: c.tag },
     tasks: list.filter(x => x.cliente === c.id).sort(byRank)
   }));
 }
@@ -1219,36 +1230,39 @@ function paintDrawer() {
   const box = $('drawerList');
   box.textContent = '';
   const list = tstore.tasks.filter(x => tutte || !x.giorno);
-  const gruppi = gruppiCliente(list);
 
-  {
-    const r = el('button', 'grp grpcli grproot' + (cliRoot ? ' open' : ''));
+  for (const rad of RADICI) {
+    const gruppi = gruppiCliente(list, rad.mie);
+    if (!gruppi.length) continue;
+    const aperta = rootAperte.has(rad.k);
+
+    const r = el('button', 'grp grpcli grproot' + (rad.oro ? ' oro' : '') + (aperta ? ' open' : ''));
     r.type = 'button';
-    r.dataset.root = '1';
-    r.setAttribute('aria-expanded', cliRoot ? 'true' : 'false');
-    r.appendChild(el('span', 'grpfrec', cliRoot ? '\u25be' : '\u25b8'));
-    r.appendChild(el('span', 'grpnome', 'CLIENTI'));
+    r.dataset.root = rad.k;
+    r.setAttribute('aria-expanded', aperta ? 'true' : 'false');
+    r.appendChild(el('span', 'grpfrec', aperta ? '\u25be' : '\u25b8'));
+    r.appendChild(el('span', 'grpnome', rad.nome));
     box.appendChild(r);
-  }
 
-  for (const o of cliRoot ? gruppi : []) {
-    const open = cliAperti.has(o.g.k);
-    const h = el('button', 'grp grpcli grpfiglio' + (open ? ' open' : ''));
-    h.type = 'button';
-    h.dataset.cli = o.g.k;
-    h.setAttribute('aria-expanded', open ? 'true' : 'false');
-    h.appendChild(el('span', 'grpfrec', open ? '\u25be' : '\u25b8'));
-    h.appendChild(el('span', 'grpnome', o.g.nome));
-    if (o.g.tag) h.appendChild(el('span', 'grptag' + (o.g.oro ? ' oro' : ''), o.g.tag));
-    box.appendChild(h);
-    if (!open) continue;
-    if (!o.tasks.length) {
-      box.appendChild(el('p', 'vuoto vuotocli', tutte ? 'Nessuna task' : 'Niente nel serbatoio'));
-      continue;
+    for (const o of aperta ? gruppi : []) {
+      const open = cliAperti.has(o.g.k);
+      const h = el('button', 'grp grpcli grpfiglio' + (open ? ' open' : ''));
+      h.type = 'button';
+      h.dataset.cli = o.g.k;
+      h.setAttribute('aria-expanded', open ? 'true' : 'false');
+      h.appendChild(el('span', 'grpfrec', open ? '\u25be' : '\u25b8'));
+      h.appendChild(el('span', 'grpnome', o.g.nome));
+      if (o.g.tag) h.appendChild(el('span', 'grptag', o.g.tag));
+      box.appendChild(h);
+      if (!open) continue;
+      if (!o.tasks.length) {
+        box.appendChild(el('p', 'vuoto vuotocli', tutte ? 'Nessuna task' : 'Niente nel serbatoio'));
+        continue;
+      }
+      const ul = el('ul', 'trows');
+      for (const x of o.tasks) ul.appendChild(trowNode(x, false));
+      box.appendChild(ul);
     }
-    const ul = el('ul', 'trows');
-    for (const x of o.tasks) ul.appendChild(trowNode(x, false));
-    box.appendChild(ul);
   }
 
   /* Sotto la tendina, il serbatoio per intero, diviso per rank come e' sempre
@@ -1346,7 +1360,8 @@ $('drawerList').addEventListener('click', ev => {
   if (ev.target.closest('input[data-tcheck]')) return;
   const root = ev.target.closest('button.grproot');
   if (root) {
-    cliRoot = !cliRoot;
+    const k = root.dataset.root;
+    if (rootAperte.has(k)) rootAperte.delete(k); else rootAperte.add(k);
     salvaAperti();
     paintDrawer();
     return;

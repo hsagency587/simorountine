@@ -376,6 +376,9 @@ body.menu-open{overflow:hidden}
 .grptag.oro{color:var(--gold)}
 .grproot{font-size:11px;letter-spacing:.08em;color:var(--muted)}
 .grproot.open{color:var(--muted)}
+/* le attivita' mie si distinguono dal colore del titolo */
+.grproot.oro,
+.grproot.oro.open{color:var(--gold)}
 .grpfiglio{padding-left:var(--s5,28px)}
 .vuotocli{padding-left:44px;padding-top:0;font-size:12px}
 .trows{list-style:none;margin:0;padding:0}
