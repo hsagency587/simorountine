@@ -58,7 +58,7 @@ const CLIROOT_KEY   = 'gwork-radiciaperte-v1';
    dall'altra. Un cliente finisce nell'una o nell'altra a seconda di `mia`. */
 const RADICI = [
   { k: 'mie',     nome: 'MY COMPANIES', mie: true,  oro: true },
-  { k: 'clienti', nome: 'CLIENTI',      mie: false }
+  { k: 'clienti', nome: 'CLIENTS',      mie: false }
 ];
 /* Il calendario sta sul branch "dati" e non dentro il sito: si aggiorna con un
    commit, non ripubblicando Pages. La cache di raw dura cinque minuti, che e'
