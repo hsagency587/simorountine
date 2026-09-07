@@ -26,6 +26,7 @@ const RANKS        = ['A', 'B', 'C'];
    dentro le task gia' fatte: non si cambia mai. Il nome invece si corregge
    quando si vuole. Per aggiungere un cliente si aggiunge una riga qui. */
 const CLIENTI = [
+  { id: 'hs-agency',    nome: 'HS Agency', tag: 'My Agency' },
   { id: 'longkai',      nome: 'Lòngkai — Sifu Diego' },
   { id: 'di-nucci',     nome: 'Gioielleria Di Nucci (Top 3)' },
   { id: 'manuela-lovo', nome: 'Manuela Lovo Fotografa (Top 3)' },
@@ -33,8 +34,7 @@ const CLIENTI = [
   { id: 'omnia',        nome: 'Omnia Ristrutturazioni (Top 3)' },
   { id: 'bergamaschi',  nome: 'Bergamaschi Giardini (Top 3)' },
   { id: 'fisio-leone',  nome: 'Fisio Leone (Top 3)' },
-  { id: 'osteria-anna', nome: 'Osteria Da Anna (Top 3 + ADS)' },
-  { id: 'hs-agency',    nome: 'HS Agency' }
+  { id: 'osteria-anna', nome: 'Osteria Da Anna (Top 3 + ADS)' }
 ];
 /* i clienti aperti nel menu': restano aperti fra un'apertura e l'altra */
 const CLIAPERTI_KEY = 'gwork-clientiaperti-v1';
@@ -1168,7 +1168,7 @@ function salvaAperti() {
 /* L'ordine dei gruppi e' quello di CLIENTI, con le task senza cliente in
    fondo. Dentro un gruppo l'ordine resta quello di sempre: prima il rank. */
 function gruppiCliente(list) {
-  return CLIENTI.map(c => ({ k: c.id, nome: c.nome }))
+  return CLIENTI.map(c => ({ k: c.id, nome: c.nome, tag: c.tag }))
     .concat([{ k: '', nome: 'Senza cliente' }])
     .map(g => ({ g: g, tasks: list.filter(x => (x.cliente || '') === g.k).sort(byRank) }))
     .filter(o => o.tasks.length);
@@ -1202,6 +1202,7 @@ function paintDrawer() {
     h.setAttribute('aria-expanded', open ? 'true' : 'false');
     h.appendChild(el('span', 'grpfrec', open ? '\u25be' : '\u25b8'));
     h.appendChild(el('span', 'grpnome', o.g.nome));
+    if (o.g.tag) h.appendChild(el('span', 'grptag', o.g.tag));
     h.appendChild(el('span', 'grpn', String(o.tasks.length)));
     box.appendChild(h);
     if (!open) continue;

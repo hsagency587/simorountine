@@ -9,6 +9,7 @@
   --text-2:#c6ccd6;
   --muted:#98a1ae;
   --accent:#3ddc84;
+  --gold:#e3b341;
   --danger:#ff453a;
   --stale:#f5a524;
   --giallo:#ffd60a;
@@ -332,6 +333,7 @@ body.menu-open{overflow:hidden}
 .grpfrec{width:1em;flex:none;color:var(--muted)}
 .grpnome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .grpn{flex:none;font-size:11px;color:var(--muted)}
+.grptag{flex:none;font-size:10px;letter-spacing:.04em;color:var(--gold)}
 .grproot{font-size:11px;letter-spacing:.08em;color:var(--muted)}
 .grproot.open{color:var(--muted)}
 .grpfiglio{padding-left:var(--s5,28px)}
