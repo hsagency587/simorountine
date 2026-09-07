@@ -41,6 +41,15 @@ const CLIENTI = [
   { id: 'fisio-leone',  nome: 'Fisio Leone (Top 3)' },
   { id: 'osteria-anna', nome: 'Osteria Da Anna (Top 3 + ADS)' }
 ];
+const clienteNome = id => {
+  const c = CLIENTI.find(x => x.id === id);
+  return c ? c.nome : '';
+};
+
+/* Il nome corto, per le righe strette: via quello che sta fra parentesi, che
+   dice il tipo di lavoro e dentro una sessione non serve. */
+const clienteCorto = id => clienteNome(id).replace(/\s*\(.*$/, '').trim();
+
 /* i clienti aperti nel menu': restano aperti fra un'apertura e l'altra */
 const CLIAPERTI_KEY = 'gwork-clientiaperti-v1';
 const CLIROOT_KEY   = 'gwork-clientiroot-v1';
@@ -531,6 +540,16 @@ function taskNode(x, on) {
   i.dataset.key = x.id;
   l.appendChild(i);
   l.appendChild(el('span', 'rank r' + x.rank, x.rank));
+  /* dentro la sessione il cliente sta davanti al titolo: qui non c'e' il
+     gruppo del menu' a dire di chi e' la task */
+  const cli = clienteCorto(x.cliente);
+  if (cli) {
+    /* la barra sta fuori dal nome: cosi' quando il nome e' lungo e viene
+       tagliato, la barra resta comunque visibile e si capisce dove finisce
+       il cliente e dove comincia il titolo */
+    l.appendChild(el('span', 'tcli', cli));
+    l.appendChild(el('span', 'tsep', '|'));
+  }
   l.appendChild(el('span', 'ttl', x.nome));
   bar.appendChild(l);
 

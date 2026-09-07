@@ -346,6 +346,11 @@ body.menu-open{overflow:hidden}
 }
 .trow:active{background:var(--surface-2)}
 .tcheck{flex:none;width:20px;height:20px;margin:0;accent-color:var(--accent)}
+/* Nella riga di una task il titolo comanda: il cliente si stringe per primo e
+   non passa mai il 40% della riga. */
+.tcli{flex:0 1 auto;min-width:0;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+.tsep{flex:none;color:var(--line)}
+.ev.task .ttl{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tname{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .twhen{flex:0 0 auto;font-size:11px;color:var(--muted)}
 /* schedulata: il bordino giallo che chiedevi */
