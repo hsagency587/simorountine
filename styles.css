@@ -58,7 +58,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
   position:sticky;top:0;z-index:5;
   background:var(--bg);
   border-bottom:1px solid var(--line);
-  padding:var(--s2) var(--s3);
+  padding:var(--s2) var(--s3) var(--s1);
   padding-top:calc(var(--s2) + env(safe-area-inset-top));
 }
 /* La sirena e' appoggiata sopra la barra, in alto a sinistra: fa posto solo
@@ -85,7 +85,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 @keyframes siren-spin{to{transform:rotate(360deg)}}
 
 /* la riga alta: battito a sinistra, Salva e menu` a destra */
-.bar{display:flex;align-items:center;gap:var(--s2);margin:0 0 var(--s1)}
+.bar{display:flex;align-items:center;gap:var(--s2);margin:0 0 2px}
 .fresh{
   flex:1;min-width:0;
   display:flex;align-items:center;gap:var(--s2);
@@ -124,13 +124,13 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 
 .daybar{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;gap:var(--s2)}
 .nav{
-  height:38px;border-radius:var(--radius);
+  height:34px;border-radius:var(--radius);
   font-size:26px;line-height:1;color:var(--muted);
 }
 .nav:active{background:var(--surface-2);color:var(--text)}
 .date{
   display:flex;align-items:baseline;justify-content:center;gap:6px;
-  height:38px;border-radius:var(--radius);
+  height:34px;border-radius:var(--radius);
   font-size:17px;font-weight:600;
 }
 .rel{font-size:12px;font-weight:500;color:var(--muted)}
@@ -141,7 +141,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 }
 
 .prog{
-  height:4px;margin-top:var(--s1);
+  height:4px;margin-top:2px;
   background:var(--surface-2);border-radius:2px;overflow:hidden;
 }
 .prog-fill{
@@ -152,7 +152,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 
 .stats{
   display:flex;align-items:baseline;gap:var(--s2);
-  margin:var(--s1) 0 0;
+  margin:2px 0 0;
   font-size:12px;color:var(--muted);
 }
 .pct{font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
@@ -163,7 +163,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 
 /* ---------- elenco ---------- */
 
-.list{list-style:none;margin:0;padding:var(--s2) var(--s2) var(--s5)}
+.list{list-style:none;margin:0;padding:var(--s1) var(--s2) var(--s5)}
 
 /* sola lettura: le caselle restano visibili e leggibili, ma spente */
 .list.ro .row{cursor:default}
