@@ -34,6 +34,55 @@
       "cliente": "di-nucci",
       "giorno": "2026-09-09",
       "gws": null
+    },
+    {
+      "id": "tmtrnva27s0xq",
+      "creata": "2026-09-07T19:56:15.152Z",
+      "nome": "Mandare aggiornamenti",
+      "desc": "Aggiornare manuela sulla situazione del sito e della mail",
+      "rank": "A",
+      "cliente": "manuela-lovo",
+      "giorno": "2026-09-08",
+      "gws": [
+        0
+      ]
+    },
+    {
+      "id": "tmtrnvymvmyzx",
+      "creata": "2026-09-07T19:56:46.999Z",
+      "nome": "Post foto on the client's GBP",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-08",
+      "gws": [
+        2
+      ]
+    },
+    {
+      "id": "tmtrny09vllf2",
+      "creata": "2026-09-07T19:58:22.435Z",
+      "nome": "Fix Workout and Diet",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-08",
+      "gws": [
+        4
+      ]
+    },
+    {
+      "id": "tmtro0ajo09e0",
+      "creata": "2026-09-07T20:00:09.060Z",
+      "nome": "Google ADS",
+      "desc": "Lavora per lasciare le ads entro fine settimana",
+      "rank": "A",
+      "cliente": "hs-agency",
+      "giorno": "2026-09-08",
+      "gws": [
+        2,
+        3
+      ]
     }
   ]
 }
