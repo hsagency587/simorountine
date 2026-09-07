@@ -135,6 +135,16 @@
       "cliente": null,
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmtrpnmd5o4t7",
+      "creata": "2026-09-07T20:46:17.082Z",
+      "nome": "Mttersi in regola con l'agezia",
+      "desc": "Parlare con claude consulente e valuatre il percorso corretto per mettersi in regola ",
+      "rank": "B",
+      "cliente": "hs-agency",
+      "giorno": null,
+      "gws": null
     }
   ]
 }
