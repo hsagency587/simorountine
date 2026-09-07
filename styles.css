@@ -192,9 +192,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 .tappa > :first-child{border-top:1px solid var(--line);border-radius:var(--radius) var(--radius) 0 0}
 .tappa > :last-child:not(.sub):not(.evs){border-bottom:1px solid var(--line);border-radius:0 0 var(--radius) var(--radius)}
 /* dove finisce il primo riquadro: l'ultima riga prima del gruppo staccato */
-.tappa > :first-child:last-child,
-.tappa > :first-child:has(+ .sub),
-.tappa > :first-child:has(+ .evs){border:1px solid var(--line);border-radius:var(--radius)}
+.tappa > :first-child:last-child:not(.sub):not(.evs),
+.tappa > :first-child:has(+ .sub):not(.sub):not(.evs),
+.tappa > :first-child:has(+ .evs):not(.sub):not(.evs){border:1px solid var(--line);border-radius:var(--radius)}
 .tappa > :not(:first-child):not(.sub):not(.evs):has(+ .sub),
 .tappa > :not(:first-child):not(.sub):not(.evs):has(+ .evs){
   border-bottom:1px solid var(--line);border-radius:0 0 var(--radius) var(--radius);
