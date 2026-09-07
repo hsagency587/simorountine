@@ -1216,7 +1216,20 @@ function paintDrawer() {
     box.appendChild(ul);
   }
 
-  if (!n && !cliRoot) box.appendChild(el('p', 'vuoto', tutte ? 'Nessuna task' : 'Serbatoio vuoto'));
+  /* Sotto la tendina, il serbatoio per intero, diviso per rank come e' sempre
+     stato. La stessa task compare due volte quando la tendina e' aperta: qui e
+     dentro il suo cliente. E' voluto — i clienti sono un modo in piu' di
+     guardare le stesse task, non un posto dove finiscono. */
+  for (const r of RANKS) {
+    const l = list.filter(x => x.rank === r).sort(byRank);
+    if (!l.length) continue;
+    box.appendChild(el('p', 'grp', 'RANK ' + r));
+    const ul = el('ul', 'trows');
+    for (const x of l) ul.appendChild(trowNode(x, false));
+    box.appendChild(ul);
+  }
+
+  if (!n) box.appendChild(el('p', 'vuoto', tutte ? 'Nessuna task' : 'Serbatoio vuoto'));
   paintSync();
 }
 
