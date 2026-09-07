@@ -252,6 +252,8 @@ function setCheck(k, id, on) {
 /* ------------------------------------------------------------ eventi ----- */
 
 let cal = null;                   /* contenuto di calendar.json, oppure null */
+let calAt  = 0;                   /* quando e' arrivata l'ultima lettura buona (ms) */
+let calErr = false;               /* l'ultima lettura e' fallita: si tiene la copia buona */
 let loaded = false;               /* true dopo il primo tentativo di lettura */
 
 const isCovered = k => !!(cal && cal.days && Object.prototype.hasOwnProperty.call(cal.days, k));
@@ -895,8 +897,21 @@ let beat   = null;
 let beatOk = false;               /* l'ultima interrogazione e' riuscita */
 let beatAuth  = true;             /* col token si usa la quota personale (5000/ora) */
 let beatQuota = 0;                /* quota anonima esaurita: fino a quando (ms) */
+let beatSkew  = 0;                /* ora del server meno ora del telefono (ms): il giudice e' il server */
+
+/* L'ora vera la dice il server del sito: un telefono con l'orologio sbagliato
+   non deve vedere in ritardo un ponte sano. L'API di GitHub non espone la sua
+   Date al browser, la stessa origine si': un file piccolo, senza cache. */
+async function leggiOra() {
+  try {
+    const r = await fetch('manifest.webmanifest', { cache: 'no-store' });
+    const d = new Date(r.headers.get('date') || '');
+    if (!isNaN(d.getTime())) beatSkew = d.getTime() - Date.now();
+  } catch (e) { /* si resta con l'ora del telefono */ }
+}
 
 async function loadBeat() {
+  await leggiOra();
   if (beatQuota && Date.now() < beatQuota) { paintFresh(); return; }
   beatQuota = 0;
   try {
@@ -936,11 +951,28 @@ async function loadBeat() {
 function paintFresh() {
   const f = $('fresh');
   f.classList.remove('stale', 'down', 'muto');
+  const now = Date.now() + beatSkew;
+  const eta = cal && calAt ? ' \u00b7 events from ' + durata(Math.max(0, Date.now() - calAt)) + ' ago' : '';
 
-  /* Prima i dati: se il calendario non arriva, il resto e' accademia. */
+  /* Senza rete non e' rotto niente: si aspetta, e si dice quanto sono vecchi
+     gli eventi che si stanno guardando. */
+  if (navigator.onLine === false) {
+    f.classList.add('muto');
+    f.textContent = 'You are offline' + eta;
+    return;
+  }
+
+  /* Prima i dati: se il calendario non e' mai arrivato, il resto e' accademia. */
   if (loaded && !cal) {
     f.classList.add('down');
     f.textContent = 'Calendar unreachable';
+    return;
+  }
+
+  /* la rete c'e' ma GitHub non risponde: si tiene l'ultima copia buona */
+  if (loaded && calErr) {
+    f.classList.add('stale');
+    f.textContent = 'GitHub not responding' + eta;
     return;
   }
 
@@ -956,7 +988,6 @@ function paintFresh() {
     return;
   }
 
-  const now = Date.now();
   const ok  = beat.ok;
 
   if (ok && now - ok <= LATE_MS) {
@@ -1309,7 +1340,12 @@ function whenText(x) {
 
 /* Una riga del menu' (o dell'elenco da cui pescare, senza i tre puntini). */
 function trowNode(x, pick) {
-  const li = el('li', 'trow' + (x.evento ? ' evento' : x.giorno ? ' sched' : ''));
+  /* il colore del bordino: verde se e' una task messa su un giorno, blu se e'
+     un evento del calendario, rosso se quell'evento cade in finestra protetta —
+     gli stessi colori che ha nella giornata */
+  const ev = x.evento ? eventoDi(x) : null;
+  const li = el('li', 'trow' + (x.evento ? (ev && ev.alarm ? ' evento alarm' : ' evento')
+                                         : x.giorno ? ' sched' : ''));
   li.dataset.task = x.id;
   if (!pick) {
     /* la casella per spuntarla senza aprirla: sta fuori dall'area che apre
@@ -1384,9 +1420,14 @@ function paintDrawer() {
   const list = tstore.tasks.filter(x => !x.evento && (tutte || !x.giorno));
   const evs  = calendar ? tstore.tasks.filter(x => x.evento) : [];
   const tutto = list.concat(evs);
+  /* Dentro un cliente si vede sempre tutto: il serbatoio e anche quello che e'
+     gia' su un giorno, che si riconosce dal bordino verde. L'interruttore delle
+     schedulate vale per i blocchi RANK qui sotto, non per i clienti: aprire un
+     cliente e' gia' chiedere di vedere le sue cose. */
+  const perCli = tstore.tasks.filter(x => !x.evento).concat(evs);
 
   for (const rad of RADICI) {
-    const gruppi = gruppiCliente(tutto, rad.mie);
+    const gruppi = gruppiCliente(perCli, rad.mie);
     if (!gruppi.length) continue;
     const aperta = rootAperte.has(rad.k);
 
@@ -1410,7 +1451,7 @@ function paintDrawer() {
       box.appendChild(h);
       if (!open) continue;
       if (!o.tasks.length) {
-        box.appendChild(el('p', 'vuoto vuotocli', tutte ? 'No tasks' : 'Nothing in the pool'));
+        box.appendChild(el('p', 'vuoto vuotocli', 'No tasks'));
         continue;
       }
       const ul = el('ul', 'trows');
@@ -2055,7 +2096,7 @@ async function pushTasks(opts) {
   if (!tstore.dirty || salvando) return;
   if (!token) { salvaErr = 'token missing'; paintSalva(); paintSync('token missing', true); return; }
 
-  salvando = true; salvaErr = '';
+  salvando = true; salvaErr = ''; salvaRetry = false;
   paintSalva();
 
   /* la fotografia di cio' che parte: se nel frattempo si tocca qualcosa,
@@ -2097,7 +2138,7 @@ async function pushTasks(opts) {
       keepalive: !!opts.keepalive && body.length < 60000
     });
   } catch (e) {
-    salvando = false; salvaErr = 'no network'; paintSalva(); return;
+    salvando = false; salvaErr = 'no network'; salvaRetry = true; paintSalva(); return;
   }
   salvando = false;
 
@@ -2131,6 +2172,7 @@ async function pushTasks(opts) {
              : r.status === 403 ? 'token without permission'
              : r.status === 404 ? 'task branch missing'
              :                    'error ' + r.status;
+    salvaRetry = r.status >= 500;   /* un guasto di GitHub passa; un token no */
     paintSalva(); paintSync(salvaErr, true);
     return;
   }
@@ -2147,6 +2189,15 @@ async function pushTasks(opts) {
 function salvagente() {
   if (!tstore.dirty || !token || salvando) return;
   pushTasks({ keepalive: true });
+}
+
+/* Un salvataggio caduto per la rete, o per un 5xx di GitHub, si riprova da
+   solo: quando la rete torna, a ogni riapertura, e al passo del battito
+   mentre l'app resta aperta. Token rifiutato o senza permesso no: quelli li
+   sistema la persona, riprovare sarebbe solo rumore. */
+let salvaRetry = false;
+function riprovaSalva() {
+  if (tstore.dirty && salvaRetry && !salvando && token) pushTasks();
 }
 
 $('salva').addEventListener('click', () => pushTasks());
@@ -2167,14 +2218,18 @@ async function loadCalendar() {
     if (!r.ok) throw new Error(String(r.status));
     /* il file puo' essere cifrato: si legge come testo e si apre con la chiave */
     const j = JSON.parse(await decifra(await r.text()));
-    cal = (j && typeof j === 'object' && j.days && typeof j.days === 'object') ? j : null;
+    if (!(j && typeof j === 'object' && j.days && typeof j.days === 'object')) throw new Error('forma');
+    cal = j; calAt = Date.now(); calErr = false;
     chiaveKo = false;
   } catch (e) {
-    cal = null;
+    /* Una lettura fallita non cancella il calendario: si tiene l'ultima copia
+       buona e la riga in alto dice da quanto e' vecchia. Meglio un calendario
+       di due ore fa che una giornata vuota. */
+    calErr = true;
     /* la chiave sbagliata o assente si distingue da una rete che non va: sono
        due guasti diversi e si sistemano in due posti diversi */
     chiaveKo = /chiave|decrypt|operation-specific/i.test(String(e && e.message)) || e instanceof DOMException;
-    if (chiaveKo) paintSync('calendar encrypted: key missing or wrong', true);
+    if (chiaveKo) { cal = null; paintSync('calendar encrypted: key missing or wrong', true); }
   }
   const first = !loaded;
   loaded = true;
@@ -2193,16 +2248,21 @@ pullTasks();                      /* il serbatoio, subito */
 
 setInterval(() => { checkDay(); paintFresh(); }, 30000);   /* invecchia la riga, e vede la mezzanotte */
 setInterval(loadCalendar, 30000);
-setInterval(loadBeat, BEAT_MS);   /* solo mentre l'app resta aperta */
+setInterval(() => { loadBeat(); riprovaSalva(); }, BEAT_MS);   /* solo mentre l'app resta aperta */
 
 /* Riaprendola si ricontrolla tutto: e' il momento in cui la barra serve.
    Chiudendola parte il salvagente: un tentativo di salvare quello che e'
    rimasto in sospeso, nei pochi istanti che il browser concede. */
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) salvagente();
-  else { checkDay(); loadCalendar(); loadBeat(); pullTasks(); }
+  else { checkDay(); loadCalendar(); loadBeat(); pullTasks(); riprovaSalva(); }
 });
 window.addEventListener('pagehide', salvagente);
+
+/* La rete che va e viene: appena torna si rilegge tutto e si riprova il
+   salvataggio rimasto in sospeso; appena manca la riga in alto lo dice. */
+window.addEventListener('online', () => { loadCalendar(); loadBeat(); pullTasks(); riprovaSalva(); });
+window.addEventListener('offline', paintFresh);
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
