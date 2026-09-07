@@ -93,6 +93,10 @@
     <input type="checkbox" id="tutte">
     <span>Show scheduled ones too</span>
   </label>
+  <label class="switch">
+    <input type="checkbox" id="calendar">
+    <span>Calendar events</span>
+  </label>
   <div class="drawer-list" id="drawerList"></div>
   <div class="drawer-foot">
     <span class="sync" id="sync"></span>
@@ -103,24 +107,30 @@
 <dialog class="chiusura" id="editor" aria-labelledby="editorTit">
   <form method="dialog" class="chiusura-box" id="editorForm">
     <h2 class="chiusura-tit" id="editorTit">Task</h2>
+    <!-- per un evento del calendario: giorno e orario, in sola lettura -->
+    <p class="chiusura-day" id="tEvento" hidden></p>
 
-    <label class="commento-lab" for="tNome">Name</label>
-    <input class="campo" id="tNome" type="text" required maxlength="120" autocomplete="off">
+    <div id="tCampiTask">
+      <label class="commento-lab" for="tNome">Name</label>
+      <input class="campo" id="tNome" type="text" required maxlength="120" autocomplete="off">
 
-    <label class="commento-lab" for="tDesc">Description</label>
-    <textarea class="commento" id="tDesc" rows="3"></textarea>
+      <label class="commento-lab" for="tDesc">Description</label>
+      <textarea class="commento" id="tDesc" rows="3"></textarea>
 
-    <p class="commento-lab">Rank</p>
-    <div class="chips" id="tRank"></div>
+      <p class="commento-lab">Rank</p>
+      <div class="chips" id="tRank"></div>
+    </div>
 
     <p class="commento-lab">Client</p>
     <button type="button" class="campo tendina" id="tCliente"></button>
 
-    <p class="commento-lab">Day</p>
-    <button type="button" class="campo tendina" id="tGiorno"></button>
+    <div id="tCampiGiorno">
+      <p class="commento-lab">Day</p>
+      <button type="button" class="campo tendina" id="tGiorno"></button>
 
-    <p class="commento-lab" id="tGwsLab">Session</p>
-    <div class="chips" id="tGws"></div>
+      <p class="commento-lab" id="tGwsLab">Session</p>
+      <div class="chips" id="tGws"></div>
+    </div>
 
     <div class="chiusura-btn">
       <button type="button" class="btn btn-del" id="tElimina">Delete</button>
