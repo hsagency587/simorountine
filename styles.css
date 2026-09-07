@@ -408,7 +408,14 @@ body.menu-open{overflow:hidden}
    non passa mai il 40% della riga. */
 .tcli{flex:0 1 auto;min-width:0;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
 .tsep{flex:none;color:var(--line)}
-.ev.task .ttl{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* riga di un evento col cliente: c'e' anche l'orario, quindi gli spazi si
+   stringono, altrimenti si taglierebbero sia il cliente sia il titolo */
+.ev:has(.tcli) .row{gap:var(--s2)}
+.ev:has(.tcli) .tcli{max-width:34%}
+.ev.task .ttl,
+/* un evento col cliente davanti: il titolo sta su una riga sola come nelle
+   task, altrimenti va a capo e la riga cresce */
+.ev:has(.tcli) .ttl{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tname{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .twhen{flex:0 0 auto;font-size:11px;color:var(--muted)}
 /* schedulata: il bordino giallo che chiedevi */
