@@ -523,8 +523,15 @@ body.menu-open{overflow:hidden}
 .ev:has(.tcli) .ttl{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tname{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .twhen{flex:0 0 auto;font-size:11px;color:var(--muted)}
-/* task messa su un giorno: bordino verde */
-.trow.sched{box-shadow:inset 3px 0 0 var(--accent)}
+/* Task messa su un giorno: bordino verde, ma corto e centrato. Gli eventi del
+   calendario hanno il bordino per tutta l'altezza: la lunghezza diversa li
+   distingue prima ancora del colore. */
+.trow.sched{position:relative}
+.trow.sched::before{
+  content:'';position:absolute;left:0;top:50%;
+  width:3px;height:16px;margin-top:-8px;
+  background:var(--accent);border-radius:0 2px 2px 0;
+}
 /* evento del calendario: blu, e rosso se cade in finestra protetta. Sono gli
    stessi colori che l'evento ha dentro la giornata. */
 .trow.evento{box-shadow:inset 3px 0 0 var(--blu)}
