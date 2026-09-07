@@ -106,11 +106,9 @@
     <p class="commento-lab">Rank</p>
     <div class="chips" id="tRank"></div>
 
-    <p class="commento-lab">Cliente</p>
-    <button type="button" class="campo tendina" id="tCliente"></button>
+    <button type="button" class="campo tendina" id="tCliente" aria-label="Cliente"></button>
 
-    <p class="commento-lab">Giorno</p>
-    <button type="button" class="campo tendina" id="tGiorno"></button>
+    <button type="button" class="campo tendina" id="tGiorno" aria-label="Giorno"></button>
 
     <p class="commento-lab" id="tGwsLab">Sessione</p>
     <div class="chips" id="tGws"></div>
@@ -176,7 +174,7 @@
      arriva bianca e non segue il tema. -->
 <dialog class="chiusura" id="picker" aria-labelledby="pickerTit">
   <div class="chiusura-box">
-    <h2 class="chiusura-tit" id="pickerTit">Scegli</h2>
+    <h2 class="sr-only" id="pickerTit">Scegli</h2>
     <ul class="picklist" id="pickList"></ul>
     <div class="chiusura-btn">
       <button type="button" class="btn" id="pickAnnulla">Annulla</button>
