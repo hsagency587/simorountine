@@ -65,48 +65,48 @@ const protetteOf = k => isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
    non e' una costante. La parte fino alle 17:15 e' uguale per tutti i giorni;
    cambia solo la sera. */
 const ROUTINE_GIORNO = [
-  { id: 'sveglia', t: '6:45 | SVEGLIA + ROUTINE MATTUTINA', sub: [
-    { id: 'sveglia-finestra', t: 'APRI FINESTRA + RIFAI LETTO + CAMBIATI' },
-    { id: 'sveglia-acqua',    t: 'ACQUA + FIREBLOOD + TEETH' },
-    { id: 'sveglia-walk',     t: 'WALK 15 MIN + SETUP TARGET 1ª G WORK SESSION' }
+  { id: 'sveglia', t: '6:45 | WAKE UP + MORNING ROUTINE', sub: [
+    { id: 'sveglia-finestra', t: 'OPEN WINDOW + MAKE BED + GET DRESSED' },
+    { id: 'sveglia-acqua',    t: 'WATER + FIREBLOOD + TEETH' },
+    { id: 'sveglia-walk',     t: 'WALK 15 MIN + SET TARGET 1ST G WORK SESSION' }
   ]},
-  { id: 'gws1', t: '7:30 | 1ª G WORK SESSION', gws: 0 },
+  { id: 'gws1', t: '7:30 | 1ST G WORK SESSION', gws: 0 },
   { id: 'snack-mattina', t: '10:00 | SNACK + REC', sub: [
-    { id: 'snack-sole', t: '10’ DI SOLE' }
+    { id: 'snack-sole', t: '10’ OF SUN' }
   ]},
-  { id: 'gws2', t: '10:15 | 2ª G WORK SESSION', gws: 1 },
-  { id: 'workout-1', t: '12:30 | 1° WORKOUT' },
-  { id: 'pranzo', t: '13:00 | PRANZO + ROUTINE', sub: [
-    { id: 'pranzo-doccia',    t: 'DOCCIA' },
-    { id: 'pranzo-movimento', t: '10’ DI MOVIMENTO' }
+  { id: 'gws2', t: '10:15 | 2ND G WORK SESSION', gws: 1 },
+  { id: 'workout-1', t: '12:30 | 1ST WORKOUT' },
+  { id: 'pranzo', t: '13:00 | LUNCH + ROUTINE', sub: [
+    { id: 'pranzo-doccia',    t: 'SHOWER' },
+    { id: 'pranzo-movimento', t: '10’ OF MOVEMENT' }
   ]},
-  { id: 'gws3', t: '14:00 | 3ª G WORK SESSION', gws: 2 },
+  { id: 'gws3', t: '14:00 | 3RD G WORK SESSION', gws: 2 },
   { id: 'snack-pomeriggio', t: '17:00 | SNACK + REC' }
 ];
 
 const SERA_WC = [
-  { id: 'gws4', t: '17:15 | 4ª G WORK SESSION', gws: 3 },
-  { id: 'prep-cena', t: '18:15 | PREPARAZIONE CENA' },
-  { id: 'workout-2', t: '18:30 | 2° WORKOUT — WING CHUN' },
-  { id: 'cena', t: '20:30 | CENA + ROUTINE' },
-  { id: 'gws5', t: '21:00 | 5ª G WORK SESSION', gws: 4 },
-  { id: 'serale', t: '22:00 | ROUTINE SERALE', sub: [
-    { id: 'serale-telefono', t: 'TELEFONO LONTANO DAL LETTO' },
-    { id: 'serale-voto',     t: '(MINIMO) VOTO + FRASE A GIUDIZIO DELLA GIORNATA' },
-    { id: 'serale-gambe',    t: 'GAMBE CONTRO IL MURO' }
+  { id: 'gws4', t: '17:15 | 4TH G WORK SESSION', gws: 3 },
+  { id: 'prep-cena', t: '18:15 | DINNER PREP' },
+  { id: 'workout-2', t: '18:30 | 2ND WORKOUT — WING CHUN' },
+  { id: 'cena', t: '20:30 | DINNER + ROUTINE' },
+  { id: 'gws5', t: '21:00 | 5TH G WORK SESSION', gws: 4 },
+  { id: 'serale', t: '22:00 | EVENING ROUTINE', sub: [
+    { id: 'serale-telefono', t: 'PHONE AWAY FROM BED' },
+    { id: 'serale-voto',     t: '(MINIMUM) SCORE + ONE LINE ON THE DAY' },
+    { id: 'serale-gambe',    t: 'LEGS UP THE WALL' }
   ]}
 ];
 
 const SERA_STD = [
-  { id: 'gws4', t: '17:15 | 4ª G WORK SESSION', gws: 3 },
-  { id: 'prep-cena', t: '18:45 | PREPARAZIONE CENA' },
-  { id: 'workout-2', t: '19:00 | 2° WORKOUT' },
-  { id: 'cena', t: '20:00 | CENA' },
-  { id: 'gws5', t: '20:30 | 5ª G WORK SESSION', gws: 4 },
-  { id: 'serale', t: '22:00 | ROUTINE SERALE', sub: [
-    { id: 'serale-telefono', t: 'TELEFONO LONTANO DAL LETTO' },
-    { id: 'serale-voto',     t: '(MINIMO) VOTO + FRASE A GIUDIZIO DELLA GIORNATA' },
-    { id: 'serale-gambe',    t: 'GAMBE CONTRO IL MURO' }
+  { id: 'gws4', t: '17:15 | 4TH G WORK SESSION', gws: 3 },
+  { id: 'prep-cena', t: '18:45 | DINNER PREP' },
+  { id: 'workout-2', t: '19:00 | 2ND WORKOUT' },
+  { id: 'cena', t: '20:00 | DINNER' },
+  { id: 'gws5', t: '20:30 | 5TH G WORK SESSION', gws: 4 },
+  { id: 'serale', t: '22:00 | EVENING ROUTINE', sub: [
+    { id: 'serale-telefono', t: 'PHONE AWAY FROM BED' },
+    { id: 'serale-voto',     t: '(MINIMUM) SCORE + ONE LINE ON THE DAY' },
+    { id: 'serale-gambe',    t: 'LEGS UP THE WALL' }
   ]}
 ];
 
