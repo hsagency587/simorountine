@@ -1003,8 +1003,12 @@ const dlg = $('chiusura');
    colore, cosi' il voto si legge anche senza guardare la cifra. */
 function paintVoto(v) {
   $('votoNum').textContent = v.toFixed(1);
-  document.documentElement.style.setProperty('--voto-col',
-    'hsl(' + Math.round((v - 1) / 9 * 120) + ' 80% 52%)');
+  const q = (v - 1) / 9;                 /* 0 in fondo alla scala, 1 in cima */
+  const r = document.documentElement.style;
+  /* dal rosso caldo al verde dell'app, meno acceso di prima: il colore deve
+     dire com'e' andata, non gridarlo */
+  r.setProperty('--voto-col', 'hsl(' + Math.round(6 + q * 141) + ' 64% 56%)');
+  r.setProperty('--voto-pct', (q * 100).toFixed(1) + '%');
 }
 
 let chiusuraKey = null;           /* il giorno per cui il pop-up e' aperto */

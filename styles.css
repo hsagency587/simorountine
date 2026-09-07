@@ -416,13 +416,16 @@ body.menu-open{overflow:hidden}
 .vuoto{margin:0;padding:var(--s4);font-size:13px;color:var(--muted);font-style:italic}
 
 .drawer-foot{
-  display:flex;align-items:center;justify-content:space-between;gap:var(--s2);
+  display:flex;align-items:center;gap:var(--s2);
   padding:var(--s2) var(--s4);
   border-top:1px solid var(--line);
   font-size:12px;color:var(--muted);
 }
+/* senza niente da dire il piede del menu' sparisce, invece di lasciare una
+   striscia vuota dove prima stava Settings */
+.drawer-foot:has(.sync:empty){display:none}
 .link{min-height:36px;color:var(--text-2);text-decoration:underline;text-underline-offset:3px}
-.sync{flex:1;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sync{flex:1;text-align:left;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sync.err{color:var(--danger)}
 
 /* ---------- editor ---------- */
@@ -458,6 +461,13 @@ body.menu-open{overflow:hidden}
   text-align:left;
 }
 /* lo storico e' chiuso: in fondo resta solo la parolina che lo apre */
+.foot-row{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s2);
+  padding-top:var(--s2);margin-top:var(--s2);
+  border-top:1px solid var(--line);
+}
+.storico-box{flex:1 1 auto;min-width:0}
+.foot-row .link{flex:0 0 auto;min-height:36px;line-height:36px;font-size:13px;color:var(--muted)}
 .storico-tit{
   display:inline-block;list-style:none;cursor:pointer;
   min-height:36px;line-height:36px;padding:0 var(--s2) 0 0;
@@ -489,50 +499,87 @@ body.menu-open{overflow:hidden}
 }
 .chiusura::backdrop{background:rgba(0,0,0,.66)}
 .chiusura-box{padding:var(--s4)}
-.chiusura-tit{margin:0;font-size:17px}
-.chiusura-day{margin:2px 0 var(--s3);font-size:12px;color:var(--muted)}
 
-/* il voto si legge dal colore prima ancora che dalla cifra */
+/* testata: titolo e data, poi una linea che chiude l'intestazione */
+.chiusura-head{
+  margin:0 0 var(--s4);padding-bottom:var(--s3);
+  border-bottom:1px solid var(--line);
+}
+.chiusura-tit{margin:0;font-size:17px;letter-spacing:-.01em}
+.chiusura-day{margin:2px 0 0;font-size:12px;color:var(--muted)}
+
+/* etichetta di campo: piccola, maiuscola, spaziata. Uguale sopra il voto e
+   sopra il commento, cosi' i due blocchi si leggono come fratelli. */
+.campo-lab{
+  display:block;margin:0 0 var(--s2);
+  font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);
+}
+
+/* il voto sta nel suo riquadro, come una scheda dentro il pop-up */
+.voto-box{
+  padding:var(--s3);margin:0 0 var(--s4);
+  background:var(--surface-2);
+  border:1px solid var(--line);border-radius:var(--radius);
+}
 .voto-num{
-  margin:0;text-align:center;
-  font-size:44px;font-weight:700;line-height:1;
+  display:flex;align-items:baseline;justify-content:center;gap:4px;
+  margin:0;line-height:1;
+}
+.voto-num > span:first-child{
+  font-size:40px;font-weight:700;letter-spacing:-.02em;
   font-variant-numeric:tabular-nums;
   color:var(--voto-col,var(--accent));
 }
+.voto-su{font-size:15px;font-weight:600;color:var(--muted)}
+
+/* la barra e' neutra: si colora solo la parte gia' percorsa. Niente arcobaleno:
+   il colore lo porta il numero, e la barra dice soltanto quanto sei avanti. */
 .voto{
   -webkit-appearance:none;appearance:none;
-  display:block;width:100%;height:28px;margin:var(--s3) 0 0;
+  display:block;width:100%;height:26px;margin:var(--s3) 0 0;
   background:none;
 }
 .voto::-webkit-slider-runnable-track{
-  height:8px;border-radius:4px;
-  background:linear-gradient(90deg,var(--danger),var(--stale),var(--accent));
+  height:6px;border-radius:3px;
+  background:linear-gradient(90deg,
+    var(--voto-col,var(--accent)) 0 var(--voto-pct,50%),
+    var(--line) var(--voto-pct,50%) 100%);
 }
 .voto::-moz-range-track{
-  height:8px;border-radius:4px;
-  background:linear-gradient(90deg,var(--danger),var(--stale),var(--accent));
+  height:6px;border-radius:3px;
+  background:linear-gradient(90deg,
+    var(--voto-col,var(--accent)) 0 var(--voto-pct,50%),
+    var(--line) var(--voto-pct,50%) 100%);
 }
 .voto::-webkit-slider-thumb{
   -webkit-appearance:none;appearance:none;
-  width:26px;height:26px;margin-top:-9px;border-radius:50%;
-  background:var(--voto-col,var(--accent));border:2px solid var(--bg);
+  width:20px;height:20px;margin-top:-7px;border-radius:50%;
+  background:var(--voto-col,var(--accent));
+  border:3px solid var(--surface-2);
+  box-shadow:0 0 0 1px var(--line);
 }
 .voto::-moz-range-thumb{
-  width:26px;height:26px;border-radius:50%;
-  background:var(--voto-col,var(--accent));border:2px solid var(--bg);
+  width:20px;height:20px;border-radius:50%;
+  background:var(--voto-col,var(--accent));
+  border:3px solid var(--surface-2);
+  box-shadow:0 0 0 1px var(--line);
 }
+.voto:focus-visible{outline:none}
 .voto-scala{
   display:flex;justify-content:space-between;
-  margin:0;font-size:11px;color:var(--muted);
+  margin:2px 0 0;font-size:11px;
+  font-variant-numeric:tabular-nums;color:var(--muted);
 }
 
-.commento-lab{display:block;margin:var(--s4) 0 var(--s1);font-size:12px;color:var(--muted)}
 .commento{
-  display:block;width:100%;padding:var(--s2);
+  display:block;width:100%;padding:var(--s2) var(--s3);
   background:var(--surface-2);color:var(--text);
   border:1px solid var(--line);border-radius:var(--radius);
-  font:inherit;resize:vertical;
+  font:inherit;font-size:14px;line-height:1.45;resize:vertical;
 }
+.commento::placeholder{color:var(--muted)}
+.commento:focus{outline:none;border-color:var(--accent)}
 
 .chiusura-btn{display:flex;gap:var(--s2);margin-top:var(--s4)}
 .btn{

@@ -66,14 +66,18 @@
 </main>
 
 <footer class="foot">
-  <!-- lo storico sta chiuso: si apre solo se lo si tocca -->
-  <details class="storico-box">
-    <summary class="storico-tit">History</summary>
-    <div class="storico">
-      <select class="mese" id="mese" aria-label="History month"></select>
-      <button type="button" class="scarica" id="scarica">Download</button>
-    </div>
-  </details>
+  <!-- una riga sola, staccata dalle tappe da una linea: lo storico a sinistra,
+       le impostazioni dal lato opposto. Lo storico sta chiuso finche' non si tocca. -->
+  <div class="foot-row">
+    <details class="storico-box">
+      <summary class="storico-tit">History</summary>
+      <div class="storico">
+        <select class="mese" id="mese" aria-label="History month"></select>
+        <button type="button" class="scarica" id="scarica">Download</button>
+      </div>
+    </details>
+    <button type="button" class="link" id="impostazioniBtn">Settings</button>
+  </div>
 </footer>
 
 <!-- Il Menù Task: il serbatoio delle cose da fare che non vanno nel calendario. -->
@@ -91,7 +95,6 @@
   </label>
   <div class="drawer-list" id="drawerList"></div>
   <div class="drawer-foot">
-    <button type="button" class="link" id="impostazioniBtn">Settings</button>
     <span class="sync" id="sync"></span>
   </div>
 </aside>
@@ -163,16 +166,21 @@
 
 <dialog class="chiusura" id="chiusura" aria-labelledby="chiusuraTit">
   <form method="dialog" class="chiusura-box" id="chiusuraForm">
-    <h2 class="chiusura-tit" id="chiusuraTit">Closing the day</h2>
-    <p class="chiusura-day" id="chiusuraDay"></p>
+    <header class="chiusura-head">
+      <h2 class="chiusura-tit" id="chiusuraTit">Closing the day</h2>
+      <p class="chiusura-day" id="chiusuraDay"></p>
+    </header>
 
-    <p class="voto-num" id="votoNum">5.5</p>
-    <input type="range" class="voto" id="voto" min="1" max="10" step="0.1" value="5.5"
-           aria-label="Score of the day, from 1 to 10">
-    <p class="voto-scala"><span>1</span><span>10</span></p>
+    <section class="voto-box">
+      <p class="campo-lab">Score</p>
+      <p class="voto-num"><span id="votoNum">5.5</span><span class="voto-su">/10</span></p>
+      <input type="range" class="voto" id="voto" min="1" max="10" step="0.1" value="5.5"
+             aria-label="Score of the day, from 1 to 10">
+      <p class="voto-scala"><span>1</span><span>10</span></p>
+    </section>
 
-    <label class="commento-lab" for="commento">Comment</label>
-    <textarea class="commento" id="commento" rows="5" placeholder="How did it go?"></textarea>
+    <label class="campo-lab" for="commento">Comment</label>
+    <textarea class="commento" id="commento" rows="4" placeholder="One line on the day"></textarea>
 
     <div class="chiusura-btn">
       <button type="button" class="btn" id="chiusuraAnnulla">Cancel</button>
