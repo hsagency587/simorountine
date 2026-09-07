@@ -6,8 +6,8 @@
       "nome": "Task prova",
       "desc": "Prova",
       "rank": "A",
-      "giorno": null,
-      "gws": null
+      "giorno": "2026-09-08",
+      "gws": 2
     }
   ]
 }
