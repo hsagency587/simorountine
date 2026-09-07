@@ -125,6 +125,16 @@
       "cliente": null,
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmtrpmaqwayq1",
+      "creata": "2026-09-07T20:45:15.368Z",
+      "nome": "BISQ x vendere bitcoin",
+      "desc": "Quando sarà il momento di vendere usa la piattaforma bisq, chiederà una fee ma meglio delle tasse. Io mando I btc e un \"random dude\" mi farà un bonifico",
+      "rank": "C",
+      "cliente": null,
+      "giorno": null,
+      "gws": null
     }
   ]
 }
