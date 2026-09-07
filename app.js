@@ -290,23 +290,6 @@ function prepEvent(ev, k) {
 }
 
 /* Le cinque fasce coprono le 24 ore: nessun evento puo' restare fuori. */
-/* L'evento vivo dietro una riga 'ev:...', se il calendario copre ancora quel
-   giorno. Null se il giorno non e' coperto o se l'evento non c'e' piu'. */
-function eventoDi(x) {
-  if (!x.evento || !isCovered(x.giorno)) return null;
-  const raw = cal.days[x.giorno];
-  if (!Array.isArray(raw)) return null;
-  return raw.map(v => prepEvent(v, x.giorno)).find(v => v.id === x.evento) || null;
-}
-
-/* Il titolo salvato e' una copia presa quando si e' dato il cliente. Finche' il
-   calendario copre quel giorno si rilegge da li': un evento rinominato su
-   Google cambia nome anche nel menu'. */
-function titoloEvento(x) {
-  const e = x.evento ? eventoDi(x) : null;
-  return e && e.title ? e.title : x.nome;
-}
-
 function groupEvents(k) {
   const out = routineFor(k).map(() => []);
   if (!isCovered(k)) return out;
@@ -1189,16 +1172,11 @@ function tidyTasks() {
   let changed = false;
 
   tstore.tasks = tstore.tasks.filter(x => {
-    /* un evento del calendario vive quanto la finestra dei quattro giorni, e
-       solo finche' esiste su Google: cancellato la', qui non ha piu' niente a
-       cui appartenere. Se il calendario non copre quel giorno non si tocca:
-       assente non vuol dire cancellato. */
+    /* un evento del calendario vive quanto la finestra dei quattro giorni */
     if (x.evento) {
-      if (win.indexOf(x.giorno) < 0 || (isCovered(x.giorno) && !eventoDi(x))) {
-        changed = true;
-        return false;
-      }
-      return true;
+      if (win.indexOf(x.giorno) >= 0) return true;
+      changed = true;
+      return false;
     }
     if (!x.giorno) return true;
     if (dayChecks(x.giorno)[x.id]) {
@@ -1278,7 +1256,7 @@ function trowNode(x, pick) {
     li.appendChild(i);
   }
   li.appendChild(el('span', 'rank r' + x.rank, x.rank));
-  li.appendChild(el('span', 'tname', titoloEvento(x)));
+  li.appendChild(el('span', 'tname', x.nome));
   if (x.giorno) li.appendChild(el('span', 'twhen', whenText(x)));
   if (!pick) {
     const b = el('button', 'more', '⋯');
@@ -1581,8 +1559,7 @@ function paintEditor() {
 function openEditor(id, preset) {
   const x = id ? findTask(id) : null;
   if (x && x.evento) {
-    ed = { id: x.id, evento: x.evento, giorno: x.giorno, nome: titoloEvento(x),
-           ora: (eventoDi(x) || x).txt || x.ora, cliente: x.cliente };
+    ed = { id: x.id, evento: x.evento, giorno: x.giorno, nome: x.nome, ora: x.ora, cliente: x.cliente };
     apriEditor(false);
     return;
   }
