@@ -188,6 +188,13 @@ jobs:
 
           function collect(id, ev, start, end) {
             if (String(ev.component.getFirstPropertyValue('status') || '').toUpperCase() === 'CANCELLED') return;
+            /* Un evento cancellato su Google resta nell'iCal ancora per ore, ma
+               svuotato del titolo e senza STATUS:CANCELLED: resta l'ora e basta,
+               la traccia di quello che c'era. Senza titolo non c'e` niente da
+               mostrare, e tenerlo vorrebbe dire lasciare in barra un evento che
+               e` gia` stato cancellato. */
+            const title = String(ev.summary || '').trim();
+            if (!title) return;
             const key = romeDayKey(start);
             if (keys.indexOf(key) < 0) return;
             bucket.push({
@@ -195,7 +202,7 @@ jobs:
               at: start.getTime(),
               item: {
                 id: id,
-                title: String(ev.summary || ''),
+                title: title,
                 start: romeISO(start),
                 end: romeISO(end),
                 description: String(ev.description || '')
