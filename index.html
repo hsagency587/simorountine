@@ -122,6 +122,31 @@
   <div class="drawer-list" id="wlist"></div>
 </aside>
 
+<!-- Un limite della dieta: un orario oltre il quale non si puo', o una
+     quantita' massima. Si sceglie prima che tipo e' e poi si riempie. -->
+<dialog class="chiusura" id="limite" tabindex="-1" aria-labelledby="limiteTit">
+  <form method="dialog" class="chiusura-box" id="limiteForm">
+    <h2 class="chiusura-tit" id="limiteTit">New limit</h2>
+
+    <p class="commento-lab">Kind</p>
+    <button type="button" class="campo tendina" id="lTipo"></button>
+
+    <div id="lCosaBox">
+      <label class="commento-lab" for="lCosa">What</label>
+      <input class="campo" id="lCosa" type="text" maxlength="40" autocomplete="off">
+    </div>
+
+    <label class="commento-lab" for="lVal" id="lValLab">Until</label>
+    <input class="campo" id="lVal" type="time" maxlength="30" autocomplete="off">
+
+    <div class="chiusura-btn">
+      <button type="button" class="btn btn-del" id="lElimina">Delete</button>
+      <button type="button" class="btn" id="lAnnulla">Cancel</button>
+      <button type="submit" class="btn btn-ok" value="ok">Confirm</button>
+    </div>
+  </form>
+</dialog>
+
 <!-- Un editor solo, per creare e per modificare. -->
 <dialog class="chiusura" id="editor" tabindex="-1" aria-labelledby="editorTit">
   <form method="dialog" class="chiusura-box" id="editorForm">

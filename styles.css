@@ -451,6 +451,25 @@ body.menu-open{overflow:hidden}
 .wcampo:focus{outline:none;border-color:var(--accent)}
 .wcampo::placeholder{color:var(--line)}
 
+/* i limiti della dieta: una riga per limite, e in fondo il bottone per
+   aggiungerne uno. Si leggono, si toccano per cambiarli. */
+.lrow{
+  display:flex;align-items:center;gap:var(--s2);
+  min-height:38px;padding:0 var(--s3);
+  border-bottom:1px solid var(--line);
+  font-size:13px;color:var(--text-2);
+  cursor:pointer;
+}
+.lrow:active{background:var(--surface-2)}
+.lcosa{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lval{flex:0 0 auto;color:var(--accent);font-variant-numeric:tabular-nums}
+.lpiu{
+  display:block;width:calc(100% - 2 * var(--s3));margin:var(--s2) var(--s3);
+  min-height:36px;border-radius:var(--radius);
+  background:var(--surface-2);border:1px dashed var(--line);
+  font-size:13px;font-weight:600;color:var(--muted);
+}
+
 /* la durata della tappa: piccola, grigia, all'estremita' della riga */
 .dur{flex:0 0 auto;margin-right:var(--s3);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .grp{margin:0;padding:var(--s3) var(--s4) var(--s1);font-size:11px;letter-spacing:.08em;color:var(--muted)}

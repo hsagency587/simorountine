@@ -1268,6 +1268,9 @@ if (!Array.isArray(tstore.known)) tstore.known = [];
 if (!tstore.workout || typeof tstore.workout !== 'object') tstore.workout = {};
 /* La dieta: una casella per pasto, uguale tutti i giorni. */
 if (!tstore.dieta || typeof tstore.dieta !== 'object') tstore.dieta = {};
+/* I limiti: regole che non stanno dentro un pasto — un orario oltre il quale
+   una cosa non si prende, o una quantita' massima. */
+if (!Array.isArray(tstore.limiti)) tstore.limiti = [];
 
 let archivio = readStore(ARCHIVIO_KEY);
 let mancate  = readStore(MANCATE_KEY);
@@ -1350,6 +1353,39 @@ function validWorkout(w) {
     if (a[0] || a[1]) out[g] = a;
   }
   return out;
+}
+
+/* I tre tipi di limite. 'cosa' dice se serve il soggetto, 'ora' se il valore e'
+   un orario invece di un testo libero, 'lab' come si chiama il campo. */
+const TIPI_LIMITE = [
+  { k: 'until', nome: 'Only until a time', cosa: true,  ora: true,  lab: 'Until' },
+  { k: 'max',   nome: 'Max amount',        cosa: true,  ora: false, lab: 'How much' },
+  { k: 'stop',  nome: 'Nothing after',     cosa: false, ora: true,  lab: 'After' }
+];
+const tipoLimite = k => TIPI_LIMITE.find(t => t.k === k) || TIPI_LIMITE[0];
+
+/* Come si legge un limite: due pezzi, il soggetto e il valore. */
+function testoLimite(x) {
+  const t = tipoLimite(x.tipo);
+  return { cosa: t.k === 'stop' ? 'Nothing after' : x.cosa,
+           val:  t.k === 'until' ? 'until ' + x.valore
+               : t.k === 'max'   ? 'max ' + x.valore
+               :                   x.valore };
+}
+
+/* I limiti che arrivano dal file: tipo noto, testi corti, niente vuoti. */
+function validLimiti(l) {
+  if (!Array.isArray(l)) return [];
+  return l.map(x => {
+    if (!x || typeof x !== 'object') return null;
+    const t = TIPI_LIMITE.find(v => v.k === x.tipo);
+    if (!t) return null;
+    const cosa = String(x.cosa == null ? '' : x.cosa).slice(0, 40).trim();
+    const valore = String(x.valore == null ? '' : x.valore).slice(0, 30).trim();
+    if (!valore || (t.cosa && !cosa)) return null;
+    return { id: typeof x.id === 'string' && x.id ? x.id : newId(),
+             tipo: t.k, cosa: t.cosa ? cosa : '', valore: valore };
+  }).filter(Boolean);
 }
 
 /* La dieta che arriva dal file: una casella per pasto, testo corto. */
@@ -1681,10 +1717,16 @@ function paintDrawer() {
     const dx = ev.changedTouches[0].clientX - x0;
     const dy = ev.changedTouches[0].clientY - y0;
     if (Math.abs(dx) < CORSA || Math.abs(dx) < Math.abs(dy) * DECISO) return;
-    /* verso sinistra il Menu Task, verso destra il piano dei workout. Con uno
-       gia' aperto, il gesto contrario lo chiude. */
-    if (aperto())       { if (dx > 0) openMenu(false); return; }
-    if (apertoW())      { if (dx < 0) openW(false); return; }
+    /* Verso sinistra il Menu Task, verso destra il piano. Col Menu Task aperto,
+       il gesto contrario lo chiude. Col piano aperto il gesto scorre fra le due
+       sezioni, e solo dall'ultima chiude: Workout -> Diet -> chiuso, e
+       all'indietro Diet -> Workout. */
+    if (aperto()) { if (dx > 0) openMenu(false); return; }
+    if (apertoW()) {
+      if (dx < 0) { if (wTab === 'w') setTab('d'); else openW(false); }
+      else if (wTab === 'd') setTab('w');
+      return;
+    }
     if (dx < 0) openMenu(true); else openW(true);
   }, { passive: true });
 })();
@@ -1786,6 +1828,21 @@ function paintD() {
     row.appendChild(inp);
     box.appendChild(row);
   }
+
+  /* i limiti: regole che non stanno dentro un pasto */
+  box.appendChild(el('p', 'dgiorno', 'Limits'));
+  for (const x of tstore.limiti) {
+    const t = testoLimite(x);
+    const row = el('div', 'lrow');
+    row.dataset.limite = x.id;
+    row.appendChild(el('span', 'lcosa', t.cosa));
+    row.appendChild(el('span', 'lval', t.val));
+    box.appendChild(row);
+  }
+  const piu = el('button', 'lpiu', '+  Add a limit');
+  piu.type = 'button';
+  piu.dataset.piulimite = '1';
+  box.appendChild(piu);
 }
 
 /* Si scrive quando si esce dalla casella: cosi' non si segna il file da salvare
@@ -1829,6 +1886,89 @@ function riportaSu() {
   $('wlist').scrollTop = 0;
   $('wdrawer').querySelector('.wswitch').classList.remove('via');
 }
+
+/* ------------------------------------------------ i limiti della dieta ---- */
+
+const dlgLim = $('limite');
+let lim = null;                   /* il limite che si sta scrivendo, o null */
+
+/* Prima si sceglie che tipo di limite e', poi si riempie: i campi cambiano di
+   conseguenza, cosi' non si chiede un orario a chi vuole dire "tre cucchiai". */
+function apriLimite(id) {
+  const x = id ? tstore.limiti.find(v => v.id === id) : null;
+  lim = x ? { id: x.id, tipo: x.tipo, cosa: x.cosa, valore: x.valore }
+          : { id: null, tipo: 'until', cosa: '', valore: '' };
+  $('limiteTit').textContent = x ? 'Limit' : 'New limit';
+  $('lElimina').hidden = !x;
+  $('lElimina').textContent = 'Delete';
+  paintLimite();
+  dlgLim.showModal();
+  dlgLim.focus();                 /* niente tastiera addosso appena si apre */
+}
+
+function paintLimite() {
+  const t = tipoLimite(lim.tipo);
+  $('lTipo').textContent = t.nome;
+  $('lCosaBox').hidden = !t.cosa;
+  $('lCosa').disabled = !t.cosa;
+  $('lCosa').value = lim.cosa || '';
+  $('lValLab').textContent = t.lab;
+  const v = $('lVal');
+  v.type = t.ora ? 'time' : 'text';
+  v.placeholder = t.ora ? '' : 'e.g. 3 spoons';
+  v.value = lim.valore || '';
+}
+
+$('lTipo').addEventListener('click', () => {
+  if (!lim) return;
+  apriPicker('Kind', TIPI_LIMITE.map(t => ({ k: t.k, lab: t.nome })), lim.tipo, v => {
+    if (!v || v === lim.tipo) return;
+    lim.tipo = v;
+    /* cambiando tipo il valore vecchio non ha piu' senso: un orario non e' una
+       quantita' e viceversa */
+    lim.valore = '';
+    paintLimite();
+  });
+});
+
+$('limiteForm').addEventListener('submit', ev => {
+  if (!lim) return;
+  const t = tipoLimite(lim.tipo);
+  const cosa = t.cosa ? $('lCosa').value.trim() : '';
+  const valore = $('lVal').value.trim();
+  if (!valore || (t.cosa && !cosa)) {
+    /* manca qualcosa: la finestra resta aperta e niente si perde */
+    ev.preventDefault();
+    (t.cosa && !cosa ? $('lCosa') : $('lVal')).focus();
+    return;
+  }
+  const x = lim.id ? tstore.limiti.find(v => v.id === lim.id) : null;
+  if (x) { x.tipo = lim.tipo; x.cosa = cosa; x.valore = valore; }
+  else tstore.limiti.push({ id: newId(), tipo: lim.tipo, cosa: cosa, valore: valore });
+  lim = null;
+  touch();
+  paintW();
+});
+
+$('lAnnulla').addEventListener('click', () => { lim = null; dlgLim.close(); });
+dlgLim.addEventListener('cancel', () => { lim = null; });
+
+/* due tocchi per eliminare: il primo chiede, il secondo fa */
+$('lElimina').addEventListener('click', () => {
+  const b = $('lElimina');
+  if (b.textContent !== 'Sure?') { b.textContent = 'Sure?'; return; }
+  if (lim && lim.id) tstore.limiti = tstore.limiti.filter(v => v.id !== lim.id);
+  lim = null;
+  dlgLim.close();
+  touch();
+  paintW();
+});
+
+$('wlist').addEventListener('click', ev => {
+  if (ev.target.closest('button[data-piulimite]')) { apriLimite(null); return; }
+  const r = ev.target.closest('.lrow[data-limite]');
+  if (r) apriLimite(r.dataset.limite);
+});
 
 $('wBtn').addEventListener('click', () => openW(true));
 $('chiudiW').addEventListener('click', () => openW(false));
@@ -2404,6 +2544,7 @@ async function pullTasks() {
   const remote = Array.isArray(data.tasks) ? data.tasks.map(validTask).filter(Boolean) : [];
   const piano  = validWorkout(data.workout);
   const dieta  = validDieta(data.dieta);
+  const limiti = validLimiti(data.limiti);
 
   if (tstore.dirty) {
     /* e' la nostra stessa versione, salvata dal salvagente senza risposta? */
@@ -2419,6 +2560,7 @@ async function pullTasks() {
   tstore.tasks = remote;
   tstore.workout = piano;
   tstore.dieta = dieta;
+  tstore.limiti = limiti;
   rememberSha(j.sha);
   tstore.dirty = false;
   saveLocal();
@@ -2440,7 +2582,8 @@ async function pushTasks(opts) {
   const sent = JSON.stringify(tstore.tasks);
   const n = tstore.tasks.filter(x => !x.giorno).length;
   /* con la chiave impostata il file parte chiuso; senza, in chiaro come prima */
-  const testo = JSON.stringify({ tasks: tstore.tasks, workout: tstore.workout, dieta: tstore.dieta }, null, 2) + '\n';
+  const testo = JSON.stringify({ tasks: tstore.tasks, workout: tstore.workout,
+                                 dieta: tstore.dieta, limiti: tstore.limiti }, null, 2) + '\n';
   let corpo;
   try {
     corpo = await cifra(testo);
