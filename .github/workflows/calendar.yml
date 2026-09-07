@@ -105,19 +105,19 @@ jobs:
           const target = process.env.CALENDAR_OUT;
           if (!target) muori('CALENDAR_OUT non e` impostato.');
 
-          /* --- la finestra: ieri, oggi, domani, dopodomani in ora di Roma --- */
+          /* --- la finestra: da ieri a fra sette giorni, in ora di Roma --- */
 
           const nowParts = romeParts(new Date());
           const civil = Date.UTC(nowParts.year, nowParts.month - 1, nowParts.day);
 
-          const days = [-1, 0, 1, 2].map(n => {
+          const days = [-1, 0, 1, 2, 3, 4, 5, 6, 7].map(n => {
             const d = new Date(civil + n * DAY);
             return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate() };
           });
           const keys = days.map(x => x.y + '-' + pad(x.m) + '-' + pad(x.d));
 
           const first = days[0];
-          const afterLast = new Date(civil + 3 * DAY + DAY);
+          const afterLast = new Date(civil + 7 * DAY + DAY);
           const winStart = romeWall(first.y, first.m, first.d, 0, 0, 0).getTime();
           const winEnd = romeWall(
             afterLast.getUTCFullYear(), afterLast.getUTCMonth() + 1, afterLast.getUTCDate(), 0, 0, 0
@@ -336,7 +336,7 @@ jobs:
           # Il confronto ignora generatedAt: cambia per definizione a ogni giro
           # e non e` un evento del calendario. Cosi' si committa solo quando su
           # Google e` cambiato qualcosa davvero, o quando scatta la mezzanotte
-          # e la finestra dei quattro giorni scorre.
+          # e la finestra dei nove giorni scorre.
           #
           # Con il file cifrato il contenuto non si puo` confrontare: due
           # cifrature della stessa cosa sono sempre diverse. Si confrontano le

@@ -191,11 +191,17 @@ function today() {
 const fmtDate = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 const fmtTime = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-/* La finestra dei quattro giorni si calcola in locale, non si legge dal file:
-   se il ponte si ferma, oggi resta comunque spuntabile. */
+/* Quanti giorni mancano da oggi a una data: serve alle scritte "in N days". */
+const fraQuanti = k =>
+  Math.round((new Date(k + 'T00:00:00') - today()) / 86400000);
+
+/* La finestra si calcola in locale, non si legge dal file: se il ponte si
+   ferma, oggi resta comunque spuntabile. Va da ieri a fra sette giorni: ieri
+   per chiudere la giornata appena passata, sette avanti per vedere e spuntare
+   quello che arriva. */
 function windowKeys() {
   const t = today();
-  return [-1, 0, 1, 2].map(n => dayKey(shift(t, n)));
+  return [-1, 0, 1, 2, 3, 4, 5, 6, 7].map(n => dayKey(shift(t, n)));
 }
 
 /* Unica regola per le spunte e per il registro: dentro la finestra si scrive,
@@ -407,7 +413,7 @@ function tally(k) {
   return { total, done };
 }
 
-/* Il record si riscrive per i quattro giorni della finestra, gli stessi in cui si
+/* Il record si riscrive per i giorni della finestra, gli stessi in cui si
    puo' spuntare. Fuori resta congelato. Se calendar.json non copre un giorno della
    finestra i suoi eventi valgono zero: meglio un totale parziale che un buco nella
    serie quando il ponte si ferma. */
@@ -800,7 +806,7 @@ function paintDate() {
             : viewKey === dayKey(t0)             ? 'today'
             : viewKey === dayKey(shift(t0, -1))  ? 'yesterday'
             : viewKey === dayKey(shift(t0,  1))  ? 'tomorrow'
-            :                                      'in 2 days';
+            :                                      'in ' + fraQuanti(viewKey) + ' days';
 }
 
 /* La sirena gira finche' resta almeno un evento in finestra protetta da spuntare.
@@ -815,7 +821,7 @@ function paintSiren(c) {
 
 /* Tappa spuntata: resta segnata come chiusa (il + della sessione sparisce),
    ma le figlie restano spuntabili. Si blocca solo fuori dalla finestra dei
-   quattro giorni, dove tutto e' in sola lettura. */
+   la finestra, dove tutto e' in sola lettura. */
 function lockRow(r, closed, ro) {
   r.el.classList.toggle('closed', closed);
   r.el.querySelectorAll('input[data-key]').forEach(i => {
@@ -1215,7 +1221,7 @@ const byMenu   = (a, b) => (a.evento ? 0 : 1) - (b.evento ? 0 : 1)
   || byQuando(a, b)
   || a.nome.localeCompare(b.nome);
 
-/* Si schedula su oggi, domani e dopodomani. Ieri no. */
+/* Si schedula da oggi in avanti, dentro la finestra. Ieri no. */
 const canSchedule = k => isEditable(k) && k >= dayKey(today());
 
 /* Un file arrivato da fuori si prende con le pinze: solo campi noti, nella
@@ -1271,7 +1277,7 @@ function tidyTasks() {
   let changed = false;
 
   tstore.tasks = tstore.tasks.filter(x => {
-    /* un evento del calendario vive quanto la finestra dei quattro giorni, e
+    /* un evento del calendario vive quanto la finestra, e
        solo finche' esiste su Google: cancellato la', qui non ha piu' niente a
        cui appartenere. Se il calendario non copre quel giorno non si tocca:
        assente non vuol dire cancellato. */
@@ -1347,8 +1353,8 @@ function whenText(x) {
   const t0 = today();
   const lab = x.giorno === dayKey(t0)            ? 'today'
             : x.giorno === dayKey(shift(t0, 1))  ? 'tomorrow'
-            : x.giorno === dayKey(shift(t0, 2))  ? 'in 2 days'
             : x.giorno === dayKey(shift(t0, -1)) ? 'yesterday'
+            : fraQuanti(x.giorno) > 0            ? 'in ' + fraQuanti(x.giorno) + ' days'
             : fmtDate.format(new Date(x.giorno + 'T00:00:00'));
   return lab + ' · ' + (x.evento ? x.ora
                                  : 'GWS ' + gwsDi(x.gws).map(g => g + 1).join(','));
