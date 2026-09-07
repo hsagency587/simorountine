@@ -252,5 +252,6 @@
     "pranzo": "4 eggs + 80-100g carbs",
     "snack-pomeriggio": "Fruits",
     "cena": "Loads of meat"
-  }
+  },
+  "limiti": []
 }
