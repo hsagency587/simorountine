@@ -1129,6 +1129,17 @@ function whenText(x) {
 function trowNode(x, pick) {
   const li = el('li', 'trow' + (x.giorno ? ' sched' : ''));
   li.dataset.task = x.id;
+  if (!pick) {
+    /* la casella per spuntarla senza aprirla: sta fuori dall'area che apre
+       l'editor, cosi' un tocco storto non fa l'una per l'altra */
+    const i = el('input', 'tcheck');
+    i.type = 'checkbox';
+    i.dataset.tcheck = x.id;
+    i.checked = !!(x.giorno && dayChecks(x.giorno)[x.id]);
+    i.disabled = !!(x.giorno && !isEditable(x.giorno));
+    i.setAttribute('aria-label', 'Segna fatta');
+    li.appendChild(i);
+  }
   li.appendChild(el('span', 'rank r' + x.rank, x.rank));
   li.appendChild(el('span', 'tname', x.nome));
   if (x.giorno) li.appendChild(el('span', 'twhen', whenText(x)));
@@ -1241,7 +1252,36 @@ $('nuova').addEventListener('click', () => openEditor(null));
 $('impostazioniBtn').addEventListener('click', openImpostazioni);
 
 /* tutta la riga apre l'editor: i tre puntini sono il segnale, non l'unico posto */
+/* Spuntare una task dal menu'. Se e' gia' su un giorno, e' come spuntarla nella
+   giornata. Se sta nel serbatoio non ha un giorno dove segnare la spunta:
+   spuntandola qui va su oggi, prima sessione, e da li' segue la strada di
+   sempre — a mezzanotte finisce in archivio. */
+function spuntaDalMenu(id, on) {
+  const x = findTask(id);
+  if (!x) return;
+  if (!x.giorno) {
+    if (!on) return;
+    x.giorno = dayKey(today());
+    x.gws = 0;
+    riapriSessione(x);
+    setCheck(x.giorno, x.id, true);
+    touch();
+  } else {
+    if (!isEditable(x.giorno)) return;
+    setCheck(x.giorno, x.id, on);
+  }
+  render();
+  paintDrawer();
+}
+
+$('drawerList').addEventListener('change', ev => {
+  const i = ev.target.closest('input[data-tcheck]');
+  if (i) spuntaDalMenu(i.dataset.tcheck, i.checked);
+});
+
 $('drawerList').addEventListener('click', ev => {
+  /* la casella si occupa da sola: non deve aprire anche l'editor */
+  if (ev.target.closest('input[data-tcheck]')) return;
   const root = ev.target.closest('button.grproot');
   if (root) {
     cliRoot = !cliRoot;

@@ -345,6 +345,7 @@ body.menu-open{overflow:hidden}
   cursor:pointer;
 }
 .trow:active{background:var(--surface-2)}
+.tcheck{flex:none;width:20px;height:20px;margin:0;accent-color:var(--accent)}
 .tname{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .twhen{flex:0 0 auto;font-size:11px;color:var(--muted)}
 /* schedulata: il bordino giallo che chiedevi */
