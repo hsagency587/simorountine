@@ -22,7 +22,7 @@
 <header class="top" id="top">
 
   <div class="siren" id="siren" hidden>
-    <svg class="siren-svg" viewBox="0 0 48 48" role="img" aria-label="Un evento cade in una finestra protetta">
+    <svg class="siren-svg" viewBox="0 0 48 48" role="img" aria-label="An event falls in a protected window">
       <g class="siren-rot">
         <path class="beam" d="M24 30 L-6 17 L-6 43 Z"/>
       </g>
@@ -35,17 +35,17 @@
   </div>
 
   <div class="bar">
-    <p class="fresh" id="fresh">Caricamento…</p>
-    <button type="button" class="salva" id="salva" hidden>Salva</button>
-    <button type="button" class="menu" id="menuBtn" aria-label="Apri il Menù Task" aria-controls="drawer">☰</button>
+    <p class="fresh" id="fresh">Loading…</p>
+    <button type="button" class="salva" id="salva" hidden>Save</button>
+    <button type="button" class="menu" id="menuBtn" aria-label="Open the Task Menu" aria-controls="drawer">☰</button>
   </div>
 
   <div class="daybar">
-    <button type="button" class="nav" id="prev" aria-label="Giorno precedente">&lsaquo;</button>
-    <button type="button" class="date" id="dateBtn" aria-label="Torna a oggi">
+    <button type="button" class="nav" id="prev" aria-label="Previous day">&lsaquo;</button>
+    <button type="button" class="date" id="dateBtn" aria-label="Back to today">
       <span id="dateMain"></span><span class="rel" id="dateRel"></span>
     </button>
-    <button type="button" class="nav" id="next" aria-label="Giorno successivo">&rsaquo;</button>
+    <button type="button" class="nav" id="next" aria-label="Next day">&rsaquo;</button>
   </div>
 
   <div class="prog"><span class="prog-fill" id="progFill"></span></div>
@@ -55,39 +55,39 @@
     <span class="sep">·</span>
     <span class="act" id="act">—</span>
     <span class="sep">·</span>
-    <span class="streak" id="streak">serie 0</span>
+    <span class="streak" id="streak">streak 0</span>
   </p>
 
 </header>
 
 <main>
-  <h1 class="sr-only">G Work — routine del giorno</h1>
+  <h1 class="sr-only">G Work — routine of the day</h1>
   <ol class="list" id="list"></ol>
 </main>
 
 <footer class="foot">
   <div class="storico">
-    <select class="mese" id="mese" aria-label="Mese dello storico"></select>
-    <button type="button" class="scarica" id="scarica">Scarica</button>
+    <select class="mese" id="mese" aria-label="History month"></select>
+    <button type="button" class="scarica" id="scarica">Download</button>
   </div>
 </footer>
 
 <!-- Il Menù Task: il serbatoio delle cose da fare che non vanno nel calendario. -->
 <div class="velo" id="velo" hidden></div>
-<aside class="drawer" id="drawer" aria-label="Menù Task">
+<aside class="drawer" id="drawer" aria-label="Task Menu">
   <div class="drawer-top">
-    <h2 class="drawer-tit">Menù Task</h2>
-    <button type="button" class="salva" id="salvaMenu" hidden>Salva</button>
-    <button type="button" class="plus" id="nuova" aria-label="Nuova task">+</button>
-    <button type="button" class="chiudi" id="chiudiMenu" aria-label="Chiudi il menù">×</button>
+    <h2 class="drawer-tit">Task Menu</h2>
+    <button type="button" class="salva" id="salvaMenu" hidden>Save</button>
+    <button type="button" class="plus" id="nuova" aria-label="New task">+</button>
+    <button type="button" class="chiudi" id="chiudiMenu" aria-label="Close the menu">×</button>
   </div>
   <label class="switch">
     <input type="checkbox" id="tutte">
-    <span>Mostra anche le schedulate</span>
+    <span>Show scheduled ones too</span>
   </label>
   <div class="drawer-list" id="drawerList"></div>
   <div class="drawer-foot">
-    <button type="button" class="link" id="impostazioniBtn">Impostazioni</button>
+    <button type="button" class="link" id="impostazioniBtn">Settings</button>
     <span class="sync" id="sync"></span>
   </div>
 </aside>
@@ -97,28 +97,28 @@
   <form method="dialog" class="chiusura-box" id="editorForm">
     <h2 class="chiusura-tit" id="editorTit">Task</h2>
 
-    <label class="commento-lab" for="tNome">Nome</label>
+    <label class="commento-lab" for="tNome">Name</label>
     <input class="campo" id="tNome" type="text" required maxlength="120" autocomplete="off">
 
-    <label class="commento-lab" for="tDesc">Descrizione</label>
+    <label class="commento-lab" for="tDesc">Description</label>
     <textarea class="commento" id="tDesc" rows="3"></textarea>
 
     <p class="commento-lab">Rank</p>
     <div class="chips" id="tRank"></div>
 
-    <p class="commento-lab">Cliente</p>
+    <p class="commento-lab">Client</p>
     <button type="button" class="campo tendina" id="tCliente"></button>
 
-    <p class="commento-lab">Giorno</p>
+    <p class="commento-lab">Day</p>
     <button type="button" class="campo tendina" id="tGiorno"></button>
 
-    <p class="commento-lab" id="tGwsLab">Sessione</p>
+    <p class="commento-lab" id="tGwsLab">Session</p>
     <div class="chips" id="tGws"></div>
 
     <div class="chiusura-btn">
-      <button type="button" class="btn btn-del" id="tElimina">Elimina</button>
-      <button type="button" class="btn" id="tAnnulla">Annulla</button>
-      <button type="submit" class="btn btn-ok" value="ok">Conferma</button>
+      <button type="button" class="btn btn-del" id="tElimina">Delete</button>
+      <button type="button" class="btn" id="tAnnulla">Cancel</button>
+      <button type="submit" class="btn btn-ok" value="ok">Confirm</button>
     </div>
   </form>
 </dialog>
@@ -126,53 +126,53 @@
 <!-- Il + della sessione: una task nuova, o una pescata dal serbatoio. -->
 <dialog class="chiusura" id="pesca" aria-labelledby="pescaTit">
   <div class="chiusura-box">
-    <h2 class="chiusura-tit" id="pescaTit">Aggiungi alla sessione</h2>
+    <h2 class="chiusura-tit" id="pescaTit">Add to the session</h2>
     <p class="chiusura-day" id="pescaDay"></p>
-    <button type="button" class="btn btn-ok btn-largo" id="pescaNuova">Nuova task</button>
+    <button type="button" class="btn btn-ok btn-largo" id="pescaNuova">New task</button>
     <div class="pesca-list" id="pescaList"></div>
     <div class="chiusura-btn">
-      <button type="button" class="btn" id="pescaAnnulla">Annulla</button>
+      <button type="button" class="btn" id="pescaAnnulla">Cancel</button>
     </div>
   </div>
 </dialog>
 
 <dialog class="chiusura" id="impostazioni" aria-labelledby="impostazioniTit">
   <form method="dialog" class="chiusura-box" id="impostazioniForm">
-    <h2 class="chiusura-tit" id="impostazioniTit">Impostazioni</h2>
+    <h2 class="chiusura-tit" id="impostazioniTit">Settings</h2>
 
-    <label class="commento-lab" for="tokenInput">Token GitHub</label>
+    <label class="commento-lab" for="tokenInput">GitHub token</label>
     <input class="campo" id="tokenInput" type="password" autocomplete="off" placeholder="github_pat_…">
-    <p class="nota">Fine-grained, limitato a questo repository, permesso <b>Contents</b> in lettura e scrittura. Serve per salvare le task; leggerle funziona anche senza.</p>
+    <p class="nota">Fine-grained, limited to this repository, <b>Contents</b> permission read and write. Needed to save tasks; reading them works without it.</p>
     <p class="nota" id="tokenStato"></p>
 
-    <label class="commento-lab" for="chiaveInput">Chiave dei dati</label>
-    <input class="campo" id="chiaveInput" type="password" autocomplete="off" placeholder="la stessa del secret DATA_KEY">
-    <p class="nota">La stessa parola che sta nel secret <b>DATA_KEY</b> del repository. Serve ad aprire calendario e task quando viaggiano cifrati. Lasciandola vuota tutto resta in chiaro, come prima.</p>
+    <label class="commento-lab" for="chiaveInput">Data key</label>
+    <input class="campo" id="chiaveInput" type="password" autocomplete="off" placeholder="the same as the DATA_KEY secret">
+    <p class="nota">The same word that sits in the repository's <b>DATA_KEY</b> secret. It opens calendar and tasks when they travel encrypted. Left empty, everything stays in the clear.</p>
     <p class="nota" id="chiaveStato"></p>
 
     <div class="chiusura-btn">
-      <button type="button" class="btn" id="tokenAnnulla">Annulla</button>
-      <button type="submit" class="btn btn-ok" value="ok">Salva</button>
+      <button type="button" class="btn" id="tokenAnnulla">Cancel</button>
+      <button type="submit" class="btn btn-ok" value="ok">Save</button>
     </div>
   </form>
 </dialog>
 
 <dialog class="chiusura" id="chiusura" aria-labelledby="chiusuraTit">
   <form method="dialog" class="chiusura-box" id="chiusuraForm">
-    <h2 class="chiusura-tit" id="chiusuraTit">Chiusura giornata</h2>
+    <h2 class="chiusura-tit" id="chiusuraTit">Closing the day</h2>
     <p class="chiusura-day" id="chiusuraDay"></p>
 
     <p class="voto-num" id="votoNum">5.5</p>
     <input type="range" class="voto" id="voto" min="1" max="10" step="0.1" value="5.5"
-           aria-label="Voto della giornata, da 1 a 10">
+           aria-label="Score of the day, from 1 to 10">
     <p class="voto-scala"><span>1</span><span>10</span></p>
 
-    <label class="commento-lab" for="commento">Commento</label>
-    <textarea class="commento" id="commento" rows="5" placeholder="Com'è andata?"></textarea>
+    <label class="commento-lab" for="commento">Comment</label>
+    <textarea class="commento" id="commento" rows="5" placeholder="How did it go?"></textarea>
 
     <div class="chiusura-btn">
-      <button type="button" class="btn" id="chiusuraAnnulla">Annulla</button>
-      <button type="submit" class="btn btn-ok" value="ok">Chiudi la giornata</button>
+      <button type="button" class="btn" id="chiusuraAnnulla">Cancel</button>
+      <button type="submit" class="btn btn-ok" value="ok">Close the day</button>
     </div>
   </form>
 </dialog>
@@ -181,10 +181,10 @@
      arriva bianca e non segue il tema. -->
 <dialog class="chiusura" id="picker" aria-labelledby="pickerTit">
   <div class="chiusura-box">
-    <h2 class="sr-only" id="pickerTit">Scegli</h2>
+    <h2 class="sr-only" id="pickerTit">Choose</h2>
     <ul class="picklist" id="pickList"></ul>
     <div class="chiusura-btn">
-      <button type="button" class="btn" id="pickAnnulla">Annulla</button>
+      <button type="button" class="btn" id="pickAnnulla">Cancel</button>
     </div>
   </div>
 </dialog>

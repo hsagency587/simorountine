@@ -85,7 +85,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 @keyframes siren-spin{to{transform:rotate(360deg)}}
 
 /* la riga alta: battito a sinistra, Salva e menu` a destra */
-.bar{display:flex;align-items:center;gap:var(--s2);margin:0 0 var(--s2)}
+.bar{display:flex;align-items:center;gap:var(--s2);margin:0 0 var(--s1)}
 .fresh{
   flex:1;min-width:0;
   display:flex;align-items:center;gap:var(--s2);
@@ -122,15 +122,15 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 .fresh.muto::before{background:var(--muted)}
 @keyframes blink{50%{opacity:0}}
 
-.daybar{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:var(--s2)}
+.daybar{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;gap:var(--s2)}
 .nav{
-  height:44px;border-radius:var(--radius);
+  height:38px;border-radius:var(--radius);
   font-size:26px;line-height:1;color:var(--muted);
 }
 .nav:active{background:var(--surface-2);color:var(--text)}
 .date{
   display:flex;align-items:baseline;justify-content:center;gap:6px;
-  height:44px;border-radius:var(--radius);
+  height:38px;border-radius:var(--radius);
   font-size:17px;font-weight:600;
 }
 .rel{font-size:12px;font-weight:500;color:var(--muted)}
@@ -141,7 +141,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 }
 
 .prog{
-  height:4px;margin-top:var(--s2);
+  height:4px;margin-top:var(--s1);
   background:var(--surface-2);border-radius:2px;overflow:hidden;
 }
 .prog-fill{
@@ -152,7 +152,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 
 .stats{
   display:flex;align-items:baseline;gap:var(--s2);
-  margin:var(--s2) 0 0;
+  margin:var(--s1) 0 0;
   font-size:12px;color:var(--muted);
 }
 .pct{font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}

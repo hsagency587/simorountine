@@ -127,7 +127,9 @@ const ROUTINE_GIORNO = [
     { id: 'pranzo-movimento', t: '10’ OF MOVEMENT' }
   ]},
   { id: 'gws3', da: 840, t: '14:00 | 3RD G WORK SESSION', gws: 2 },
-  { id: 'snack-pomeriggio', da: 1020, t: '17:00 | SNACK + REC' }
+  { id: 'snack-pomeriggio', da: 1020, t: '17:00 | SNACK + REC', sub: [
+    { id: 'snack-pomeriggio-sole', t: '10’ OF SUN' }
+  ]}
 ];
 
 const SERA_WC = [
@@ -182,8 +184,8 @@ function today() {
   return d;
 }
 
-const fmtDate = new Intl.DateTimeFormat('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
-const fmtTime = new Intl.DateTimeFormat('it-IT', { hour: '2-digit', minute: '2-digit' });
+const fmtDate = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+const fmtTime = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
 
 /* La finestra dei quattro giorni si calcola in locale, non si legge dal file:
    se il ponte si ferma, oggi resta comunque spuntabile. */
@@ -275,7 +277,7 @@ function prepEvent(ev, k) {
 
   return {
     id:     String(ev.id || (start + '|' + ev.title)),
-    title:  String(ev.title || '(senza titolo)'),
+    title:  String(ev.title || '(no title)'),
     desc:   String(ev.description || '').trim(),
     txt:    sTxt + '–' + eTxt,
     alarm:  protetteOf(k).some(w => sMin < w[1] && span > w[0]),
@@ -393,13 +395,13 @@ function streak() {
 
 /* ------------------------------------------------------------ storico --- */
 
-const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
-              'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+const MESI = ['January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December'];
 
 const monthKey  = k => k.slice(0, 7);
 const monthName = m => MESI[+m.slice(5, 7) - 1] + ' ' + m.slice(0, 4);
 
-const fmtLong = new Intl.DateTimeFormat('it-IT',
+const fmtLong = new Intl.DateTimeFormat('en-GB',
   { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
 /* Un giorno entra nello storico se ha lasciato una traccia: almeno una spunta,
@@ -446,12 +448,12 @@ function monthMarkdown(m) {
   for (const k of days)   pct  += (records[k] ? records[k].percentuale : 0);
 
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-  const out = ['# Storico G Work — ' + monthName(m), ''];
+  const out = ['# G Work history — ' + monthName(m), ''];
 
-  out.push('Giorni con attività: ' + days.length
-    + ' · giornate chiuse: ' + chiuse.length
-    + (chiuse.length ? ' · voto medio: ' + (voti / chiuse.length).toFixed(1) : '')
-    + (days.length   ? ' · completamento medio: ' + Math.round(pct / days.length) + '%' : ''));
+  out.push('Days with activity: ' + days.length
+    + ' · days closed: ' + chiuse.length
+    + (chiuse.length ? ' · average score: ' + (voti / chiuse.length).toFixed(1) : '')
+    + (days.length   ? ' · average completion: ' + Math.round(pct / days.length) + '%' : ''));
 
   for (const k of days) {
     const r = records[k] || { fatte: 0, totale: 0, percentuale: 0 };
@@ -460,20 +462,20 @@ function monthMarkdown(m) {
     out.push('', '---', '');
     out.push('## ' + cap(fmtLong.format(new Date(k + 'T00:00:00'))));
     out.push('');
-    out.push((d ? 'Voto ' + d.voto.toFixed(1) : 'Giornata non chiusa')
-      + ' · ' + r.percentuale + '% (' + r.fatte + ' su ' + r.totale + ')'
-      + ' · serie ' + streakAt(k));
+    out.push((d ? 'Score ' + d.voto.toFixed(1) : 'Day not closed')
+      + ' · ' + r.percentuale + '% (' + r.fatte + ' of ' + r.totale + ')'
+      + ' · streak ' + streakAt(k));
 
     const c = d && String(d.commento || '').trim();
     if (c) out.push('', c);
 
     const fatte = doneTasks(k);
     if (fatte.length) {
-      out.push('', 'Task fatte: ' + fatte.map(x => '[' + x.rank + '] ' + x.nome).join(' · '));
+      out.push('', 'Tasks done: ' + fatte.map(x => '[' + x.rank + '] ' + x.nome).join(' · '));
     }
     const lasciate = (mancate[k] || []).slice().sort(byRank);
     if (lasciate.length) {
-      out.push('', 'Task lasciate indietro: ' + lasciate.map(x => '[' + x.rank + '] ' + x.nome).join(' · '));
+      out.push('', 'Tasks left behind: ' + lasciate.map(x => '[' + x.rank + '] ' + x.nome).join(' · '));
     }
   }
 
@@ -537,7 +539,7 @@ function eventNode(e, on) {
     b.type = 'button';
     b.dataset.role = 'desc';
     b.setAttribute('aria-expanded', 'false');
-    b.setAttribute('aria-label', 'Mostra la descrizione');
+    b.setAttribute('aria-label', 'Show the description');
     bar.appendChild(b);
   }
 
@@ -582,14 +584,14 @@ function taskNode(x, on) {
     b.type = 'button';
     b.dataset.role = 'desc';
     b.setAttribute('aria-expanded', 'false');
-    b.setAttribute('aria-label', 'Mostra la descrizione');
+    b.setAttribute('aria-label', 'Show the description');
     bar.appendChild(b);
   }
 
   const m = el('button', 'more', '⋯');
   m.type = 'button';
   m.dataset.task = x.id;
-  m.setAttribute('aria-label', 'Modifica la task');
+  m.setAttribute('aria-label', 'Edit the task');
   bar.appendChild(m);
 
   li.appendChild(bar);
@@ -617,7 +619,7 @@ function ghostNode(x, id) {
   l.appendChild(i);
   l.appendChild(el('span', 'rank r' + x.rank, x.rank));
   l.appendChild(el('span', 'ttl', x.nome));
-  l.appendChild(el('span', 'twhen', 'nel serbatoio'));
+  l.appendChild(el('span', 'twhen', 'in the pool'));
   bar.appendChild(l);
   li.appendChild(bar);
   return li;
@@ -657,7 +659,7 @@ function render() {
         const b = el('button', 'plus', '+');
         b.type = 'button';
         b.dataset.gws = t.gws;
-        b.setAttribute('aria-label', 'Aggiungi una task alla sessione');
+        b.setAttribute('aria-label', 'Add a task to the session');
         head.appendChild(b);
       }
       li.appendChild(head);
@@ -684,7 +686,7 @@ function render() {
     {
       /* prima del primo caricamento non si annuncia ancora niente; l'avviso sta
          solo sulle sessioni, dove il calendario e' la cosa che ci si aspetta */
-      if (t.gws != null && !covered && loaded) li.appendChild(el('p', 'nocov', 'Eventi non coperti per questa data'));
+      if (t.gws != null && !covered && loaded) li.appendChild(el('p', 'nocov', 'Events not covered for this date'));
       if (evs.length) {
         const ul = el('ul', 'evs');
         for (const e of evs) {
@@ -717,11 +719,11 @@ function paintDate() {
   const rel = $('dateRel');
   const readOnly = !isEditable(viewKey);
   rel.classList.toggle('ro', readOnly);
-  rel.textContent = readOnly                     ? 'sola lettura'
-            : viewKey === dayKey(t0)             ? 'oggi'
-            : viewKey === dayKey(shift(t0, -1))  ? 'ieri'
-            : viewKey === dayKey(shift(t0,  1))  ? 'domani'
-            :                                      'dopodomani';
+  rel.textContent = readOnly                     ? 'read only'
+            : viewKey === dayKey(t0)             ? 'today'
+            : viewKey === dayKey(shift(t0, -1))  ? 'yesterday'
+            : viewKey === dayKey(shift(t0,  1))  ? 'tomorrow'
+            :                                      'in 2 days';
 }
 
 /* La sirena gira finche' resta almeno un evento in finestra protetta da spuntare.
@@ -766,14 +768,14 @@ function syncDerived() {
   const pct = total ? Math.round(done / total * 100) : 0;
   $('pct').textContent = pct + '%';
   $('progFill').style.width = pct + '%';
-  $('act').textContent = active ? active.t.t : 'giornata completa';
+  $('act').textContent = active ? active.t.t : 'day complete';
 
   refreshRecords();
   paintMesi();
 
   const n = streak();
   const s = $('streak');
-  s.textContent = 'serie ' + n;
+  s.textContent = 'streak ' + n;
   s.classList.toggle('hot', n > 0);
 }
 
@@ -795,7 +797,7 @@ function paintMesi() {
     o.value = m;
     sel.appendChild(o);
   }
-  if (!ms.length) sel.appendChild(el('option', null, 'nessuno storico'));
+  if (!ms.length) sel.appendChild(el('option', null, 'no history'));
   if (ms.indexOf(cur) >= 0) sel.value = cur;   /* il mese scelto non salta via */
 
   sel.disabled = !ms.length;
@@ -808,7 +810,7 @@ function durata(ms) {
   if (m < 60) return m + ' min';
   const h = Math.floor(m / 60);
   if (h < 24) return h + ' h';
-  return Math.floor(h / 24) + ' g';
+  return Math.floor(h / 24) + ' d';
 }
 
 /* Il battito: l'ultimo giro riuscito, l'esito dell'ultimo giro finito e l'ora
@@ -863,19 +865,19 @@ function paintFresh() {
   /* Prima i dati: se il calendario non arriva, il resto e' accademia. */
   if (loaded && !cal) {
     f.classList.add('down');
-    f.textContent = 'Calendario non raggiungibile';
+    f.textContent = 'Calendar unreachable';
     return;
   }
 
   if (beatQuota && Date.now() < beatQuota) {
     f.classList.add('muto');
-    f.textContent = 'Quota API esaurita fino alle ' + fmtTime.format(new Date(beatQuota));
+    f.textContent = 'API quota spent until ' + fmtTime.format(new Date(beatQuota));
     return;
   }
 
   if (!beatOk || !beat) {
     f.classList.add('muto');
-    f.textContent = 'Battito non verificabile';
+    f.textContent = 'Heartbeat not verifiable';
     return;
   }
 
@@ -883,7 +885,7 @@ function paintFresh() {
   const ok  = beat.ok;
 
   if (ok && now - ok <= LATE_MS) {
-    f.textContent = 'Aggiornato alle ' + fmtTime.format(new Date(ok));
+    f.textContent = 'Updated at ' + fmtTime.format(new Date(ok));
     return;
   }
 
@@ -895,12 +897,12 @@ function paintFresh() {
   f.classList.add(!ok || now - ok > DOWN_MS ? 'down' : 'stale');
 
   if (!ok) {
-    f.textContent = 'Nessun giro riuscito fra gli ultimi controllati';
+    f.textContent = 'No successful run among the last checked';
   } else if (sveglia) {
-    f.textContent = 'I giri falliscono — ultimo riuscito alle '
-      + fmtTime.format(new Date(ok)) + ' (' + durata(now - ok) + ' fa)';
+    f.textContent = 'Runs are failing — last good one at '
+      + fmtTime.format(new Date(ok)) + ' (' + durata(now - ok) + ' ago)';
   } else {
-    f.textContent = 'FERMO — nessun giro da ' + durata(now - (beat.partito || ok));
+    f.textContent = 'STOPPED — no run for ' + durata(now - (beat.partito || ok));
   }
 }
 
@@ -949,7 +951,7 @@ $('list').addEventListener('click', ev => {
   if (!b) return;
   const open = b.getAttribute('aria-expanded') === 'true';
   b.setAttribute('aria-expanded', open ? 'false' : 'true');
-  b.setAttribute('aria-label', open ? 'Mostra la descrizione' : 'Nascondi la descrizione');
+  b.setAttribute('aria-label', open ? 'Show the description' : 'Hide the description');
   b.closest('.ev').querySelector('.desc').hidden = open;
 });
 
@@ -973,7 +975,7 @@ $('dateBtn').addEventListener('click', () => goTo(today()));
 $('scarica').addEventListener('click', () => {
   const m = $('mese').value;
   if (!m) return;
-  download('storico-' + m + '.md', monthMarkdown(m), 'text/markdown;charset=utf-8');
+  download('history-' + m + '.md', monthMarkdown(m), 'text/markdown;charset=utf-8');
 });
 
 /* ------------------------------------------------------------ chiusura --- */
@@ -1168,10 +1170,10 @@ function openMenu(on) {
 
 function whenText(x) {
   const t0 = today();
-  const lab = x.giorno === dayKey(t0)            ? 'oggi'
-            : x.giorno === dayKey(shift(t0, 1))  ? 'domani'
-            : x.giorno === dayKey(shift(t0, 2))  ? 'dopodomani'
-            : x.giorno === dayKey(shift(t0, -1)) ? 'ieri'
+  const lab = x.giorno === dayKey(t0)            ? 'today'
+            : x.giorno === dayKey(shift(t0, 1))  ? 'tomorrow'
+            : x.giorno === dayKey(shift(t0, 2))  ? 'in 2 days'
+            : x.giorno === dayKey(shift(t0, -1)) ? 'yesterday'
             : fmtDate.format(new Date(x.giorno + 'T00:00:00'));
   return lab + ' · GWS ' + (x.gws + 1);
 }
@@ -1188,7 +1190,7 @@ function trowNode(x, pick) {
     i.dataset.tcheck = x.id;
     i.checked = !!(x.giorno && dayChecks(x.giorno)[x.id]);
     i.disabled = !!(x.giorno && !isEditable(x.giorno));
-    i.setAttribute('aria-label', 'Segna fatta');
+    i.setAttribute('aria-label', 'Mark done');
     li.appendChild(i);
   }
   li.appendChild(el('span', 'rank r' + x.rank, x.rank));
@@ -1198,7 +1200,7 @@ function trowNode(x, pick) {
     const b = el('button', 'more', '⋯');
     b.type = 'button';
     b.dataset.task = x.id;
-    b.setAttribute('aria-label', 'Modifica la task');
+    b.setAttribute('aria-label', 'Edit the task');
     li.appendChild(b);
   }
   return li;
@@ -1273,7 +1275,7 @@ function paintDrawer() {
       box.appendChild(h);
       if (!open) continue;
       if (!o.tasks.length) {
-        box.appendChild(el('p', 'vuoto vuotocli', tutte ? 'Nessuna task' : 'Niente nel serbatoio'));
+        box.appendChild(el('p', 'vuoto vuotocli', tutte ? 'No tasks' : 'Nothing in the pool'));
         continue;
       }
       const ul = el('ul', 'trows');
@@ -1295,7 +1297,7 @@ function paintDrawer() {
     box.appendChild(ul);
   }
 
-  if (!list.length) box.appendChild(el('p', 'vuoto', tutte ? 'Nessuna task' : 'Serbatoio vuoto'));
+  if (!list.length) box.appendChild(el('p', 'vuoto', tutte ? 'No tasks' : 'Pool empty'));
   paintSync();
 }
 
@@ -1405,8 +1407,8 @@ let ed = null;                   /* { id, rank, cliente, giorno, gws }: lo stato
    o togliere, non rimettere. */
 function dayChoices(current) {
   const t0 = today();
-  const out = [{ k: '', lab: 'Non schedulata' }];
-  [['Oggi', 0], ['Domani', 1], ['Dopodomani', 2]].forEach(p => out.push({ k: dayKey(shift(t0, p[1])), lab: p[0] }));
+  const out = [{ k: '', lab: 'Not scheduled' }];
+  [['Today', 0], ['Tomorrow', 1], ['In 2 days', 2]].forEach(p => out.push({ k: dayKey(shift(t0, p[1])), lab: p[0] }));
   if (current && !out.some(o => o.k === current)) {
     out.push({ k: current, lab: fmtDate.format(new Date(current + 'T00:00:00')) });
   }
@@ -1453,7 +1455,7 @@ dlgPick.addEventListener('cancel', () => { pickCb = null; });
 
 /* Le voci delle due scelte, in un posto solo: le usa il pannello e le usa
    l'etichetta del campo, cosi' non possono dire cose diverse. */
-const vociCliente = () => [{ k: '', lab: 'Nessuno' }]
+const vociCliente = () => [{ k: '', lab: 'None' }]
   .concat(CLIENTI.map(c => ({ k: c.id, lab: c.nome })));
 
 const etichetta = (items, k) => (items.find(o => o.k === k) || items[0]).lab;
@@ -1486,11 +1488,11 @@ function openEditor(id, preset) {
              gws: preset && preset.gws != null ? preset.gws : null };
   if (ed.giorno && ed.gws == null) ed.gws = 0;
 
-  $('editorTit').textContent = x ? 'Modifica task' : 'Nuova task';
+  $('editorTit').textContent = x ? 'Edit task' : 'New task';
   $('tNome').value = x ? x.nome : '';
   $('tDesc').value = x ? x.desc : '';
   $('tElimina').hidden = !x;
-  $('tElimina').textContent = 'Elimina';
+  $('tElimina').textContent = 'Delete';
   paintEditor();
   dlgEd.showModal();
   if (!x) $('tNome').focus();
@@ -1510,7 +1512,7 @@ $('editorForm').addEventListener('click', ev => {
    sessione compare o sparisce, come prima. */
 $('tCliente').addEventListener('click', () => {
   if (!ed) return;
-  apriPicker('Cliente', vociCliente(), ed.cliente || '', v => {
+  apriPicker('Client', vociCliente(), ed.cliente || '', v => {
     ed.cliente = v || null;
     paintEditor();
   });
@@ -1518,7 +1520,7 @@ $('tCliente').addEventListener('click', () => {
 
 $('tGiorno').addEventListener('click', () => {
   if (!ed) return;
-  apriPicker('Giorno', dayChoices(ed.giorno), ed.giorno || '', v => {
+  apriPicker('Day', dayChoices(ed.giorno), ed.giorno || '', v => {
     ed.giorno = v || null;
     ed.gws = ed.giorno ? (ed.gws == null ? 0 : ed.gws) : null;
     paintEditor();
@@ -1565,7 +1567,7 @@ dlgEd.addEventListener('cancel', () => { ed = null; });
 /* due tocchi per eliminare: il primo chiede, il secondo fa */
 $('tElimina').addEventListener('click', () => {
   const b = $('tElimina');
-  if (b.textContent !== 'Sicuro?') { b.textContent = 'Sicuro?'; return; }
+  if (b.textContent !== 'Sure?') { b.textContent = 'Sure?'; return; }
   if (ed && ed.id) {
     const old = findTask(ed.id);
     if (old && old.giorno) setCheck(old.giorno, old.id, false);   /* niente spunte orfane */
@@ -1590,7 +1592,7 @@ function openPesca(g) {
   box.textContent = '';
   const list = tstore.tasks.filter(x => !x.giorno).sort(byRank);
   if (!list.length) {
-    box.appendChild(el('p', 'vuoto', 'Serbatoio vuoto'));
+    box.appendChild(el('p', 'vuoto', 'Pool empty'));
   } else {
     const ul = el('ul', 'trows');
     for (const x of list) ul.appendChild(trowNode(x, true));
@@ -1625,12 +1627,12 @@ function openImpostazioni() {
   $('chiaveInput').value = chiave;
   const s = $('tokenStato');
   s.className = 'nota';
-  s.textContent = token ? 'Token presente.' : 'Nessun token: le task si leggono ma non si salvano.';
+  s.textContent = token ? 'Token set.' : 'No token: tasks can be read but not saved.';
   const c = $('chiaveStato');
   c.className = 'nota';
-  c.textContent = chiaveKo ? 'L\'ultimo file non si e` aperto: chiave mancante o sbagliata.'
-                : chiave   ? 'Chiave presente.'
-                :            'Nessuna chiave: calendario e task viaggiano in chiaro.';
+  c.textContent = chiaveKo ? 'The last file would not open: key missing or wrong.'
+                : chiave   ? 'Key set.'
+                :            'No key: calendar and tasks travel in the clear.';
   dlgImp.showModal();
 }
 
@@ -1653,7 +1655,7 @@ $('impostazioniForm').addEventListener('submit', () => {
   loadBeat();                     /* subito, senza aspettare il tick */
   paintSalva();
   if (token) provaToken();
-  else paintSync('nessun token');
+  else paintSync('no token');
 });
 $('tokenAnnulla').addEventListener('click', () => dlgImp.close());
 
@@ -1662,11 +1664,11 @@ $('tokenAnnulla').addEventListener('click', () => dlgImp.close());
 async function provaToken() {
   try {
     const r = await fetch(TASK_API + '?ref=' + TASK_BRANCH, { headers: ghHeaders(), cache: 'no-store' });
-    if (r.status === 401) paintSync('token rifiutato', true);
-    else if (r.ok || r.status === 404) paintSync('token accettato');
-    else paintSync('token: errore ' + r.status, true);
+    if (r.status === 401) paintSync('token rejected', true);
+    else if (r.ok || r.status === 404) paintSync('token accepted');
+    else paintSync('token: error ' + r.status, true);
   } catch (e) {
-    paintSync('rete assente', true);
+    paintSync('no network', true);
   }
 }
 
@@ -1733,7 +1735,7 @@ async function decifra(testo) {
   let p = null;
   try { p = JSON.parse(testo); } catch (e) { return testo; }
   if (!p || p.enc !== 1) return testo;
-  if (!chiave) throw new Error('manca la chiave');
+  if (!chiave) throw new Error('key missing');
   const k = await derivaChiave(chiave, b64Bytes(p.salt));
   const buf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64Bytes(p.iv) },
                                           k, b64Bytes(p.ct));
@@ -1768,14 +1770,14 @@ function paintSalva() {
     b.hidden = !tstore.dirty;
     b.disabled = salvando;
     b.classList.toggle('err', !!salvaErr);
-    b.textContent = salvando ? 'Salvo…' : salvaErr ? 'Salva — ' + salvaErr : 'Salva';
+    b.textContent = salvando ? 'Saving…' : salvaErr ? 'Save — ' + salvaErr : 'Save';
   }
 }
 
 function paintSync(msg, err) {
   if (msg !== undefined) { syncMsg = msg; syncErr = !!err; }
   const s = $('sync');
-  s.textContent = syncErr ? syncMsg : tstore.dirty ? 'modifiche non salvate' : syncMsg;
+  s.textContent = syncErr ? syncMsg : tstore.dirty ? 'unsaved changes' : syncMsg;
   s.classList.toggle('err', syncErr);
 }
 
@@ -1793,13 +1795,13 @@ async function pullTasks() {
   let tokenKo = false;
   if (r.status === 401 && token) {
     tokenKo = true;
-    paintSync('token rifiutato', true);
+    paintSync('token rejected', true);
     try {
       r = await fetch(TASK_API + '?ref=' + TASK_BRANCH, { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } });
     } catch (e) { return; }
   }
-  const fine = msg => paintSync(tokenKo ? 'token rifiutato' : msg, tokenKo);
-  if (r.status === 404) { if (!tstore.sha) fine('nessun file online ancora'); return; }
+  const fine = msg => paintSync(tokenKo ? 'token rejected' : msg, tokenKo);
+  if (r.status === 404) { if (!tstore.sha) fine('no file online yet'); return; }
   if (!r.ok) return;
 
   let j;
@@ -1810,7 +1812,7 @@ async function pullTasks() {
   try {
     data = JSON.parse(await decifra(b64dec(j.content)));
   } catch (e) {
-    paintSync('task cifrate: chiave mancante o sbagliata', true);
+    paintSync('tasks encrypted: key missing or wrong', true);
     chiaveKo = true;
     return;
   }
@@ -1820,9 +1822,9 @@ async function pullTasks() {
     /* e' la nostra stessa versione, salvata dal salvagente senza risposta? */
     if (sameTasks(remote, tstore.tasks)) {
       rememberSha(j.sha); tstore.dirty = false; saveLocal(); paintSalva();
-      fine('allineato');
+      fine('in sync');
     } else {
-      fine('online c\'e` una versione diversa: salvando la sovrascrivi');
+      fine('a different version is online: saving overwrites it');
     }
     return;
   }
@@ -1832,14 +1834,14 @@ async function pullTasks() {
   tstore.dirty = false;
   saveLocal();
   tidyTasks(); render(); paintDrawer(); paintSalva();
-  fine('allineato alle ' + fmtTime.format(new Date()));
+  fine('in sync at ' + fmtTime.format(new Date()));
 }
 
 /* Un commit solo, con tutto dentro. */
 async function pushTasks(opts) {
   opts = opts || {};
   if (!tstore.dirty || salvando) return;
-  if (!token) { salvaErr = 'manca il token'; paintSalva(); paintSync('manca il token', true); return; }
+  if (!token) { salvaErr = 'token missing'; paintSalva(); paintSync('token missing', true); return; }
 
   salvando = true; salvaErr = '';
   paintSalva();
@@ -1854,8 +1856,8 @@ async function pushTasks(opts) {
   try {
     corpo = await cifra(testo);
   } catch (e) {
-    salvando = false; salvaErr = 'cifratura fallita'; paintSalva();
-    paintSync('cifratura fallita: controlla la chiave', true);
+    salvando = false; salvaErr = 'encryption failed'; paintSalva();
+    paintSync('encryption failed: check the key', true);
     return;
   }
   const payload = {
@@ -1869,7 +1871,7 @@ async function pushTasks(opts) {
   const salvato = () => {
     if (JSON.stringify(tstore.tasks) === sent) tstore.dirty = false;
     saveLocal(); paintSalva();
-    paintSync('salvato alle ' + fmtTime.format(new Date()));
+    paintSync('saved at ' + fmtTime.format(new Date()));
   };
 
   let r;
@@ -1883,7 +1885,7 @@ async function pushTasks(opts) {
       keepalive: !!opts.keepalive && body.length < 60000
     });
   } catch (e) {
-    salvando = false; salvaErr = 'rete assente'; paintSalva(); return;
+    salvando = false; salvaErr = 'no network'; paintSalva(); return;
   }
   salvando = false;
 
@@ -1896,7 +1898,7 @@ async function pushTasks(opts) {
       const cur = await fetch(TASK_API + '?ref=' + TASK_BRANCH, { headers: ghHeaders(), cache: 'no-store' });
       if (cur.status === 404) {
         /* non e' un conflitto: manca il branch, o il file */
-        salvaErr = 'branch task assente'; paintSalva(); paintSync(salvaErr, true);
+        salvaErr = 'task branch missing'; paintSalva(); paintSync(salvaErr, true);
         return;
       }
       if (cur.ok) {
@@ -1908,15 +1910,15 @@ async function pushTasks(opts) {
         return pushTasks(Object.assign({}, opts, { retry: true }));
       }
     } catch (e) { /* si cade nell'errore qui sotto */ }
-    salvaErr = 'conflitto online'; paintSalva(); paintSync(salvaErr, true);
+    salvaErr = 'conflict online'; paintSalva(); paintSync(salvaErr, true);
     return;
   }
 
   if (!r.ok) {
-    salvaErr = r.status === 401 ? 'token rifiutato'
-             : r.status === 403 ? 'token senza permesso'
-             : r.status === 404 ? 'branch task assente'
-             :                    'errore ' + r.status;
+    salvaErr = r.status === 401 ? 'token rejected'
+             : r.status === 403 ? 'token without permission'
+             : r.status === 404 ? 'task branch missing'
+             :                    'error ' + r.status;
     paintSalva(); paintSync(salvaErr, true);
     return;
   }
@@ -1960,7 +1962,7 @@ async function loadCalendar() {
     /* la chiave sbagliata o assente si distingue da una rete che non va: sono
        due guasti diversi e si sistemano in due posti diversi */
     chiaveKo = /chiave|decrypt|operation-specific/i.test(String(e && e.message)) || e instanceof DOMException;
-    if (chiaveKo) paintSync('calendario cifrato: chiave mancante o sbagliata', true);
+    if (chiaveKo) paintSync('calendar encrypted: key missing or wrong', true);
   }
   const first = !loaded;
   loaded = true;
