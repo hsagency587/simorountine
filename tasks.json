@@ -1,3 +1,13 @@
 {
-  "tasks": []
+  "tasks": [
+    {
+      "id": "tmtr89bol10ph",
+      "creata": "2026-09-07T12:39:16.581Z",
+      "nome": "Task prova",
+      "desc": "Prova",
+      "rank": "A",
+      "giorno": null,
+      "gws": null
+    }
+  ]
 }
