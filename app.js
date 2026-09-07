@@ -1193,11 +1193,27 @@ try { chiave = localStorage.getItem(CHIAVE_KEY) || ''; } catch (e) { /* niente c
 const newId    = () => 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const findTask = id => tstore.tasks.find(x => x.id === id) || null;
 const byRank   = (a, b) => a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.nome.localeCompare(b.nome);
+/* Dove sta una task nel tempo, come testo che si ordina da solo: il giorno e
+   la prima sessione. Il serbatoio non ha data e torna null. */
+const quandoTask = x => x.giorno ? x.giorno + ':' + String(gwsDi(x.gws)[0]).padStart(2, '0') : null;
+
+/* Dentro lo stesso rank vengono prima le cose che hanno una data, dalla piu'
+   vicina alla piu' lontana; poi il serbatoio, che una data non ce l'ha. */
+function byQuando(a, b) {
+  const A = quandoTask(a), B = quandoTask(b);
+  if (A === B) return 0;
+  if (A === null) return 1;
+  if (B === null) return -1;
+  return A < B ? -1 : 1;
+}
+
 /* Nel menu' gli eventi del calendario vengono prima di tutto, in ordine di
-   giorno e ora; poi le task per rank. */
+   giorno e ora; poi le task, per rank e dentro il rank per orario. */
 const byMenu   = (a, b) => (a.evento ? 0 : 1) - (b.evento ? 0 : 1)
   || (a.evento && b.evento ? (a.giorno + a.ora).localeCompare(b.giorno + b.ora) : 0)
-  || byRank(a, b);
+  || (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0)
+  || byQuando(a, b)
+  || a.nome.localeCompare(b.nome);
 
 /* Si schedula su oggi, domani e dopodomani. Ieri no. */
 const canSchedule = k => isEditable(k) && k >= dayKey(today());
