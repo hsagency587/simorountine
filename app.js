@@ -81,7 +81,7 @@ const SERA_WC = [
   { id: 'workout-2', t: '18:30 | 2° WORKOUT — WING CHUN' },
   { id: 'cena', t: '20:30 | CENA + ROUTINE' },
   { id: 'gws5', t: '21:00 | 5ª G WORK SESSION', gws: 4 },
-  { id: 'serale', t: '22:00 | ROUTINE / PENSIERO SERALE' }
+  { id: 'serale', t: '22:00 | ROUTINE SERALE' }
 ];
 
 const SERA_STD = [
@@ -90,7 +90,7 @@ const SERA_STD = [
   { id: 'workout-2', t: '19:00 | 2° WORKOUT' },
   { id: 'cena', t: '20:00 | CENA' },
   { id: 'gws5', t: '20:30 | 5ª G WORK SESSION', gws: 4 },
-  { id: 'serale', t: '22:00 | ROUTINE / PENSIERO SERALE' }
+  { id: 'serale', t: '22:00 | ROUTINE SERALE' }
 ];
 
 const routineFor = k => ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD);
