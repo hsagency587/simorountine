@@ -630,7 +630,17 @@ body.menu-open{overflow:hidden}
 /* Le pastiglie che scelgono quali schede si vedono. Stanno dentro al pannello,
    dove una fila di pastiglie verdi piene griderebbe: qui il verde e' solo il
    bordo e la scritta. Devono venire dopo .chip, che e' piu' grossa. */
-.chipsch{padding:0 var(--s3) var(--s3);gap:var(--s1)}
+/* Se gli allenamenti sono tanti la fila non va a capo: resta una riga sola che
+   si scorre col dito. La barra di scorrimento sta nascosta, sotto pastiglie
+   alte 26 pixel sarebbe piu' ingombro che aiuto. */
+.chipsch{
+  padding:0 var(--s3) var(--s3);gap:var(--s1);
+  flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.chipsch::-webkit-scrollbar{display:none}
+.chips.chipsch .chip{flex:0 0 auto}
 .chips.chipsch .chip{
   min-height:26px;padding:0 var(--s2);border-radius:13px;
   font-size:11px;

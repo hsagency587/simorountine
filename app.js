@@ -1758,6 +1758,12 @@ function paintDrawer() {
       valido = false;
       return;
     }
+    /* La fila delle pastiglie scorre di lato per conto suo: li' dentro il dito
+       sposta le pastiglie, non cambia sezione. */
+    if (ev.target.closest && ev.target.closest('.chipsch')) {
+      valido = false;
+      return;
+    }
     x0 = ev.touches[0].clientX;
     y0 = ev.touches[0].clientY;
     valido = true;
