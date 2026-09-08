@@ -309,28 +309,7 @@
     "snack-pomeriggio": "Fruits",
     "cena": "Loads of meat"
   },
-  "limiti": [
-    {
-      "id": "tmtrsrtulv866",
-      "cosa": "Coffee",
-      "valore": "Until 18:00"
-    },
-    {
-      "id": "tmtrss4kyir1d",
-      "cosa": "Honey",
-      "valore": "Max 3 spoon"
-    },
-    {
-      "id": "tmtrssz14h6mb",
-      "cosa": "Eating window",
-      "valore": "10:00 - 21:00"
-    },
-    {
-      "id": "tmtrsto6nh201",
-      "cosa": "Spezie/Condimenti",
-      "valore": "Pepe - sale - origano - olio"
-    }
-  ],
+  "limiti": [],
   "schede": {
     "Fascia 1": {
       "es": [
@@ -743,6 +722,46 @@
         ]
       ],
       "rec": "1'"
+    },
+    "Info": {
+      "es": [
+        [
+          "Coffee",
+          "Until 18:00",
+          []
+        ],
+        [
+          "Honey",
+          "Max 3 spoon",
+          []
+        ],
+        [
+          "Eating window",
+          "10:00 - 21:00",
+          []
+        ],
+        [
+          "Spezie/Condimenti",
+          "Pepe - sale - origano - olio",
+          []
+        ]
+      ],
+      "rec": ""
+    },
+    "Supplements": {
+      "es": [
+        [
+          "Creatina",
+          "7:00",
+          []
+        ],
+        [
+          "Fireblood",
+          "7:30",
+          []
+        ]
+      ],
+      "rec": ""
     }
   }
 }
