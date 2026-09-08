@@ -388,7 +388,7 @@
           []
         ],
         [
-          "Dorsiflexed toes  walking",
+          "Dorsiflexed toes walking",
           "5'",
           []
         ]
@@ -397,11 +397,6 @@
     },
     "Fascia 3": {
       "es": [
-        [
-          "Wall bounce",
-          "2'",
-          []
-        ],
         [
           "Heel Raise with marble",
           "2' + 2'",
@@ -421,6 +416,11 @@
           "Towels sweep",
           "3' + 3'",
           []
+        ],
+        [
+          "Wall bounce",
+          "2'",
+          []
         ]
       ],
       "rec": "2'"
@@ -439,83 +439,115 @@
       "es": [
         [
           "Towel curl",
-          "2' + 2'",
-          []
+          "2' + 2' / 3'",
+          [
+            "Fascia 1"
+          ]
         ],
         [
           "Marble swing",
           "2' + 2'",
-          []
+          [
+            "Fascia 1"
+          ]
         ],
         [
           "Gait cycle",
           "2' + 2'",
-          []
+          [
+            "Fascia 1"
+          ]
         ],
         [
           "Hyperarch hop",
-          "3'",
-          []
+          "3' / 5'",
+          [
+            "Fascia 1"
+          ]
         ],
         [
           "Hand curl",
-          "2'",
-          []
+          "2' / 3'",
+          [
+            "Fascia 1"
+          ]
         ],
         [
           "Push hands",
-          "2'",
-          []
+          "2' / 3'",
+          [
+            "Fascia 1"
+          ]
         ],
         [
           "Wall bounce",
           "2'",
-          []
+          [
+            "Fascia 2"
+          ]
         ],
         [
           "Hyperarch wall sit",
-          "2'",
-          []
+          "2' / 3'",
+          [
+            "Fascia 2"
+          ]
         ],
         [
           "Standing Leg Stretch",
-          "2x 1' + 2x 1'",
-          []
+          "2x 1' + 2x 1' / 2'",
+          [
+            "Fascia 2"
+          ]
         ],
         [
           "Crescent walk",
-          "3'",
-          []
+          "3' / 5'",
+          [
+            "Fascia 2"
+          ]
         ],
         [
           "Big toe press",
           "2' + 2'",
-          []
+          [
+            "Fascia 2"
+          ]
         ],
         [
           "Dorsiflexed toes walking",
-          "3'",
-          []
+          "3' / 5'",
+          [
+            "Fascia 3"
+          ]
         ],
         [
           "Heel raise with marble",
           "1' + 1'",
-          []
+          [
+            "Fascia 3"
+          ]
         ],
         [
           "Bear walk",
           "5'",
-          []
+          [
+            "Fascia 3"
+          ]
         ],
         [
           "HFT Lunge",
           "2' + 2'",
-          []
+          [
+            "Fascia 3"
+          ]
         ],
         [
           "Towel sweep",
           "3' + 3'",
-          []
+          [
+            "Fascia 3"
+          ]
         ]
       ],
       "rec": "1'"
