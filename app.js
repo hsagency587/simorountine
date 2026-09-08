@@ -2542,11 +2542,6 @@ function paintD() {
   const k = dayKey(today());
   const r = routineFor(k);
 
-  /* Gli integratori: sopra i pasti, con lo stesso editor dei workout — righe
-     libere, gruppi, il bottone edit nella riga grigia. Nessun recupero: qui non
-     c'e' niente da recuperare. */
-  paintInt(box);
-
   /* o la tabella dei pasti, o i campi per riempirla */
   if (!modifica()) {
     const tab = el('div', 'tab tab-d');
@@ -2582,6 +2577,11 @@ function paintD() {
       box.appendChild(row);
     }
   }
+
+  /* Gli integratori: sotto i pasti e sopra le info, con lo stesso editor dei
+     workout — righe libere, gruppi, il bottone edit nella riga grigia. Nessun
+     recupero: qui non c'e' niente da recuperare. */
+  paintInt(box);
 
   /* le info: cose che non stanno dentro un pasto. Sono una scheda come quelle
      dei workout, con lo stesso editor e gli stessi gruppi. */
