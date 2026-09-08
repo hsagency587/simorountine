@@ -213,6 +213,16 @@
       "cliente": "manuela-lovo",
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmtt4824pobh9",
+      "creata": "2026-09-08T20:21:51.433Z",
+      "nome": "Scheda sifu e zia",
+      "desc": "Crea la scheda al sifo e alla zia. ",
+      "rank": "A",
+      "cliente": null,
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
