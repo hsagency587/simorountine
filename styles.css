@@ -420,7 +420,7 @@ body.menu-open{overflow:hidden}
 .wswitch .switch{flex:1;min-width:0}
 /* il bottone edit sta sulla riga della spunta, in fondo: nessuna riga sua */
 .wedit{flex:0 0 auto;margin:0 var(--s3) 0 var(--s2)}
-.wswitch.via{min-height:0;max-height:0;opacity:0;border-bottom-color:transparent}
+.wswitch.via{min-height:0;max-height:0;opacity:0;border-bottom-color:transparent;pointer-events:none}
 .wswitch input{accent-color:var(--accent)}
 
 /* la testata di una casella: nome della tappa, poi orario e durata in chiaro */

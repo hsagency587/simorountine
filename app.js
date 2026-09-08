@@ -1859,10 +1859,27 @@ $('wMod').addEventListener('click', () => {
 $('tabW').addEventListener('click', () => setTab('w'));
 $('tabD').addEventListener('click', () => setTab('d'));
 
+/* Ridisegnare il pannello lo rifa' da zero, e da zero vuol dire anche in cima:
+   toccare una pastiglia o aprire una scheda in fondo all'elenco riportava su.
+   Qui la posizione si segna prima e si rimette dopo. Aprendo il pannello o
+   cambiando sezione si torna in cima lo stesso: la' `riportaSu` viene dopo. */
+function paintW() {
+  const box = $('wlist');
+  const y = box.scrollTop;
+  disegnaW();
+  const max = Math.max(0, box.scrollHeight - box.clientHeight);
+  wY = Math.min(y, max);
+  box.scrollTop = wY;
+}
+
+/* Dove sta il pannello nello scorrimento: lo legge chi ridisegna, per rimetterlo
+   com'era, e chi nasconde la riga degli interruttori. */
+let wY = 0;
+
 /* Sette giorni, due caselle per giorno. La durata di ogni casella si legge
    dalla routine di quel giorno: il secondo workout del wing chun e' piu' lungo
    di quello degli altri giorni, e la tabella lo dice invece di fingere. */
-function paintW() {
+function disegnaW() {
   if (wTab === 'd') return paintD();
   const box = $('wlist');
   box.textContent = '';
@@ -2217,12 +2234,17 @@ $('wlist').addEventListener('change', ev => {
 
 /* Scorrendo in giu' l'interruttore si ritira, come una barra che si toglie di
    mezzo; risalendo torna. In cima c'e' sempre. */
-let wY = 0;
 $('wlist').addEventListener('scroll', () => {
-  const y = $('wlist').scrollTop;
+  const l = $('wlist');
+  const y = l.scrollTop;
   const sw = $('wdrawer').querySelector('.wswitch');
-  if (y > wY + 4 && y > 24) sw.classList.add('via');
-  else if (y < wY - 4 || y <= 4) sw.classList.remove('via');
+  /* In fondo all'elenco la riga non si muove piu'. La' ritirarla allunga la
+     lista, la lista fa scorrere, lo scorrimento la rimette, e i due si
+     rincorrono senza fermarsi mai. */
+  if (y + l.clientHeight < l.scrollHeight - 44) {
+    if (y > wY + 4 && y > 24) sw.classList.add('via');
+    else if (y < wY - 4 || y <= 4) sw.classList.remove('via');
+  }
   wY = y;
 }, { passive: true });
 
