@@ -140,7 +140,8 @@ const ROUTINE_GIORNO = [
   { id: 'sveglia', da: 405, t: '6:45 | WAKE UP + MORNING ROUTINE', sub: [
     { id: 'sveglia-finestra', t: 'OPEN WINDOW + MAKE BED + GET DRESSED' },
     { id: 'sveglia-acqua',    t: 'WATER + FIREBLOOD + TEETH' },
-    { id: 'sveglia-walk',     t: 'WALK 15 MIN' }
+    /* l'id resta quello della camminata: cosi' le spunte gia' scritte valgono */
+    { id: 'sveglia-walk',     t: 'MORNING ACTIVITY' }
   ]},
   { id: 'gws1', da: 450, t: '7:30 | 1ST G WORK SESSION', gws: 0 },
   { id: 'snack-mattina', da: 600, t: '10:00 | SNACK + REC', pasto: 'Morning snack', sub: [
@@ -1976,6 +1977,7 @@ function disegnaW() {
       ], g === oggi ? 'oggi' : ''));
     }
     box.appendChild(tab);
+    paintMorning(box);
     paintOggi(box);
     paintSchede(box);
     return;
@@ -2060,10 +2062,10 @@ function tabScheda(nome, sc, coda) {
   return tab;
 }
 
-/* Le righe di una scheda: gli esercizi, e il recupero in fondo. Con `dx` sta a
-   destra ed esiste solo se e' scritto: e' cosi' nelle schede tirate fuori dal
-   piano, che si leggono e basta. Nell'elenco sta a sinistra e c'e' comunque,
-   col trattino, cosi' si sa che il campo esiste. */
+/* Le righe di una scheda: gli esercizi, e il recupero in fondo a destra. Con
+   `dx` esiste solo se e' scritto: e' cosi' nelle schede tirate fuori dal piano,
+   che si leggono e basta. Nell'elenco c'e' comunque, col trattino, cosi' si sa
+   che il campo esiste. */
 function righeScheda(tab, sc, dx) {
   for (const r of sc.es) {
     /* la quantita' senza esercizio sta gia' nella banda del nome */
@@ -2080,7 +2082,7 @@ function righeScheda(tab, sc, dx) {
     ]));
   }
   if (sc.rec || !dx) {
-    const r = el('div', 'tabr recgiu' + (dx ? ' adx' : ''));
+    const r = el('div', 'tabr recgiu');
     const c = el('div', 'tabc');
     c.appendChild(el('span', 'receti', 'Recovery'));
     c.appendChild(el('span', 'recval' + (sc.rec ? '' : ' vuota'), sc.rec || '\u2014'));
@@ -2090,6 +2092,70 @@ function righeScheda(tab, sc, dx) {
     tab.appendChild(tabRiga([{ t: '\u2014', cls: 'vuota' }, { t: '' }]));
   }
   return tab;
+}
+
+/* I campi di una scheda aperta. La scheda va tutta dentro un riquadro suo, col
+   bordo verde: in mezzo a dieci tabelle uguali, altrimenti non si capisce di chi
+   sono i campi che si stanno riempiendo. */
+function campiScheda(nome, sc, tab) {
+  const cassa = el('div', 'schapri');
+  cassa.appendChild(tab);
+
+  /* prima il recupero, poi una riga per esercizio: due campi liberi e la
+     croce per toglierla. Il secondo si puo' lasciare vuoto. */
+  const rrow = el('div', 'wrow wrec');
+  rrow.appendChild(el('span', 'wslot', 'Rec.'));
+  const rin = el('input', 'wcampo');
+  rin.type = 'text';
+  rin.maxLength = 60;
+  rin.dataset.rec = nome;
+  rin.value = sc.rec || '';
+  rin.placeholder = 'recovery';
+  rrow.appendChild(rin);
+  cassa.appendChild(rrow);
+
+  for (let i = 0; i < sc.es.length; i++) {
+    const row = el('div', 'wrow');
+    for (const j of [0, 1]) {
+      const inp = el('input', 'wcampo');
+      inp.type = 'text';
+      inp.maxLength = 60;
+      inp.dataset.sch = nome;
+      inp.dataset.riga = i;
+      inp.dataset.col = j;
+      inp.value = sc.es[i][j] || '';
+      inp.placeholder = j === 0 ? 'exercise' : 'how much';
+      row.appendChild(inp);
+    }
+    const x = el('button', 'schx', '\u00d7');
+    x.type = 'button';
+    x.dataset.togli = nome;
+    x.dataset.riga = i;
+    row.appendChild(x);
+    cassa.appendChild(row);
+  }
+  const piu = el('button', 'lpiu', '+  Add an exercise');
+  piu.type = 'button';
+  piu.dataset.piues = nome;
+  cassa.appendChild(piu);
+  return cassa;
+}
+
+/* L'attivita' del mattino ha una scheda sua, che non viene dal piano: il nome
+   e' fisso, e si riempie come le altre. Sta sotto il piano e sopra i workout
+   del giorno, senza scritta sopra e senza pastiglia. */
+const MORNING = 'Morning activity';
+
+function paintMorning(box) {
+  const sc = tstore.schede[MORNING] || { es: [], rec: '' };
+  const aperta = scheda === MORNING;
+  const b = el('button', 'schbtn', aperta ? 'done' : 'edit');
+  b.type = 'button';
+  b.dataset.scheda = MORNING;
+  const tab = tabScheda(MORNING, sc, b);
+  /* vuota resta comunque una tabella, col trattino: altrimenti non si vede
+     dove toccare per riempirla */
+  box.appendChild(aperta ? campiScheda(MORNING, sc, tab) : righeScheda(tab, sc));
 }
 
 /* Quello che si fa oggi, tirato fuori senza aprire niente: le due schede del
@@ -2182,50 +2248,7 @@ function paintSchede(box) {
       continue;
     }
 
-    /* Aperta, la scheda va tutta dentro un riquadro suo, col bordo verde: in
-       mezzo a dieci tabelle uguali, altrimenti non si capisce di chi sono i
-       campi che si stanno riempiendo. */
-    const cassa = el('div', 'schapri');
-    cassa.appendChild(tab);
-
-    /* prima il recupero, poi una riga per esercizio: due campi liberi e la
-       croce per toglierla. Il secondo si puo' lasciare vuoto. */
-    const rrow = el('div', 'wrow wrec');
-    rrow.appendChild(el('span', 'wslot', 'Rec.'));
-    const rin = el('input', 'wcampo');
-    rin.type = 'text';
-    rin.maxLength = 60;
-    rin.dataset.rec = nome;
-    rin.value = sc.rec || '';
-    rin.placeholder = 'recovery';
-    rrow.appendChild(rin);
-    cassa.appendChild(rrow);
-
-    for (let i = 0; i < sc.es.length; i++) {
-      const row = el('div', 'wrow');
-      for (const j of [0, 1]) {
-        const inp = el('input', 'wcampo');
-        inp.type = 'text';
-        inp.maxLength = 60;
-        inp.dataset.sch = nome;
-        inp.dataset.riga = i;
-        inp.dataset.col = j;
-        inp.value = sc.es[i][j] || '';
-        inp.placeholder = j === 0 ? 'exercise' : 'how much';
-        row.appendChild(inp);
-      }
-      const x = el('button', 'schx', '\u00d7');
-      x.type = 'button';
-      x.dataset.togli = nome;
-      x.dataset.riga = i;
-      row.appendChild(x);
-      cassa.appendChild(row);
-    }
-    const piu = el('button', 'lpiu', '+  Add an exercise');
-    piu.type = 'button';
-    piu.dataset.piues = nome;
-    cassa.appendChild(piu);
-    box.appendChild(cassa);
+    box.appendChild(campiScheda(nome, sc, tab));
   }
 }
 
