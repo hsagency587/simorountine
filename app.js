@@ -1876,6 +1876,10 @@ function paintW() {
    com'era, e chi nasconde la riga degli interruttori. */
 let wY = 0;
 
+/* E dove sta la fila delle pastiglie, che scorre di lato per conto suo:
+   spegnerne una la rifa' da capo, e senza questo tornerebbe alla prima. */
+let chipX = 0;
+
 /* Sette giorni, due caselle per giorno. La durata di ogni casella si legge
    dalla routine di quel giorno: il secondo workout del wing chun e' piu' lungo
    di quello degli altri giorni, e la tabella lo dice invece di fingere. */
@@ -2051,8 +2055,12 @@ function paintSchede(box) {
   dx.setAttribute('aria-label', 'Scroll the workouts right');
   riga.appendChild(sx); riga.appendChild(chips); riga.appendChild(dx);
   box.appendChild(riga);
-  /* le frecce ci sono solo se la fila deborda, e quella del capolinea si spegne */
-  chips.addEventListener('scroll', () => frecceChip(riga), { passive: true });
+  /* la fila resta dove l'aveva lasciata il dito, non torna alla prima pastiglia */
+  chips.scrollLeft = chipX;
+  chips.addEventListener('scroll', () => {
+    chipX = chips.scrollLeft;
+    frecceChip(riga);          /* al capolinea la freccia si spegne */
+  }, { passive: true });
   frecceChip(riga);
 
   const visti = nomi.filter(x => mostra.off.indexOf(x) < 0);
@@ -2256,7 +2264,10 @@ $('wlist').addEventListener('scroll', () => {
 
 function riportaSu() {
   wY = 0;
+  chipX = 0;
   $('wlist').scrollTop = 0;
+  const fila = $('wlist').querySelector('.chipsch');
+  if (fila) fila.scrollLeft = 0;
   $('wdrawer').querySelector('.wswitch').classList.remove('via');
 }
 
