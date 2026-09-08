@@ -125,12 +125,10 @@ const PROTETTE_STD = [[0, 450], [750, 840], [1125, 1230], [1320, 1440]];
 /* il sabato il pranzo comincia dopo e la cena si sposta: le finestre lo seguono */
 const PROTETTE_SAB = [[0, 450], [765, 840], [1140, 1245], [1320, 1440]];
 /* il martedi' il workout della sera tira fino alle 21:30 e tutto slitta: la
-   finestra della sera arriva fino alla cena, e quella della notte comincia alle
-   23. La quinta sessione, il martedi', comincia alle 22 e dura mezz'ora: senza
-   quella mezz'ora in piu' un evento di un'ora dentro la sessione sconfinerebbe
-   nella notte e diventerebbe rosso. Cena e ultima sessione restano scoperte,
-   come negli altri giorni. */
-const PROTETTE_MAR = [[0, 450], [750, 840], [1095, 1290], [1380, 1440]];
+   finestra della sera arriva fino alla cena, e quella della notte comincia con
+   la routine serale, alle 22:30. Cena e ultima sessione restano scoperte, come
+   negli altri giorni. */
+const PROTETTE_MAR = [[0, 450], [750, 840], [1095, 1290], [1350, 1440]];
 const protetteOf = k => isSabato(k)  ? PROTETTE_SAB
                       : isMartedi(k) ? PROTETTE_MAR
                       : isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
@@ -2062,10 +2060,10 @@ function tabScheda(nome, sc, coda) {
   return tab;
 }
 
-/* Le righe di una scheda: gli esercizi, e il recupero in fondo a destra. Con
-   `dx` esiste solo se e' scritto: e' cosi' nelle schede tirate fuori dal piano,
-   che si leggono e basta. Nell'elenco c'e' comunque, col trattino, cosi' si sa
-   che il campo esiste. */
+/* Le righe di una scheda: gli esercizi, e il recupero in fondo. Con `dx` sta a
+   destra ed esiste solo se e' scritto: e' cosi' nelle schede tirate fuori dal
+   piano, che si leggono e basta. Nell'elenco sta a sinistra e c'e' comunque,
+   col trattino, cosi' si sa che il campo esiste. */
 function righeScheda(tab, sc, dx) {
   for (const r of sc.es) {
     /* la quantita' senza esercizio sta gia' nella banda del nome */
@@ -2082,7 +2080,7 @@ function righeScheda(tab, sc, dx) {
     ]));
   }
   if (sc.rec || !dx) {
-    const r = el('div', 'tabr recgiu');
+    const r = el('div', 'tabr recgiu' + (dx ? ' adx' : ''));
     const c = el('div', 'tabc');
     c.appendChild(el('span', 'receti', 'Recovery'));
     c.appendChild(el('span', 'recval' + (sc.rec ? '' : ' vuota'), sc.rec || '\u2014'));
