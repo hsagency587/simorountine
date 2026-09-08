@@ -708,22 +708,31 @@
         ],
         [
           "Tocca punta piedi",
-          "Aperto- chiuso",
+          "Aperto- chiuso - dx & sx",
           [
             "Stretch"
           ]
         ],
         [
           "Goblet squat",
-          "Assistito",
+          "",
           [
             "Stretch"
           ]
         ],
         [
+          "Prayer stretch",
           "",
+          [
+            "Stretch"
+          ]
+        ],
+        [
+          "Eccentric curl-up",
           "",
-          []
+          [
+            "Stretch"
+          ]
         ]
       ],
       "rec": "1'"
