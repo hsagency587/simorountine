@@ -155,7 +155,9 @@ const SERA_WC = [
   { id: 'gws4', da: 1035, t: '17:15 | 4TH G WORK SESSION', gws: 3 },
   { id: 'prep-cena', da: 1095, t: '18:15 | DINNER PREP' },
   { id: 'workout-2', da: 1110, t: '18:30 | 2ND WORKOUT', slot: 1 },
-  { id: 'cena', da: 1230, t: '20:30 | DINNER', pasto: 'Dinner' },
+  { id: 'cena', da: 1230, t: '20:30 | DINNER', pasto: 'Dinner', sub: [
+    { id: 'cena-doccia', t: 'SHOWER' }
+  ]},
   { id: 'gws5', da: 1260, t: '21:00 | 5TH G WORK SESSION', gws: 4 },
   { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
     { id: 'serale-target',   t: "TOMORROW'S G WORK SESSION TARGET" },
@@ -169,7 +171,9 @@ const SERA_STD = [
   { id: 'gws4', da: 1035, t: '17:15 | 4TH G WORK SESSION', gws: 3 },
   { id: 'prep-cena', da: 1125, t: '18:45 | DINNER PREP' },
   { id: 'workout-2', da: 1140, t: '19:00 | 2ND WORKOUT', slot: 1 },
-  { id: 'cena', da: 1200, t: '20:00 | DINNER', pasto: 'Dinner' },
+  { id: 'cena', da: 1200, t: '20:00 | DINNER', pasto: 'Dinner', sub: [
+    { id: 'cena-doccia', t: 'SHOWER' }
+  ]},
   { id: 'gws5', da: 1230, t: '20:30 | 5TH G WORK SESSION', gws: 4 },
   { id: 'serale', da: 1320, t: '22:00 | EVENING ROUTINE', sub: [
     { id: 'serale-target',   t: "TOMORROW'S G WORK SESSION TARGET" },
