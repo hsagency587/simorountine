@@ -479,9 +479,6 @@ body.menu-open{overflow:hidden}
 .tabr:first-child{border-top:0}
 .tab-w .tabr{grid-template-columns:38px 1fr 1fr}
 .tab-d .tabr{grid-template-columns:92px 38px minmax(0,1fr)}
-/* la riga grigia dei pasti ha una colonna in piu', per il suo bottone edit */
-.tab-d .tabr.capo{grid-template-columns:92px 38px minmax(0,1fr) auto;align-items:center}
-.tab-d .tabr.capo .tabc{padding-top:3px;padding-bottom:3px}
 .tab-i .tabr{grid-template-columns:1fr 1.2fr}
 .tabr.tocca{cursor:pointer}
 .tabr.tocca:active{background:var(--surface-2)}
@@ -593,8 +590,8 @@ body.menu-open{overflow:hidden}
 /* La targhetta: orizzontale, si legge al volo, a cavallo della linea che apre
    il gruppo. Sta sopra, non dentro: non occupa posto. */
 .grpeti{
-  position:absolute;z-index:1;top:-8px;right:10px;
-  height:15px;padding:0 6px;
+  position:absolute;z-index:1;top:-6px;right:10px;
+  height:12px;padding:0 5px;
   display:inline-flex;align-items:center;
   background:var(--surface);
   border:1px solid rgba(61, 220, 132, .55);border-radius:8px;
@@ -945,6 +942,29 @@ button.tendina{
   background-repeat:no-repeat;
 }
 button.tendina:active{background-color:var(--line)}
+
+/* ---------- la tendina dei tre puntini ---------- */
+
+/* Piccola e appesa al bottone che l'ha aperta, non una finestra in mezzo allo
+   schermo: due voci non hanno bisogno di tutto lo schermo. Il posto glielo da'
+   il codice, che misura dove sta il bottone; qui c'e' solo com'e' fatta. */
+.tendmenu{
+  position:fixed;margin:0;padding:var(--s1);
+  max-width:min(280px,calc(100vw - 2 * var(--s2)));
+  background:var(--surface-2);color:var(--text);
+  border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+/* il velo dietro resta trasparente: la tendina non spegne la giornata, la
+   copre per un attimo. Un tocco fuori la chiude lo stesso. */
+.tendmenu::backdrop{background:transparent}
+.tendlist{list-style:none;margin:0;padding:0}
+.tendrow{
+  padding:10px var(--s3);border-radius:var(--radius);
+  font-size:14px;white-space:nowrap;cursor:pointer;
+}
+.tendrow + .tendrow{border-top:1px solid var(--line)}
+.tendrow:active{background:var(--line)}
 
 /* Il pannello di scelta: righe alte come quelle del menu', quella scelta
    accesa come una pastiglia selezionata. */

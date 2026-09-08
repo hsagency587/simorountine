@@ -1186,13 +1186,13 @@ function chiediSerie(altri) {
    strade. Togliere non cancella: la task esce da questa sessione, e se non ne
    resta nessun'altra torna nel serbatoio, da dove si puo' rimettere quando si
    vuole. Modifica apre l'editor di sempre. */
-function menuTask(id, g) {
+function menuTask(id, g, bottone) {
   const x = findTask(id);
   if (!x) return;
   const voci = [];
   if (x.giorno && isEditable(x.giorno)) voci.push({ k: 'togli', lab: 'Remove from G Work session' });
   voci.push({ k: 'modifica', lab: 'Edit' });
-  apriPicker(x.nome, voci, '', v => {
+  apriTendina(bottone, voci, v => {
     if (v === 'modifica') openEditor(id);
     else if (v === 'togli') togliDaSessione(id, g);
   });
@@ -1211,7 +1211,7 @@ function togliDaSessione(id, g) {
 
 $('list').addEventListener('click', ev => {
   const more = ev.target.closest('button.more[data-task]');
-  if (more) { menuTask(more.dataset.task, +more.dataset.gws); return; }
+  if (more) { menuTask(more.dataset.task, +more.dataset.gws, more); return; }
 
   const evm = ev.target.closest('button.more[data-evento]');
   if (evm) { openEvento(evm.dataset.evento); return; }
@@ -1350,6 +1350,14 @@ if (!Array.isArray(tstore.known)) tstore.known = [];
 if (!tstore.workout || typeof tstore.workout !== 'object') tstore.workout = {};
 if (!tstore.dieta || typeof tstore.dieta !== 'object') tstore.dieta = {};
 if (!Array.isArray(tstore.limiti)) tstore.limiti = [];
+/* Gli integratori stanno fra le schede, come l'attivita' del mattino: stesso
+   editor dei workout, coi gruppi. La prima versione li teneva in un elenco
+   piatto come le info: se in giro c'e' ancora quello, le sue righe passano
+   nella scheda e l'elenco sparisce. */
+if (Array.isArray(tstore.integratori) && tstore.integratori.length) {
+  tstore.vecchiInt = tstore.integratori;
+}
+delete tstore.integratori;
 /* Le schede: per ogni allenamento diverso scritto nel piano, gli esercizi e il
    recupero. La chiave e' il nome dell'allenamento. */
 if (!tstore.schede || typeof tstore.schede !== 'object') tstore.schede = {};
@@ -1513,6 +1521,32 @@ tstore.workout = validWorkout(tstore.workout);
 tstore.dieta   = validDieta(tstore.dieta);
 tstore.limiti  = validLimiti(tstore.limiti);
 tstore.schede  = validSchede(tstore.schede);
+
+/* Le info erano un elenco a parte, con la loro finestra. Ora sono una scheda
+   come gli integratori. Quello che c'era nell'elenco passa nella scheda la
+   prima volta che l'app lo trova, e l'elenco resta vuoto. Vale sia per quello
+   che sta nel telefono sia per quello che arriva dal file: si richiama dopo
+   ogni lettura. Il nome sta qui perche' serve prima di tutto il resto. */
+const INFO = 'Info';
+
+function migraInfo() {
+  if (!tstore.limiti.length) return false;
+  const sc = tstore.schede[INFO] || { es: [], rec: '' };
+  sc.es = sc.es.concat(tstore.limiti.map(x => [x.cosa, x.valore, []]));
+  tstore.schede[INFO] = sc;
+  tstore.limiti = [];
+  return true;
+}
+if (migraInfo()) { tstore.dirty = true; saveLocal(); }
+/* le righe della prima versione degli integratori entrano nella scheda, una
+   volta sola, e poi l'elenco vecchio non serve piu' */
+if (Array.isArray(tstore.vecchiInt)) {
+  const sc = tstore.schede['Supplements'] || { es: [], rec: '' };
+  for (const x of validLimiti(tstore.vecchiInt)) sc.es.push([x.cosa, x.valore, []]);
+  if (sc.es.length) tstore.schede['Supplements'] = sc;
+  delete tstore.vecchiInt;
+  saveLocal();
+}
 
 /* Cosa si fa in quel workout, quel giorno: la casella del piano, se c'e'. */
 function workoutDi(k, slot) {
@@ -2119,10 +2153,6 @@ function frecceChip(riga) {
 /* Quale scheda si sta scrivendo, o null: una per volta. */
 let scheda = null;
 
-/* La tabella dei pasti aperta coi campi, col suo bottone: non dipende dal
-   bottone edit in cima al pannello, che nella dieta governa solo le info. */
-let dietaApri = false;
-
 /* Una scheda da leggere: il nome nella riga grigia in alto, il recupero come
    prima riga staccata, poi gli esercizi. In fondo alla testata ci va quello che
    passa `coda`: il bottone per modificarla, o l'etichetta del turno. */
@@ -2228,7 +2258,11 @@ Pila.prototype.vai = function (g) {
 /* I campi di una scheda aperta. La scheda va tutta dentro un riquadro suo, col
    bordo verde: in mezzo a dieci tabelle uguali, altrimenti non si capisce di chi
    sono i campi che si stanno riempiendo. */
-function campiScheda(nome, sc, tab, senzaRec) {
+/* `voci` cambia le parole dei campi: la stessa scheda serve gli esercizi e gli
+   integratori, e "how much" va bene per tutti e due. Senza, restano quelle dei
+   workout. */
+function campiScheda(nome, sc, tab, senzaRec, voci) {
+  voci = voci || { es: 'exercise', qta: 'how much', piu: '+  Add an exercise' };
   const cassa = el('div', 'schapri');
   /* quanto spazio lasciare a destra alle barre dei gruppi: quattro pixel per
      ogni scatola annidata, piu' due. Lo lasciano tutte le righe, cosi' i campi
@@ -2274,7 +2308,7 @@ function campiScheda(nome, sc, tab, senzaRec) {
       inp.dataset.riga = i;
       inp.dataset.col = j;
       inp.value = sc.es[i][j] || '';
-      inp.placeholder = j === 0 ? 'exercise' : 'how much';
+      inp.placeholder = j === 0 ? voci.es : voci.qta;
       row.appendChild(inp);
     }
     const x = el('button', 'schx', '\u00d7');
@@ -2301,7 +2335,7 @@ function campiScheda(nome, sc, tab, senzaRec) {
     }
     cassa.appendChild(row);
   }
-  const piu = el('button', 'lpiu', '+  Add an exercise');
+  const piu = el('button', 'lpiu', voci.piu);
   piu.type = 'button';
   piu.dataset.piues = nome;
   cassa.appendChild(piu);
@@ -2453,6 +2487,52 @@ function paintSchede(box) {
   }
 }
 
+/* Una tabella a due colonne di righe libere: a sinistra la cosa, a destra il
+   valore. La usano le info e gli integratori, che sono la stessa cosa scritta
+   in due elenchi diversi. `campo` e' il nome del data- che ogni riga si porta
+   dietro: da li' il tocco sa quale dei due elenchi aprire. */
+function tabInfo(titolo, elenco, campo) {
+  const t = el('div', 'tab tab-i');
+  t.appendChild(tabRiga([{ t: titolo }, { t: '' }], 'capo'));
+  for (const x of elenco) {
+    const riga = tabRiga([
+      { t: x.cosa || '—', cls: x.cosa ? 'eti' : 'eti vuota' },
+      { t: x.valore || '—', cls: x.valore ? 'val' : 'val vuota' }
+    ], 'tocca');
+    riga.dataset[campo] = x.id;
+    t.appendChild(riga);
+  }
+  if (!elenco.length) t.appendChild(tabRiga([{ t: '—', cls: 'vuota' }, { t: '' }]));
+  return t;
+}
+
+/* Il bottone per aggiungere una riga a una delle due tabelle: sta solo in
+   modifica, come i campi. */
+function piuInfo(box, testo, campo) {
+  if (!modifica()) return;
+  const piu = el('button', 'lpiu', testo);
+  piu.type = 'button';
+  piu.dataset[campo] = '1';
+  box.appendChild(piu);
+}
+
+/* Gli integratori sono una scheda come quella del mattino: nome fisso, niente
+   recupero, e tutto il resto — righe, gruppi, il pannello Groups — arriva dai
+   pezzi che i workout usano gia'. */
+const INTEGRATORI = 'Supplements';
+const VOCI_INT = { es: 'supplement', qta: 'how much', piu: '+  Add a supplement' };
+
+function paintInt(box) {
+  const sc = tstore.schede[INTEGRATORI] || { es: [], rec: '' };
+  const aperta = scheda === INTEGRATORI;
+  const b = el('button', 'schbtn', aperta ? 'done' : 'edit');
+  b.type = 'button';
+  b.dataset.scheda = INTEGRATORI;
+  const tab = tabScheda(INTEGRATORI, sc, b);
+  box.appendChild(aperta ? campiScheda(INTEGRATORI, sc, tab, true, VOCI_INT)
+                         : righeScheda(tab, { es: sc.es, rec: '' }, true));
+}
+
 /* La dieta: un pasto per riga, con il suo orario e quanto dura. Non ha giorni:
    i pasti sono uguali tutti i giorni. Gli orari si leggono dalla routine di
    oggi, cosi' non c'e' un secondo posto dove tenerli aggiornati. */
@@ -2462,21 +2542,15 @@ function paintD() {
   const k = dayKey(today());
   const r = routineFor(k);
 
-  /* La tabella dei pasti ha il suo bottone edit, in fondo alla riga grigia in
-     alto, come le schede dei workout. Aperta, la riga grigia resta e sotto ci
-     sono i campi, dentro il riquadro verde delle schede aperte. */
-  const b = el('button', 'schbtn', dietaApri ? 'done' : 'edit');
-  b.type = 'button';
-  b.dataset.dietamod = '1';
-  const tab = el('div', 'tab tab-d');
-  const cap = tabRiga([{ t: 'Meal' }, { t: 'Time', cls: 'ora' }, { t: 'What' }], 'capo');
-  const cb = el('div', 'tabc tabbtn');
-  cb.appendChild(b);
-  cap.appendChild(cb);
-  tab.appendChild(cap);
+  /* Gli integratori: sopra i pasti, con lo stesso editor dei workout — righe
+     libere, gruppi, il bottone edit nella riga grigia. Nessun recupero: qui non
+     c'e' niente da recuperare. */
+  paintInt(box);
 
   /* o la tabella dei pasti, o i campi per riempirla */
-  if (!dietaApri) {
+  if (!modifica()) {
+    const tab = el('div', 'tab tab-d');
+    tab.appendChild(tabRiga([{ t: 'Meal' }, { t: 'Time', cls: 'ora' }, { t: 'What' }], 'capo'));
     for (const t of PASTI) {
       const i = r.findIndex(v => v.id === t.id);
       const ora = (i >= 0 ? r[i] : t).t.split('|')[0].trim();
@@ -2489,8 +2563,6 @@ function paintD() {
     }
     box.appendChild(tab);
   } else {
-    const cassa = el('div', 'schapri');
-    cassa.appendChild(tab);
     for (const t of PASTI) {
       const i = r.findIndex(v => v.id === t.id);
       const tappa = i >= 0 ? r[i] : t;
@@ -2498,7 +2570,7 @@ function paintD() {
       const dur = i >= 0 ? durataTappa(k, i) : '';
       const tit = el('p', 'wcapo', t.pasto);
       tit.appendChild(el('span', 'dora', '  ' + ora + (dur ? ' \u00b7 ' + dur : '')));
-      cassa.appendChild(tit);
+      box.appendChild(tit);
       const row = el('div', 'wrow');
       const inp = el('input', 'wcampo');
       inp.type = 'text';
@@ -2507,33 +2579,30 @@ function paintD() {
       inp.value = tstore.dieta[t.id] || '';
       inp.placeholder = 'What you eat';
       row.appendChild(inp);
-      cassa.appendChild(row);
+      box.appendChild(row);
     }
-    box.appendChild(cassa);
   }
 
-  /* le info: cose che non stanno dentro un pasto. Stanno in una tabella come i
-     pasti, e si toccano per cambiarle. */
-  const ti = el('div', 'tab tab-i');
-  ti.appendChild(tabRiga([{ t: 'Info' }, { t: '' }], 'capo'));
-  for (const x of tstore.limiti) {
-    const riga = tabRiga([
-      { t: x.cosa || '—', cls: x.cosa ? 'eti' : 'eti vuota' },
-      { t: x.valore || '—', cls: x.valore ? 'val' : 'val vuota' }
-    ], 'tocca');
-    riga.dataset.limite = x.id;
-    ti.appendChild(riga);
-  }
-  if (!tstore.limiti.length) ti.appendChild(tabRiga([{ t: '—', cls: 'vuota' }, { t: '' }]));
-  box.appendChild(ti);
+  /* le info: cose che non stanno dentro un pasto. Sono una scheda come quelle
+     dei workout, con lo stesso editor e gli stessi gruppi. */
+  paintInfo(box);
+}
 
-  /* il bottone per aggiungerne una sta solo in modifica, come i campi */
-  if (modifica()) {
-    const piu = el('button', 'lpiu', '+  Add info');
-    piu.type = 'button';
-    piu.dataset.piulimite = '1';
-    box.appendChild(piu);
-  }
+/* Le info sono una scheda come gli integratori: stesso editor, stessi gruppi,
+   niente recupero. Il nome e la migrazione stanno piu' su, vicino al resto del
+   caricamento. */
+const VOCI_INFO = { es: 'what', qta: 'value', piu: '+  Add info' };
+
+/* La scheda delle info: sempre visibile, anche vuota, col suo bottone. */
+function paintInfo(box) {
+  const sc = tstore.schede[INFO] || { es: [], rec: '' };
+  const aperta = scheda === INFO;
+  const b = el('button', 'schbtn', aperta ? 'done' : 'edit');
+  b.type = 'button';
+  b.dataset.scheda = INFO;
+  const tab = tabScheda(INFO, sc, b);
+  box.appendChild(aperta ? campiScheda(INFO, sc, tab, true, VOCI_INFO)
+                         : righeScheda(tab, { es: sc.es, rec: '' }, true));
 }
 
 /* Si scrive quando si esce dalla casella: cosi' non si segna il file da salvare
@@ -2902,9 +2971,6 @@ $('gruppoForm').addEventListener('submit', () => { grp = null; scelti = []; pain
 dlgGrp.addEventListener('cancel', () => { grp = null; });
 
 $('wlist').addEventListener('click', ev => {
-  if (ev.target.closest('button[data-piulimite]')) { apriLimite(null); return; }
-  /* il bottone della tabella dei pasti: apre i campi, o li chiude */
-  if (ev.target.closest('button[data-dietamod]')) { dietaApri = !dietaApri; paintW(); return; }
 
   /* l'interruttore delle schede */
   if (ev.target.closest('button[data-schroot]')) {
@@ -2984,8 +3050,7 @@ $('wlist').addEventListener('click', ev => {
     }
     return;
   }
-  const r = ev.target.closest('[data-limite]');
-  if (r) apriLimite(r.dataset.limite);
+
 });
 
 $('wBtn').addEventListener('click', () => openW(true));
@@ -3093,6 +3158,53 @@ function dayChoices(current) {
    arriva bianca, con il suo carattere, e stona con tutto il resto. Qui il campo
    e' un bottone che apre un pannello fatto con gli stessi pezzi del resto
    dell'app. Un tocco per aprire, un tocco per scegliere: come prima. */
+/* La tendina dei tre puntini. Il pannello di scelta qui sotto sta in mezzo allo
+   schermo e serve a scegliere fra tante voci; questa e' un'altra cosa: due
+   voci, appese al bottone che l'ha aperta.
+
+   Si apre fuori schermo, si misura e solo allora si mette al suo posto:
+   misurarla prima di aprirla darebbe zero. Sta sotto il bottone; se sotto non
+   ci sta, sopra. */
+const dlgTend = $('tendMenu');
+let tendCb = null;
+
+function apriTendina(bottone, items, cb) {
+  const ul = $('tendList');
+  ul.textContent = '';
+  for (const it of items) {
+    const li = el('li', 'tendrow', it.lab);
+    li.dataset.v = it.k;
+    ul.appendChild(li);
+  }
+  tendCb = cb;
+  dlgTend.style.left = '-9999px';
+  dlgTend.style.top = '0px';
+  dlgTend.showModal();
+  const M = 8;                          /* quanto sta lontana dai bordi */
+  const r = bottone.getBoundingClientRect();
+  const b = dlgTend.getBoundingClientRect();
+  const x = Math.max(M, Math.min(r.right - b.width, window.innerWidth - b.width - M));
+  let y = r.bottom + 4;
+  if (y + b.height > window.innerHeight - M) y = r.top - b.height - 4;
+  dlgTend.style.left = x + 'px';
+  dlgTend.style.top = Math.max(M, y) + 'px';
+}
+
+$('tendList').addEventListener('click', ev => {
+  const li = ev.target.closest('li[data-v]');
+  if (!li) return;
+  const v = li.dataset.v, cb = tendCb;
+  tendCb = null;
+  dlgTend.close();
+  if (cb) cb(v);
+});
+
+/* un tocco fuori, o il tasto indietro, la chiudono senza fare niente */
+dlgTend.addEventListener('click', ev => {
+  if (ev.target === dlgTend) { tendCb = null; dlgTend.close(); }
+});
+dlgTend.addEventListener('cancel', () => { tendCb = null; });
+
 const dlgPick = $('picker');
 let pickCb = null;
 
@@ -3598,6 +3710,7 @@ async function pullTasks() {
   tstore.dieta = dieta;
   tstore.limiti = limiti;
   tstore.schede = schede;
+  migraInfo();                    /* un file di prima: le info passano nella scheda */
   rememberSha(j.sha);
   tstore.dirty = false;
   saveLocal();
