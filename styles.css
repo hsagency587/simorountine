@@ -627,6 +627,16 @@ body.menu-open{overflow:hidden}
   font-size:13px;font-weight:600;
 }
 .chip.sel{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+/* Le pastiglie che scelgono quali schede si vedono. Stanno dentro al pannello,
+   dove una fila di pastiglie verdi piene griderebbe: qui il verde e' solo il
+   bordo e la scritta. Devono venire dopo .chip, che e' piu' grossa. */
+.chipsch{padding:0 var(--s3) var(--s3);gap:var(--s1)}
+.chips.chipsch .chip{
+  min-height:26px;padding:0 var(--s2);border-radius:13px;
+  font-size:11px;
+  background:var(--surface-2);border-color:var(--line);color:var(--muted);
+}
+.chips.chipsch .chip.sel{border-color:var(--accent);color:var(--accent)}
 .btn-del{flex:0 0 auto;color:var(--danger);border-color:rgba(255,69,58,.45)}
 .btn-largo{width:100%;margin-bottom:var(--s3)}
 .nota{margin:var(--s2) 0 0;font-size:12px;line-height:1.4;color:var(--muted)}

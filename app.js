@@ -1538,9 +1538,10 @@ let mostra = (() => {
   try {
     const v = JSON.parse(localStorage.getItem(MOSTRA_KEY) || 'null');
     if (v && typeof v === 'object')
-      return { w: v.w !== false, d: v.d !== false, mw: !!v.mw, md: !!v.md, sch: !!v.sch };
+      return { w: v.w !== false, d: v.d !== false, mw: !!v.mw, md: !!v.md, sch: !!v.sch,
+               off: (Array.isArray(v.off) ? v.off : []).map(String) };
   } catch (e) { /* si parte accesi, e senza i campi per scrivere */ }
-  return { w: true, d: true, mw: false, md: false, sch: false };
+  return { w: true, d: true, mw: false, md: false, sch: false, off: [] };
 })();
 function salvaMostra() {
   try { localStorage.setItem(MOSTRA_KEY, JSON.stringify(mostra)); } catch (e) {}
@@ -1942,7 +1943,28 @@ function paintSchede(box) {
     return;
   }
 
+  /* Non tutti gli allenamenti del piano hanno esercizi da scrivere: il wing
+     chun, per dire, non ne ha nessuno. Le pastiglie qui sopra dicono quali
+     schede si vedono; toccarne una la toglie o la rimette, e la scelta resta
+     nel telefono senza toccare il file. */
+  const chips = el('div', 'chips chipsch');
   for (const nome of nomi) {
+    const acceso = mostra.off.indexOf(nome) < 0;
+    const c = el('button', 'chip chipw' + (acceso ? ' sel' : ''), nome);
+    c.type = 'button';
+    c.dataset.chipsch = nome;
+    c.setAttribute('aria-pressed', acceso ? 'true' : 'false');
+    chips.appendChild(c);
+  }
+  box.appendChild(chips);
+
+  const visti = nomi.filter(x => mostra.off.indexOf(x) < 0);
+  if (!visti.length) {
+    box.appendChild(el('p', 'vuoto', 'No workout chosen'));
+    return;
+  }
+
+  for (const nome of visti) {
     const sc = tstore.schede[nome] || { es: [], rec: '' };
     const apertaSc = scheda === nome;
 
@@ -2205,6 +2227,17 @@ $('wlist').addEventListener('click', ev => {
   /* l'interruttore delle schede */
   if (ev.target.closest('button[data-schroot]')) {
     mostra.sch = !mostra.sch;
+    salvaMostra();
+    paintW();
+    return;
+  }
+  /* una pastiglia: quel workout si vede o non si vede fra le schede */
+  const ch = ev.target.closest('button[data-chipsch]');
+  if (ch) {
+    const n = ch.dataset.chipsch;
+    const i = mostra.off.indexOf(n);
+    if (i < 0) { mostra.off = mostra.off.concat([n]); if (scheda === n) scheda = null; }
+    else mostra.off = mostra.off.filter(x => x !== n);
     salvaMostra();
     paintW();
     return;
