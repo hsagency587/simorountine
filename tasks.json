@@ -105,7 +105,7 @@
     {
       "id": "tmtrpnmd5o4t7",
       "creata": "2026-09-07T20:46:17.082Z",
-      "nome": "Mttersi in regola con l'agezia",
+      "nome": "Mettersi in regola con l'agezia",
       "desc": "Parlare con claude consulente e valuatre il percorso corretto per mettersi in regola ",
       "rank": "B",
       "cliente": "hs-agency",
@@ -183,18 +183,6 @@
       "gws": null
     },
     {
-      "id": "tmts8tfynd5k0",
-      "creata": "2026-09-08T05:42:41.423Z",
-      "nome": "Edit video Instagram",
-      "desc": "Editare video Instagram che ho girato ad Amsterdam. ",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-08",
-      "gws": [
-        2
-      ]
-    },
-    {
       "id": "tmts99b7r2qx6",
       "creata": "2026-09-08T05:55:01.767Z",
       "nome": "Salva & Organizza numeri di telefono",
@@ -223,6 +211,42 @@
       "cliente": null,
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmtt75uuzih3b",
+      "creata": "2026-09-08T21:44:07.547Z",
+      "nome": "Check copy",
+      "desc": "Controllare pagina per pagina il copy del sito della gioielleria ",
+      "rank": "A",
+      "cliente": "di-nucci",
+      "giorno": "2026-09-09",
+      "gws": [
+        0
+      ]
+    },
+    {
+      "id": "tmtt77enwqsal",
+      "creata": "2026-09-08T21:45:19.868Z",
+      "nome": "Cosa dire",
+      "desc": "Segnare una scaletta dell'ordine dei punti da toccare da Giorgia ",
+      "rank": "A",
+      "cliente": "di-nucci",
+      "giorno": "2026-09-09",
+      "gws": [
+        0
+      ]
+    },
+    {
+      "id": "tmtt79lhrd6aq",
+      "creata": "2026-09-08T21:47:02.031Z",
+      "nome": "Google ads",
+      "desc": "",
+      "rank": "A",
+      "cliente": "hs-agency",
+      "giorno": "2026-09-09",
+      "gws": [
+        2
+      ]
     }
   ],
   "workout": {
@@ -513,35 +537,6 @@
         ]
       ],
       "rec": "1'"
-    },
-    "15' abs + roll & stretch": {
-      "es": [
-        [
-          "",
-          ""
-        ],
-        [
-          "",
-          ""
-        ],
-        [
-          "",
-          ""
-        ],
-        [
-          "",
-          ""
-        ],
-        [
-          "",
-          ""
-        ],
-        [
-          "",
-          ""
-        ]
-      ],
-      "rec": ""
     },
     "Core + roll & stretch": {
       "es": [
