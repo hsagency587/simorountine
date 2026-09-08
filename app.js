@@ -1709,7 +1709,10 @@ function paintDrawer() {
   for (const r of RANKS) {
     const l = tutto.filter(x => x.rank === r && !gia.has(x.id)).sort(byMenu);
     if (!l.length) continue;
-    box.appendChild(el('p', 'grp', 'RANK ' + r));
+    /* I blocchi restano separati, ma la scritta RANK non c'e' piu': la lettera
+       sta gia' sulla pastiglia di ogni task, e senza quella riga i nomi dei
+       clienti si leggono di fila. Fra un blocco e l'altro, una linea. */
+    if (box.childNodes.length) box.appendChild(el('div', 'rankgap'));
     /* dentro il rank, le task dello stesso cliente stanno insieme e il nome si
        scrive una volta sola sopra il gruppo, invece che su ogni riga. L'ordine
        dei gruppi e' quello della prima task di ognuno, cioe' sempre per data. */

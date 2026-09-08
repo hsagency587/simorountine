@@ -548,6 +548,8 @@ body.menu-open{overflow:hidden}
 /* la durata della tappa: piccola, grigia, all'estremita' della riga */
 .dur{flex:0 0 auto;margin-right:var(--s3);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .grp{margin:0;padding:var(--s3) var(--s4) var(--s1);font-size:11px;letter-spacing:.08em;color:var(--muted)}
+/* lo stacco fra un rank e l'altro: una linea, senza scritta sopra */
+.rankgap{height:1px;margin:var(--s3) var(--s4);background:var(--line)}
 .grpcli{display:flex;align-items:center;gap:var(--s2);width:100%;
   background:none;border:0;text-align:left;letter-spacing:0;font-size:13px;
   padding:var(--s3) var(--s4);color:var(--fg);cursor:pointer;font-family:inherit}
