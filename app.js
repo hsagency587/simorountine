@@ -1830,7 +1830,9 @@ function setTab(t) {
 
 function paintSwitch() {
   $('wMostra').checked = wTab === 'w' ? mostra.w : mostra.d;
-  $('wMod').checked = modifica();
+  const b = $('wMod');
+  b.textContent = modifica() ? 'done' : 'edit';
+  b.classList.toggle('on', modifica());
 }
 
 $('wMostra').addEventListener('change', e => {
@@ -1839,9 +1841,11 @@ $('wMostra').addEventListener('change', e => {
   render();
 });
 
-$('wMod').addEventListener('change', e => {
-  if (wTab === 'w') mostra.mw = e.target.checked; else mostra.md = e.target.checked;
+$('wMod').addEventListener('click', () => {
+  const v = !modifica();
+  if (wTab === 'w') mostra.mw = v; else mostra.md = v;
   salvaMostra();
+  paintSwitch();
   paintW();
 });
 
@@ -1858,19 +1862,23 @@ function paintW() {
   const t0 = today();
   const oggi = t0.getDay();
 
-  /* prima la tabella, per leggere la settimana in un colpo */
-  const tab = el('div', 'tab tab-w');
-  tab.appendChild(tabRiga([{ t: '' }, { t: '1st' }, { t: '2nd' }], 'capo'));
-  for (const g of [1, 2, 3, 4, 5, 6, 0]) {
-    const r = tstore.workout[g] || [];
-    tab.appendChild(tabRiga([
-      { t: GIORNI2[g], cls: 'eti' },
-      { t: r[0] || '—', cls: r[0] ? '' : 'vuota', k: 'w' + g + '-0' },
-      { t: r[1] || '—', cls: r[1] ? '' : 'vuota', k: 'w' + g + '-1' }
-    ], g === oggi ? 'oggi' : ''));
+  /* o la tabella, per leggere la settimana in un colpo, o i campi per
+     scriverla: mai tutte e due insieme */
+  if (!modifica()) {
+    const tab = el('div', 'tab tab-w');
+    tab.appendChild(tabRiga([{ t: '' }, { t: '1st' }, { t: '2nd' }], 'capo'));
+    for (const g of [1, 2, 3, 4, 5, 6, 0]) {
+      const r = tstore.workout[g] || [];
+      tab.appendChild(tabRiga([
+        { t: GIORNI2[g], cls: 'eti' },
+        { t: r[0] || '—', cls: r[0] ? '' : 'vuota', k: 'w' + g + '-0' },
+        { t: r[1] || '—', cls: r[1] ? '' : 'vuota', k: 'w' + g + '-1' }
+      ], g === oggi ? 'oggi' : ''));
+    }
+    box.appendChild(tab);
+    paintSchede(box);
+    return;
   }
-  box.appendChild(tab);
-  if (!modifica()) { paintSchede(box); return; }
   /* Il piano e' generico, non parte da oggi: da lunedi' a domenica, sempre
      uguale. Per gli orari serve pero' una data vera con quel giorno della
      settimana, e la si pesca nei sette giorni davanti. */
@@ -2005,20 +2013,41 @@ function paintD() {
   const k = dayKey(today());
   const r = routineFor(k);
 
-  /* la tabella dei pasti: pasto, ora, cosa */
-  const tab = el('div', 'tab tab-d');
-  tab.appendChild(tabRiga([{ t: 'Meal' }, { t: 'Time' }, { t: 'What' }], 'capo'));
-  for (const t of PASTI) {
-    const i = r.findIndex(v => v.id === t.id);
-    const ora = (i >= 0 ? r[i] : t).t.split('|')[0].trim();
-    const v = tstore.dieta[t.id] || '';
-    tab.appendChild(tabRiga([
-      { t: t.pasto.split(' ')[0], cls: 'eti' },
-      { t: ora, cls: 'ora' },
-      { t: v || '—', cls: v ? '' : 'vuota', k: 'd' + t.id }
-    ]));
+  /* o la tabella dei pasti, o i campi per riempirla */
+  if (!modifica()) {
+    const tab = el('div', 'tab tab-d');
+    tab.appendChild(tabRiga([{ t: 'Meal' }, { t: 'Time' }, { t: 'What' }], 'capo'));
+    for (const t of PASTI) {
+      const i = r.findIndex(v => v.id === t.id);
+      const ora = (i >= 0 ? r[i] : t).t.split('|')[0].trim();
+      const v = tstore.dieta[t.id] || '';
+      tab.appendChild(tabRiga([
+        { t: t.pasto.split(' ')[0], cls: 'eti' },
+        { t: ora, cls: 'ora' },
+        { t: v || '—', cls: v ? '' : 'vuota', k: 'd' + t.id }
+      ]));
+    }
+    box.appendChild(tab);
+  } else {
+    for (const t of PASTI) {
+      const i = r.findIndex(v => v.id === t.id);
+      const tappa = i >= 0 ? r[i] : t;
+      const ora = tappa.t.split('|')[0].trim();
+      const dur = i >= 0 ? durataTappa(k, i) : '';
+      const tit = el('p', 'wcapo', t.pasto);
+      tit.appendChild(el('span', 'dora', '  ' + ora + (dur ? ' \u00b7 ' + dur : '')));
+      box.appendChild(tit);
+      const row = el('div', 'wrow');
+      const inp = el('input', 'wcampo');
+      inp.type = 'text';
+      inp.maxLength = 120;
+      inp.dataset.pasto = t.id;
+      inp.value = tstore.dieta[t.id] || '';
+      inp.placeholder = 'What you eat';
+      row.appendChild(inp);
+      box.appendChild(row);
+    }
   }
-  box.appendChild(tab);
 
   /* le info: cose che non stanno dentro un pasto. Stanno in una tabella come i
      pasti, e si toccano per cambiarle. */
@@ -2035,31 +2064,13 @@ function paintD() {
   if (!tstore.limiti.length) ti.appendChild(tabRiga([{ t: '—', cls: 'vuota' }, { t: '' }]));
   box.appendChild(ti);
 
-  if (!modifica()) return;
-
-  for (const t of PASTI) {
-    const i = r.findIndex(v => v.id === t.id);
-    const tappa = i >= 0 ? r[i] : t;
-    const ora = tappa.t.split('|')[0].trim();
-    const dur = i >= 0 ? durataTappa(k, i) : '';
-    const tit = el('p', 'dgiorno', t.pasto);
-    tit.appendChild(el('span', 'dora', '  ' + ora + (dur ? ' \u00b7 ' + dur : '')));
-    box.appendChild(tit);
-    const row = el('div', 'wrow');
-    const inp = el('input', 'wcampo');
-    inp.type = 'text';
-    inp.maxLength = 120;
-    inp.dataset.pasto = t.id;
-    inp.value = tstore.dieta[t.id] || '';
-    inp.placeholder = 'What you eat';
-    row.appendChild(inp);
-    box.appendChild(row);
+  /* il bottone per aggiungerne una sta solo in modifica, come i campi */
+  if (modifica()) {
+    const piu = el('button', 'lpiu', '+  Add info');
+    piu.type = 'button';
+    piu.dataset.piulimite = '1';
+    box.appendChild(piu);
   }
-
-  const piu = el('button', 'lpiu', '+  Add info');
-  piu.type = 'button';
-  piu.dataset.piulimite = '1';
-  box.appendChild(piu);
 }
 
 /* Si scrive quando si esce dalla casella: cosi' non si segna il file da salvare

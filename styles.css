@@ -415,8 +415,10 @@ body.menu-open{overflow:hidden}
   max-height:44px;
   transition:max-height 180ms ease,opacity 180ms ease;
 }
-.wswitch .switch{min-height:38px}
-.wswitch.via{max-height:0;opacity:0;border-bottom-color:transparent}
+.wswitch{border-bottom:1px solid var(--line)}
+/* il bottone edit dentro la riga del selettore: non si prende una riga sua */
+.wedit{margin:0 var(--s1) 0 0}
+.wswitch.via{min-height:0;max-height:0;opacity:0;border-bottom-color:transparent}
 .wswitch input{accent-color:var(--accent)}
 
 /* la testata di una casella: nome della tappa, poi orario e durata in chiaro */
