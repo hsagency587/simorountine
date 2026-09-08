@@ -227,8 +227,8 @@
   ],
   "workout": {
     "0": [
-      "Stretching",
-      "Calisthenics"
+      "Sunday Calisthenics",
+      "15' abs + roll & stretch"
     ],
     "1": [
       "Deep roll",
@@ -251,7 +251,7 @@
       "Wing chun"
     ],
     "6": [
-      "Abdominal",
+      "Saturday Calisthenics",
       "Fascia full"
     ]
   },
@@ -376,7 +376,7 @@
       "es": [
         [
           "",
-          "Casa sifu - 1H"
+          "Casa sifu"
         ]
       ],
       "rec": ""
@@ -471,6 +471,32 @@
         [
           "Standing leg Stretch",
           "2x 2' + 2x 2'"
+        ]
+      ],
+      "rec": ""
+    },
+    "Wing chun": {
+      "es": [
+        [
+          "",
+          "Palesta"
+        ]
+      ],
+      "rec": ""
+    },
+    "Saturday Calisthenics": {
+      "es": [
+        [
+          "Push hands",
+          "3'"
+        ],
+        [
+          "Pull up",
+          "70"
+        ],
+        [
+          "Hand curl",
+          "2'"
         ]
       ],
       "rec": ""
