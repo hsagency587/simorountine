@@ -309,15 +309,5 @@
       "valore": "Pepe - sale - origano - olio"
     }
   ],
-  "schede": {
-    "Fascia 1": {
-      "es": [
-        [
-          "1a",
-          ""
-        ]
-      ],
-      "rec": ""
-    }
-  }
+  "schede": {}
 }
