@@ -215,6 +215,18 @@
       "cliente": "hs-agency",
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmts8tfynd5k0",
+      "creata": "2026-09-08T05:42:41.423Z",
+      "nome": "Edit video Instagram",
+      "desc": "Editare video Instagram che ho girato ad Amsterdam. ",
+      "rank": "A",
+      "cliente": "hs-agency",
+      "giorno": "2026-09-08",
+      "gws": [
+        2
+      ]
     }
   ],
   "workout": {
