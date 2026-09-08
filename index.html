@@ -147,26 +147,35 @@
   </form>
 </dialog>
 
-<!-- Un gruppo nuovo: il nome, quali esercizi gia' scritti ci entrano, e quelli
-     che si scrivono qui sul momento. -->
+<!-- Il pannello dei gruppi di una scheda: le pastiglie in alto dicono quali
+     gruppi ci sono, sotto si lavora su quello scelto. Tutto si salva al volo. -->
 <dialog class="chiusura" id="gruppo" tabindex="-1" aria-labelledby="gruppoTit">
   <form method="dialog" class="chiusura-box" id="gruppoForm">
-    <h2 class="chiusura-tit" id="gruppoTit">New group</h2>
+    <h2 class="chiusura-tit" id="gruppoTit">Groups</h2>
 
-    <label class="commento-lab" for="gNome">Name</label>
-    <input class="campo" id="gNome" type="text" maxlength="40" autocomplete="off"
-           placeholder="e.g. Tabata">
+    <div class="chips gchips" id="gElenco"></div>
 
-    <p class="commento-lab">What goes in</p>
-    <div class="glista" id="gLista"></div>
+    <div id="gCorpo" hidden>
+      <div class="gtesta">
+        <input class="campo" id="gNome" type="text" maxlength="40" autocomplete="off"
+               placeholder="group name" aria-label="Group name">
+        <select class="campo gsel" id="gDentro" aria-label="Inside which group"></select>
+      </div>
 
-    <p class="commento-lab">New exercises</p>
-    <div id="gNuovi"></div>
-    <button type="button" class="lpiu" id="gPiu">+  Add an exercise</button>
+      <p class="commento-lab">Tick what goes in</p>
+      <div class="glista" id="gLista"></div>
+
+      <div class="wrow gnuovo">
+        <input class="wcampo" id="gNuovoEs" type="text" maxlength="60" placeholder="new exercise">
+        <input class="wcampo" id="gNuovoQ" type="text" maxlength="60" placeholder="how much">
+        <button type="button" class="schbtn" id="gNuovoOk">add</button>
+      </div>
+
+      <button type="button" class="btn btn-del btn-largo" id="gElimina">Delete this group</button>
+    </div>
 
     <div class="chiusura-btn">
-      <button type="button" class="btn" id="gAnnulla">Cancel</button>
-      <button type="submit" class="btn btn-ok" value="ok">Confirm</button>
+      <button type="submit" class="btn btn-ok" value="ok">Done</button>
     </div>
   </form>
 </dialog>

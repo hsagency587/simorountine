@@ -754,7 +754,10 @@ function taskNode(x, on, key) {
   const m = el('button', 'more', '⋯');
   m.type = 'button';
   m.dataset.task = x.id;
-  m.setAttribute('aria-label', 'Edit the task');
+  /* la sessione da cui si sta guardando la task: serve a toglierla di qui
+     senza toccare le altre sessioni su cui sta */
+  m.dataset.gws = String(key).split('@').pop();
+  m.setAttribute('aria-label', 'Task options');
   bar.appendChild(m);
 
   li.appendChild(bar);
@@ -1179,9 +1182,36 @@ function chiediSerie(altri) {
   });
 }
 
+/* I tre puntini di una task dentro la sessione aprono una tendina con due
+   strade. Togliere non cancella: la task esce da questa sessione, e se non ne
+   resta nessun'altra torna nel serbatoio, da dove si puo' rimettere quando si
+   vuole. Modifica apre l'editor di sempre. */
+function menuTask(id, g) {
+  const x = findTask(id);
+  if (!x) return;
+  const voci = [];
+  if (x.giorno && isEditable(x.giorno)) voci.push({ k: 'togli', lab: 'Remove from G Work session' });
+  voci.push({ k: 'modifica', lab: 'Edit' });
+  apriPicker(x.nome, voci, '', v => {
+    if (v === 'modifica') openEditor(id);
+    else if (v === 'togli') togliDaSessione(id, g);
+  });
+}
+
+function togliDaSessione(id, g) {
+  const x = findTask(id);
+  if (!x || !x.giorno || !isEditable(x.giorno)) return;
+  /* la spunta di questa sessione non deve restare in giro */
+  setCheck(x.giorno, chiaveTask(x, g), false);
+  const resto = gwsDi(x.gws).filter(s => s !== g);
+  if (resto.length) x.gws = resto;
+  else { x.giorno = null; x.gws = null; }   /* nessuna sessione: torna nel serbatoio */
+  touch(); render(); paintDrawer();
+}
+
 $('list').addEventListener('click', ev => {
   const more = ev.target.closest('button.more[data-task]');
-  if (more) { openEditor(more.dataset.task); return; }
+  if (more) { menuTask(more.dataset.task, +more.dataset.gws); return; }
 
   const evm = ev.target.closest('button.more[data-evento]');
   if (evm) { openEvento(evm.dataset.evento); return; }
@@ -1716,6 +1746,28 @@ function bloccoPerCliente(box, l, pick) {
   }
 }
 
+/* Gli eventi del calendario da oggi a fra sette giorni, in forma di riga:
+   quelli a cui si e' gia' dato un cliente sono la riga vera che sta nel file,
+   gli altri una copia usa e getta, solo da guardare. */
+function eventiFinestra() {
+  const out = [];
+  const t0 = today();
+  for (let n = 0; n <= 7; n++) {
+    const k = dayKey(shift(t0, n));
+    if (!isCovered(k)) continue;
+    const raw = cal.days[k];
+    if (!Array.isArray(raw)) continue;
+    for (const v of raw) {
+      const e = prepEvent(v, k);
+      out.push(findTask('ev:' + e.id) || {
+        id: 'ev:' + e.id, evento: e.id, giorno: k, nome: e.title,
+        ora: e.txt, rank: 'A', cliente: null, desc: ''
+      });
+    }
+  }
+  return out;
+}
+
 function paintLista(box, opt) {
   const pick = !!opt.pick;
   const vedeSched = !!opt.tutte;
@@ -1728,10 +1780,16 @@ function paintLista(box, opt) {
      sotto le altre due: grigia, che non e' un cliente. Sotto restano solo le
      task ancora libere. */
   const chiudiSched = !!opt.chiudiSched;
-  const sched = chiudiSched ? tstore.tasks.filter(x => !x.evento && x.giorno) : [];
+  /* Nel pescone gli eventi del calendario stanno solo dentro la tendina delle
+     schedulate: sono gia' collocati, di li' non si pesca niente. Ci sono
+     quelli di oggi e dei sette giorni dopo, non solo quelli a cui si e' dato
+     un cliente. Nel menu' invece restano come prima, sotto il filtro
+     Calendar. */
+  const evSched = opt.calSched ? eventiFinestra() : [];
+  const sched = chiudiSched ? tstore.tasks.filter(x => !x.evento && x.giorno).concat(evSched) : [];
   const inSched = new Set(sched.map(x => x.id));
   const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno) && !inSched.has(x.id));
-  const eventi = tstore.tasks.filter(x => x.evento);
+  const eventi = opt.calSched ? [] : tstore.tasks.filter(x => x.evento);
   const evs  = vedeCal ? eventi : [];
   const tutto = list.concat(evs);
   /* Dentro un cliente si vede sempre tutto: il serbatoio e anche quello che e'
@@ -1815,11 +1873,16 @@ function paintLista(box, opt) {
     bloccoPerCliente(box, l, pick);
   }
 
-  if (!tutto.length) box.appendChild(el('p', 'vuoto', vedeSched ? 'No tasks' : 'Pool empty'));
+  /* la scritta di vuoto vale per quello che si vede: con la tendina delle
+     schedulate piena, vuoto non lo e' */
+  if (!tutto.length && !sched.length) box.appendChild(el('p', 'vuoto', vedeSched ? 'No tasks' : 'Pool empty'));
 }
 
 function paintDrawer() {
-  paintLista($('drawerList'), { pick: false, tutte: tutte, cal: calendar });
+  /* Le task messe su un giorno non spariscono piu' dal menu': con
+     l'interruttore spento stanno nella loro tendina SCHEDULED, acceso
+     tornano in fila con le altre dentro i blocchi per rank. */
+  paintLista($('drawerList'), { pick: false, tutte: true, chiudiSched: !tutte, cal: calendar });
   paintSync();
 }
 
@@ -2117,15 +2180,17 @@ function righeScheda(tab, sc, dx) {
 }
 
 /* Le scatole dei gruppi aperte mentre si scorre le righe di una scheda. Ogni
-   riga dice la sua via ("Tabata", oppure "Tabata" dentro "Round 1"): quello che
-   e' in comune con la riga prima resta aperto, il resto si chiude e si riapre.
-   Serve uguale in lettura e in modifica: cambia solo com'e' fatta l'etichetta,
-   che in modifica e' una casella da riscrivere. */
-function Pila(radice, scrivibile, nome) {
+   riga dice la sua via ("Tabata", oppure "Tabata" e dentro "Round 1"): quello
+   che e' in comune con la riga prima resta aperto, il resto si chiude e si
+   riapre. Una scatola non sposta niente: e' una barra lungo il fianco destro,
+   un velo di verde sulle righe, e una targhetta sulla prima riga. Le scatole
+   che si aprono sulla stessa riga hanno una targhetta sola, coi nomi in fila:
+   "TABATA › ROUND 1". In modifica la targhetta e' un bottone che apre il
+   pannello dei gruppi su quel gruppo. */
+function Pila(radice, modifica) {
   this.via = [];
   this.dove = [radice];
-  this.scrivibile = !!scrivibile;
-  this.nome = nome;
+  this.modifica = !!modifica;
 }
 
 Pila.prototype.vai = function (g) {
@@ -2133,38 +2198,27 @@ Pila.prototype.vai = function (g) {
   while (n < this.via.length && n < g.length && this.via[n] === g[n]) n++;
   this.via = this.via.slice(0, n);
   this.dove = this.dove.slice(0, n + 1);
+  let primo = null;
   for (let i = n; i < g.length; i++) {
     const box = el('div', 'grpbox');
     const corpo = el('div', 'grpcorpo');
     box.appendChild(corpo);
-    /* il nome sta a destra, dopo le righe: di la' non incrocia le etichette
-       degli esercizi, che cominciano tutte a sinistra */
-    box.appendChild(this.etichetta(g.slice(0, i + 1)));
     this.dove[this.dove.length - 1].appendChild(box);
     this.via.push(g[i]);
     this.dove.push(corpo);
+    if (!primo) primo = box;
+  }
+  if (primo) {
+    const testo = g.slice(n).join(' \u203a ');
+    const t = el(this.modifica ? 'button' : 'span', 'grpeti', testo);
+    if (this.modifica) {
+      t.type = 'button';
+      t.dataset.gvia = JSON.stringify(g);
+      t.setAttribute('aria-label', 'Edit group ' + testo);
+    }
+    primo.appendChild(t);
   }
   return this.dove[this.dove.length - 1];
-};
-
-/* Il nome di lato. In modifica e' una casella: ci si riscrive sopra e il gruppo
-   si rinomina, la si svuota e il gruppo si scioglie. */
-Pila.prototype.etichetta = function (via) {
-  const t = via[via.length - 1];
-  if (!this.scrivibile) return el('span', 'grpeti', t);
-  const i = el('input', 'grpeti grpin');
-  i.type = 'text';
-  /* per lungo, la larghezza naturale di una casella diventa altezza: venti
-     caratteri di vuoto allungavano la targhetta. Tanti caratteri quanti ne ha
-     il nome, e la targhetta e' lunga come la scritta, come in lettura. */
-  i.size = Math.max(4, t.length);
-  i.maxLength = 40;
-  i.value = t;
-  i.placeholder = 'group';
-  i.dataset.gnome = this.nome;
-  i.dataset.gvia = JSON.stringify(via);
-  i.setAttribute('aria-label', 'Group name');
-  return i;
 };
 
 /* I campi di una scheda aperta. La scheda va tutta dentro un riquadro suo, col
@@ -2172,11 +2226,11 @@ Pila.prototype.etichetta = function (via) {
    sono i campi che si stanno riempiendo. */
 function campiScheda(nome, sc, tab, senzaRec) {
   const cassa = el('div', 'schapri');
-  /* quanto spazio lasciare a destra ai nomi dei gruppi: quindici pixel per
-     ogni scatola annidata. Lo lasciano tutte le righe, cosi' i campi e la
-     croce restano alla stessa larghezza dentro e fuori dai gruppi. */
+  /* quanto spazio lasciare a destra alle barre dei gruppi: quattro pixel per
+     ogni scatola annidata, piu' due. Lo lasciano tutte le righe, cosi' i campi
+     e la croce restano alla stessa larghezza dentro e fuori dai gruppi. */
   const prof = sc.es.reduce((m, r) => Math.max(m, (r[2] || []).length), 0);
-  cassa.style.setProperty('--gres', (prof * 15) + 'px');
+  cassa.style.setProperty('--gres', (prof ? prof * 4 + 2 : 0) + 'px');
   cassa.appendChild(tab);
 
   /* prima il recupero, poi una riga per esercizio: due campi liberi e la
@@ -2195,7 +2249,7 @@ function campiScheda(nome, sc, tab, senzaRec) {
     cassa.appendChild(rrow);
   }
 
-  const pila = new Pila(cassa, true, nome);
+  const pila = new Pila(cassa, true);
   for (let i = 0; i < sc.es.length; i++) {
     /* anche qui i gruppi sono le stesse scatole, ma l'etichetta si scrive */
     const dove = pila.vai(sc.es[i][2] || []);
@@ -2247,9 +2301,9 @@ function campiScheda(nome, sc, tab, senzaRec) {
   piu.type = 'button';
   piu.dataset.piues = nome;
   cassa.appendChild(piu);
-  /* un gruppo si fa anche da qui: la finestra chiede il nome, quali esercizi
-     gia' scritti ci entrano, e quelli nuovi da scrivere sul momento */
-  const pg = el('button', 'lpiu', '+  Add a group');
+  /* i gruppi hanno il loro pannello: si creano, si riempiono, si svuotano e
+     si rinominano tutti da li' */
+  const pg = el('button', 'lpiu', 'Groups');
   pg.type = 'button';
   pg.dataset.piugrp = nome;
   cassa.appendChild(pg);
@@ -2467,30 +2521,8 @@ function paintD() {
 /* Si scrive quando si esce dalla casella: cosi' non si segna il file da salvare
    a ogni lettera battuta. */
 $('wlist').addEventListener('change', ev => {
-  /* le caselle dei campi, e l'etichetta di un gruppo, che e' una casella anche
-     lei pur non sembrandolo */
-  const i = ev.target.closest('input.wcampo, input.grpin');
+  const i = ev.target.closest('input.wcampo');
   if (!i) return;
-  /* l'etichetta di un gruppo: riscriverla rinomina tutte le sue righe in un
-     colpo. Svuotandola il gruppo non esiste piu' e le righe restano dov'erano */
-  if (i.dataset.gnome) {
-    const sc = tstore.schede[i.dataset.gnome];
-    const via = viaGruppi(JSON.parse(i.dataset.gvia || '[]'));
-    const d = via.length - 1;
-    const v = i.value.slice(0, 40).trim();
-    if (!sc || d < 0 || v === via[d]) return;
-    for (const r of sc.es) {
-      const g = r[2] || [];
-      /* solo le righe che stanno proprio in quella scatola, non le omonime
-         che stanno da un'altra parte */
-      if (g.length <= d || !via.every((x, j) => g[j] === x)) continue;
-      if (v) g[d] = v;
-      else g.splice(d, 1);      /* nome cancellato: quella scatola si scioglie */
-    }
-    touch();
-    paintW();
-    return;
-  }
   /* un esercizio, o il recupero: testi liberi, nessuna forma imposta, e la
      quantita' di un esercizio si puo' lasciare vuota */
   if (i.dataset.sch || i.dataset.rec) {
@@ -2607,122 +2639,249 @@ $('lElimina').addEventListener('click', () => {
   paintW();
 });
 
-/* ---------------------------------------------------- i gruppi nuovi ---- */
+/* ------------------------------------------------- il pannello dei gruppi ---- */
 
-/* La finestra che fa un gruppo: il nome, le spunte sugli esercizi gia' scritti,
-   e le righe nuove da scrivere qui. Una scheda parte sempre senza gruppi: ne
-   esiste uno solo quando lo si fa da qui, col nome che si vuole. */
+/* Un gruppo e' una via: ["Tabata"], o ["Tabata", "Round 1"] per uno dentro
+   l'altro. Le righe di una scheda portano ognuna la propria. Qui sotto le
+   quattro operazioni che servono al pannello, tutte sul posto: ogni cambio si
+   salva al volo, come il resto dell'editor. */
+
+const stessaVia = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+const dentroVia = (g, via) => g.length >= via.length && via.every((x, i) => g[i] === x);
+
+/* Le vie diverse scritte nella scheda, nell'ordine in cui compaiono: sono i
+   gruppi che esistono. Una via interna porta con se' anche quelle di fuori. */
+function gruppiDi(sc) {
+  const out = [];
+  for (const r of sc.es) {
+    const g = r[2] || [];
+    for (let d = 1; d <= g.length; d++) {
+      const v = g.slice(0, d);
+      if (!out.some(x => stessaVia(x, v))) out.push(v);
+    }
+  }
+  return out;
+}
+
+/* Una riga cambia posto: esce da dove sta e rientra subito dopo l'ultima riga
+   che ha la via `via` (o dopo la riga `dopo`, se data). Serve a tenere ogni
+   gruppo tutto attaccato, che e' quello che lo fa disegnare in una scatola
+   sola. */
+function accoda(sc, i, via) {
+  const r = sc.es[i];
+  const resto = sc.es.filter((x, j) => j !== i);
+  let ultimo = -1;
+  resto.forEach((x, j) => { if (dentroVia(x[2] || [], via)) ultimo = j; });
+  if (ultimo < 0) return;                      /* nessuno con quella via: resta dov'e' */
+  sc.es = resto.slice(0, ultimo + 1).concat([r], resto.slice(ultimo + 1));
+}
+
 const dlgGrp = $('gruppo');
-let grp = null;                   /* { scheda, dentro: [posti], nuovi: [[a, b]] } */
+/* { scheda, via } — via e' il gruppo scelto nel pannello, o null. Un gruppo
+   appena creato ha la via ma nessuna riga: esiste solo qui finche' non ci si
+   mette dentro qualcosa. */
+let grp = null;
 
-function apriGruppo(nome, dentro) {
-  grp = { scheda: nome, dentro: (dentro || []).slice(), nuovi: [['', '']] };
-  $('gNome').value = '';
-  disegnaGruppo();
+function apriGruppi(nome, via) {
+  if (!tstore.schede[nome]) tstore.schede[nome] = { es: [], rec: '' };
+  grp = { scheda: nome, via: via ? viaGruppi(via) : null };
+  disegnaGruppi();
   dlgGrp.showModal();
   dlgGrp.focus();                 /* niente tastiera addosso appena si apre */
 }
 
-function disegnaGruppo() {
+function disegnaGruppi() {
   if (!grp) return;
   const sc = tstore.schede[grp.scheda] || { es: [] };
-  const box = $('gLista');
-  box.textContent = '';
+  const vie = gruppiDi(sc);
+  /* un gruppo nuovo, ancora senza righe, sta nell'elenco lo stesso */
+  if (grp.via && !vie.some(v => stessaVia(v, grp.via))) vie.push(grp.via);
+
+  const chips = $('gElenco');
+  chips.textContent = '';
+  for (const v of vie) {
+    const c = el('button', 'chip chipw' + (grp.via && stessaVia(v, grp.via) ? ' sel' : ''),
+                 v.join(' › ') || '(no name)');
+    c.type = 'button';
+    c.dataset.gapri = JSON.stringify(v);
+    chips.appendChild(c);
+  }
+  const piu = el('button', 'chip chipw chipnuovo', '+ new');
+  piu.type = 'button';
+  piu.dataset.gnuovo = '1';
+  chips.appendChild(piu);
+
+  const corpo = $('gCorpo');
+  corpo.hidden = !grp.via;
+  if (!grp.via) return;
+
+  const via = grp.via;
+  $('gNome').value = via[via.length - 1];
+
+  /* dentro a quale gruppo sta: nessuno, o uno degli altri — non se stesso, non
+     uno che gli sta dentro */
+  const sel = $('gDentro');
+  sel.textContent = '';
+  const nessuno = el('option', null, 'top level');
+  nessuno.value = '';
+  sel.appendChild(nessuno);
+  for (const v of vie) {
+    if (dentroVia(v, via)) continue;
+    if (v.length >= 4) continue;                /* al massimo quattro livelli */
+    const o = el('option', null, 'in ' + v.join(' › '));
+    o.value = JSON.stringify(v);
+    sel.appendChild(o);
+  }
+  const padre = via.slice(0, -1);
+  sel.value = padre.length ? JSON.stringify(padre) : '';
+
+  /* le righe: spuntata vuol dire dentro questo gruppo, o dentro uno dei suoi */
+  const lista = $('gLista');
+  lista.textContent = '';
   sc.es.forEach((r, i) => {
     if (!r[0] && !r[1]) return;
+    const g = r[2] || [];
     const l = el('label', 'grigar');
     const c = el('input', 'schsel');
     c.type = 'checkbox';
-    c.checked = grp.dentro.indexOf(i) >= 0;
+    c.checked = dentroVia(g, via);
     c.dataset.gsel = i;
     l.appendChild(c);
-    l.appendChild(el('span', 'grinome', r[0] || '\u2014'));
-    if (r[1]) l.appendChild(el('span', 'grival', r[1]));
-    box.appendChild(l);
-  });
-  if (!box.children.length) box.appendChild(el('p', 'vuoto', 'Nothing written yet'));
-
-  const nb = $('gNuovi');
-  nb.textContent = '';
-  grp.nuovi.forEach((r, i) => {
-    const row = el('div', 'wrow');
-    for (const j of [0, 1]) {
-      const inp = el('input', 'wcampo');
-      inp.type = 'text';
-      inp.maxLength = 60;
-      inp.dataset.gnuovo = i;
-      inp.dataset.gcol = j;
-      inp.value = r[j] || '';
-      inp.placeholder = j === 0 ? 'exercise' : 'how much';
-      row.appendChild(inp);
+    l.appendChild(el('span', 'grinome', r[0] || '—'));
+    /* se sta in un gruppo piu' interno, o in un altro, lo dice in piccolo */
+    if (g.length && !stessaVia(g, via)) {
+      l.appendChild(el('span', 'grialtro', dentroVia(g, via) ? g.slice(via.length).join(' › ')
+                                                             : g.join(' › ')));
     }
-    nb.appendChild(row);
+    if (r[1]) l.appendChild(el('span', 'grival', r[1]));
+    lista.appendChild(l);
   });
+  if (!lista.children.length) lista.appendChild(el('p', 'vuoto', 'Nothing written yet'));
+  $('gNuovoEs').value = '';
+  $('gNuovoQ').value = '';
+  $('gElimina').textContent = 'Delete this group';
 }
 
+/* le pastiglie: scegliere un gruppo, o farne uno nuovo */
+$('gElenco').addEventListener('click', ev => {
+  if (!grp) return;
+  const a = ev.target.closest('button[data-gapri]');
+  if (a) { grp.via = viaGruppi(JSON.parse(a.dataset.gapri)); disegnaGruppi(); return; }
+  if (ev.target.closest('button[data-gnuovo]')) {
+    grp.via = [''];
+    disegnaGruppi();
+    $('gNome').focus();
+  }
+});
+
+/* il nome: si riscrive e cambia in tutte le righe del gruppo */
+$('gNome').addEventListener('change', () => {
+  if (!grp || !grp.via) return;
+  const sc = tstore.schede[grp.scheda];
+  const v = $('gNome').value.slice(0, 40).trim();
+  const via = grp.via, d = via.length - 1;
+  if (v === via[d]) return;
+  if (!v) { $('gNome').value = via[d]; return; }   /* senza nome non si resta */
+  for (const r of sc.es) {
+    const g = r[2] || [];
+    if (dentroVia(g, via)) g[d] = v;
+  }
+  grp.via = via.slice(0, d).concat([v]);
+  touch();
+  disegnaGruppi();
+  paintW();
+});
+
+/* dentro a chi: tutte le righe del gruppo cambiano via, e il blocco si
+   accoda al nuovo padre */
+$('gDentro').addEventListener('change', () => {
+  if (!grp || !grp.via) return;
+  const sc = tstore.schede[grp.scheda];
+  const via = grp.via;
+  const padre = $('gDentro').value ? viaGruppi(JSON.parse($('gDentro').value)) : [];
+  const nuova = padre.concat([via[via.length - 1]]).slice(0, 4);
+  const righe = [];
+  sc.es.forEach((r, i) => { if (dentroVia(r[2] || [], via)) righe.push(i); });
+  for (const i of righe) sc.es[i][2] = nuova.concat((sc.es[i][2] || []).slice(via.length)).slice(0, 4);
+  if (padre.length) {
+    /* il blocco intero va in coda al padre, nell'ordine in cui era */
+    const blocco = righe.map(i => sc.es[i]);
+    const resto = sc.es.filter((r, i) => righe.indexOf(i) < 0);
+    let ultimo = -1;
+    resto.forEach((r, j) => { if (dentroVia(r[2] || [], padre)) ultimo = j; });
+    sc.es = resto.slice(0, ultimo + 1).concat(blocco, resto.slice(ultimo + 1));
+  }
+  grp.via = nuova;
+  touch();
+  disegnaGruppi();
+  paintW();
+});
+
+/* una spunta: la riga entra nel gruppo e si accoda alle altre, o ne esce
+   restando nel gruppo di fuori, subito dopo il blocco */
 $('gLista').addEventListener('change', ev => {
   const c = ev.target.closest('input[data-gsel]');
-  if (!c || !grp) return;
-  const i = +c.dataset.gsel;
-  grp.dentro = c.checked ? grp.dentro.concat([i]) : grp.dentro.filter(v => v !== i);
-});
-
-$('gNuovi').addEventListener('input', ev => {
-  const c = ev.target.closest('input[data-gnuovo]');
-  if (!c || !grp) return;
-  const i = +c.dataset.gnuovo, j = +c.dataset.gcol;
-  if (!grp.nuovi[i]) grp.nuovi[i] = ['', ''];
-  grp.nuovi[i][j] = c.value;
-});
-
-$('gPiu').addEventListener('click', () => {
-  if (!grp) return;
-  grp.nuovi = grp.nuovi.concat([['', '']]);
-  disegnaGruppo();
-});
-
-$('gAnnulla').addEventListener('click', () => { grp = null; dlgGrp.close(); });
-dlgGrp.addEventListener('cancel', () => { grp = null; });
-
-$('gruppoForm').addEventListener('submit', ev => {
-  if (!grp) return;
-  const nome = $('gNome').value.slice(0, 40).trim();
-  const sc = tstore.schede[grp.scheda] || { es: [], rec: '' };
-  const nuovi = grp.nuovi
-    .map(r => [String(r[0] || '').slice(0, 60).trim(), String(r[1] || '').slice(0, 60).trim()])
-    .filter(r => r[0] || r[1]);
-  /* senza nome, o senza niente dentro, la finestra resta aperta */
-  if (!nome || (!grp.dentro.length && !nuovi.length)) {
-    ev.preventDefault();
+  if (!c || !grp || !grp.via) return;
+  const sc = tstore.schede[grp.scheda];
+  const via = grp.via;
+  if (!via[via.length - 1]) {
+    /* prima il nome: un gruppo senza nome non puo' avere righe */
+    c.checked = false;
     $('gNome').focus();
     return;
   }
-  const dentro = grp.dentro.slice().sort((a, b) => a - b).filter(i => sc.es[i]);
-  const prese = dentro.map(i => sc.es[i]);
-  /* il gruppo nuovo nasce dentro quelli che le righe scelte hanno gia' in
-     comune, come quando si raggruppa dalle caselle */
-  let comune = prese.length ? (prese[0][2] || []) : [];
-  for (const r of prese) {
-    const v = r[2] || [];
-    let n = 0;
-    while (n < comune.length && n < v.length && comune[n] === v[n]) n++;
-    comune = comune.slice(0, n);
+  const i = +c.dataset.gsel;
+  const r = sc.es[i];
+  if (!r) return;
+  if (c.checked) {
+    r[2] = via.slice();
+    accoda(sc, i, via);
+  } else {
+    r[2] = via.slice(0, -1);
+    accoda(sc, i, via);                   /* esce dal blocco ma gli resta accanto */
   }
-  const via = comune.concat([nome]).slice(0, 4);
-  for (const r of prese) r[2] = via.slice();
-  const agg = nuovi.map(r => [r[0], r[1], via.slice()]);
-  const resto = sc.es.filter((r, i) => dentro.indexOf(i) < 0);
-  /* le scelte vanno dove sta la prima; senza scelte il gruppo va in fondo */
-  const posto = prese.length
-    ? sc.es.slice(0, dentro[0]).filter((r, i) => dentro.indexOf(i) < 0).length
-    : resto.length;
-  sc.es = resto.slice(0, posto).concat(prese, agg, resto.slice(posto));
-  tstore.schede[grp.scheda] = sc;
-  grp = null;
-  scelti = [];
   touch();
+  disegnaGruppi();
   paintW();
 });
+
+/* un esercizio nuovo, scritto qui: nasce dentro il gruppo, in coda */
+$('gNuovoOk').addEventListener('click', () => {
+  if (!grp || !grp.via) return;
+  const sc = tstore.schede[grp.scheda];
+  const via = grp.via;
+  const a = $('gNuovoEs').value.slice(0, 60).trim();
+  const b = $('gNuovoQ').value.slice(0, 60).trim();
+  if (!a && !b) { $('gNuovoEs').focus(); return; }
+  if (!via[via.length - 1]) { $('gNome').focus(); return; }
+  sc.es = sc.es.concat([[a, b, via.slice()]]);
+  accoda(sc, sc.es.length - 1, via);
+  touch();
+  disegnaGruppi();
+  paintW();
+  $('gNuovoEs').focus();
+});
+
+/* due tocchi per sciogliere il gruppo: le righe restano, e restano in quello
+   di fuori. Quelli dentro salgono di un livello. */
+$('gElimina').addEventListener('click', () => {
+  if (!grp || !grp.via) return;
+  const b = $('gElimina');
+  if (b.textContent !== 'Sure?') { b.textContent = 'Sure?'; return; }
+  const sc = tstore.schede[grp.scheda];
+  const via = grp.via, d = via.length - 1;
+  for (const r of sc.es) {
+    const g = r[2] || [];
+    if (dentroVia(g, via)) g.splice(d, 1);
+  }
+  grp.via = null;
+  touch();
+  disegnaGruppi();
+  paintW();
+});
+
+$('gruppoForm').addEventListener('submit', () => { grp = null; scelti = []; paintW(); });
+dlgGrp.addEventListener('cancel', () => { grp = null; });
 
 $('wlist').addEventListener('click', ev => {
   if (ev.target.closest('button[data-piulimite]')) { apriLimite(null); return; }
@@ -2772,12 +2931,14 @@ $('wlist').addEventListener('click', ev => {
      "group" apre la stessa finestra del piu', gia' spuntata su quelle righe:
      un gruppo non nasce mai con un nome messo da me. */
   const rg = ev.target.closest('button[data-raggruppa]');
-  if (rg) { apriGruppo(rg.dataset.raggruppa, scelti); return; }
+  if (rg) { apriGruppi(rg.dataset.raggruppa, null); return; }
   const sg = ev.target.closest('button[data-sgruppa]');
   if (sg) { sgruppa(sg.dataset.sgruppa); return; }
-  /* un gruppo nuovo, dalla sua finestra */
+  /* il pannello dei gruppi, dal suo bottone o toccando una targhetta */
   const pgr = ev.target.closest('button[data-piugrp]');
-  if (pgr) { apriGruppo(pgr.dataset.piugrp); return; }
+  if (pgr) { apriGruppi(pgr.dataset.piugrp, null); return; }
+  const tgv = ev.target.closest('button[data-gvia]');
+  if (tgv && scheda) { apriGruppi(scheda, JSON.parse(tgv.dataset.gvia)); return; }
   /* un esercizio in piu' */
   const pe = ev.target.closest('button[data-piues]');
   if (pe) {
@@ -3151,7 +3312,7 @@ let pescaGws = null;
    bordino verde, e gli eventi del calendario col bordino blu. Cosi' si sa cosa
    c'e' gia' in giro prima di aggiungere. */
 function paintPesca() {
-  paintLista($('pescaList'), { pick: true, tutte: true, cal: true, riga: true, chiudiSched: true });
+  paintLista($('pescaList'), { pick: true, tutte: true, cal: true, riga: true, chiudiSched: true, calSched: true });
 }
 
 function openPesca(g) {

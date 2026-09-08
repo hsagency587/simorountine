@@ -565,62 +565,63 @@ body.menu-open{overflow:hidden}
    una riga in altezza, e non somiglia al nome della scheda, che e' una banda
    orizzontale in cima. Il bordo e' un'ombra interna, non un border: non sposta
    niente, quindi le righe restano allineate a quelle fuori. */
-/* La scatola non stringe niente e non sposta niente: nessuno spazio riservato,
-   nessun margine per quelle annidate. Le righe dentro un gruppo restano larghe
-   come quelle fuori, e la linea fra esercizio e quantita' resta dov'e' in tutte
-   le righe. Il nome ci passa sopra, all'estremita' destra, dove non c'e' mai
-   scritto niente. */
+/* ---------- i gruppi dentro una scheda ---------- */
+
+/* Una scatola non sposta niente e non ruba una riga: e' un velo di verde sulle
+   sue righe, una barra sottile lungo il fianco destro, e una targhetta sulla
+   prima riga. Le linee sopra e sotto sono ombre interne, non bordi: niente si
+   allunga. Una scatola dentro un'altra ha il velo un po' piu' pieno e la sua
+   barra un passo piu' a sinistra. */
 .grpbox{
   position:relative;
-  border-radius:var(--radius);
-  box-shadow:inset 0 0 0 1px rgba(61, 220, 132, .35);
+  background:rgba(61, 220, 132, .04);
+  box-shadow:inset 0 1px 0 rgba(61, 220, 132, .3), inset 0 -1px 0 rgba(61, 220, 132, .3);
 }
 .grpcorpo{min-width:0}
 .grpbox .tabr:first-of-type{border-top:0}
-/* tutte le scatole finiscono sullo stesso bordo destro: senza questo i nomi si
-   accosterebbero uno sopra l'altro. Ogni scatola piu' interna scrive il suo
-   quindici pixel piu' a sinistra. */
-.grpbox .grpbox .grpeti{right:15px}
-.grpbox .grpbox .grpbox .grpeti{right:30px}
-.grpbox .grpbox .grpbox .grpbox .grpeti{right:45px}
-/* Fra i campi, dove all'estremita' destra c'e' la croce, la striscia dei nomi
-   la lasciano libera tutte le righe, dentro e fuori dai gruppi: `--gres` e' la
+.grpbox::before{
+  content:'';position:absolute;top:2px;bottom:2px;right:2px;width:2px;
+  border-radius:2px;background:rgba(61, 220, 132, .6);pointer-events:none;
+}
+.grpbox .grpbox::before{right:6px}
+.grpbox .grpbox .grpbox::before{right:10px}
+.grpbox .grpbox .grpbox .grpbox::before{right:14px}
+
+/* La targhetta: orizzontale, si legge al volo, a cavallo della linea che apre
+   il gruppo. Sta sopra, non dentro: non occupa posto. */
+.grpeti{
+  position:absolute;z-index:1;top:-8px;right:10px;
+  height:15px;padding:0 6px;
+  display:inline-flex;align-items:center;
+  background:var(--surface);
+  border:1px solid rgba(61, 220, 132, .55);border-radius:8px;
+  font:inherit;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent);
+  white-space:nowrap;max-width:60%;overflow:hidden;text-overflow:ellipsis;
+}
+.grpbox .grpbox .grpeti{right:14px}
+.grpbox .grpbox .grpbox .grpeti{right:18px}
+/* se il gruppo comincia sulla prima riga, la targhetta cavalca la banda del
+   nome: si sposta a sinistra per non finire sul bottone edit che sta li' */
+.tabr.capo + .grpbox > .grpeti{right:64px}
+/* fra i campi la targhetta e' un bottone, e il fondo e' quello del riquadro */
+.schapri .grpeti{background:var(--surface-2);cursor:pointer}
+.schapri .grpeti:active{background:var(--accent);color:var(--bg)}
+/* Fra i campi, dove all'estremita' destra c'e' la croce, lo spazio per le barre
+   lo lasciano tutte le righe, dentro e fuori dai gruppi: `--gres` e' la
    larghezza che serve, e la mette la scheda contando quanto e' annidata. Senza
    gruppi non toglie niente a nessuno. */
 .schapri .wrow{padding-right:calc(var(--s3) + var(--gres, 0px))}
-/* il nome sbuca dal fianco destro: il fondo verde sta dietro le lettere e
-   basta, non lungo tutta la banda */
-/* Sta appoggiata sopra la sua striscia, non dentro la fila: cosi' un nome lungo
-   non allunga la scatola quando dentro c'e' una riga sola. Se non ci sta puo'
-   sforare di venti pixel per parte, che e' meno di una riga: sconfina sul
-   bordo destro di sopra e di sotto, dove non c'e' scritto niente. Oltre quel
-   limite si accorcia. */
-.grpeti{
-  position:absolute;right:0;top:50%;z-index:1;
-  width:15px;max-height:calc(100% + 40px);
-  /* se il nome non ci sta si perde la coda, non l'inizio */
-  display:flex;align-items:center;justify-content:flex-start;
-  padding:var(--s2) 0;
-  writing-mode:vertical-rl;transform:translateY(-50%) rotate(180deg);
-  background:rgba(61, 220, 132, .16);
-  border-radius:var(--radius);
-  font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--accent);
-  white-space:nowrap;overflow:hidden;
-}
-/* fra i campi l'etichetta si scrive: sembra l'etichetta, non una casella */
-.grpin{
-  border:0;
-  inline-size:auto;box-sizing:border-box;
-  font:inherit;font-size:9px;font-weight:600;letter-spacing:.08em;
-  text-transform:uppercase;text-align:center;
-}
-.grpin:focus{outline:none;background:rgba(61, 220, 132, .18)}
-.grpin::placeholder{color:var(--line)}
-/* la casella con cui si sceglie una riga da raggruppare */
-.schsel{flex:0 0 auto;width:18px;height:18px;margin:0;accent-color:var(--accent)}
-/* la barra che da' il nome alle righe scelte */
-.wgrp{padding-top:var(--s1)}
+
+/* il pannello dei gruppi */
+.gchips{margin-bottom:var(--s3)}
+.gchips .chip{min-height:32px;padding:0 var(--s3);font-size:12px}
+.gchips .chipnuovo{border-style:dashed;color:var(--muted)}
+.gtesta{display:flex;gap:var(--s2);margin-bottom:var(--s2)}
+.gtesta .campo{min-height:36px}
+.gsel{flex:0 1 50%;-webkit-appearance:none;appearance:none;font-size:13px;color:var(--muted)}
+.gnuovo{padding:var(--s2) 0 var(--s3)}
+.grialtro{flex:0 0 auto;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 
 /* l'elenco degli esercizi gia' scritti, dentro la finestra di un gruppo */
 .glista{max-height:34vh;overflow:auto;margin-bottom:var(--s2)}
