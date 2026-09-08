@@ -306,5 +306,25 @@
       "cosa": "Spezie/Condimenti",
       "valore": "Pepe - sale - origano - olio"
     }
-  ]
+  ],
+  "schede": {
+    "Deep roll": {
+      "es": [
+        [
+          "",
+          ""
+        ]
+      ],
+      "rec": ""
+    },
+    "Fascia 1": {
+      "es": [
+        [
+          "Esercizio 1",
+          ""
+        ]
+      ],
+      "rec": "1'"
+    }
+  }
 }
