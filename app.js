@@ -124,7 +124,14 @@ const PROTETTE_WC  = [[0, 450], [750, 840], [1095, 1230], [1320, 1440]];
 const PROTETTE_STD = [[0, 450], [750, 840], [1125, 1230], [1320, 1440]];
 /* il sabato il pranzo comincia dopo e la cena si sposta: le finestre lo seguono */
 const PROTETTE_SAB = [[0, 450], [765, 840], [1140, 1245], [1320, 1440]];
-const protetteOf = k => isSabato(k) ? PROTETTE_SAB : isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
+/* il martedi' il workout della sera tira fino alle 21:30 e tutto slitta: la
+   finestra della sera arriva fino alla cena, e quella della notte comincia con
+   la routine serale, alle 22:30. Cena e ultima sessione restano scoperte, come
+   negli altri giorni. */
+const PROTETTE_MAR = [[0, 450], [750, 840], [1095, 1290], [1350, 1440]];
+const protetteOf = k => isSabato(k)  ? PROTETTE_SAB
+                      : isMartedi(k) ? PROTETTE_MAR
+                      : isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
 
 /* La routine fissa, giorno per giorno. Il totale del giorno si calcola da qui,
    non e' una costante. La parte fino alle 17:15 e' uguale per tutti i giorni;
