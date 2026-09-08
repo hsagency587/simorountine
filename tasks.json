@@ -264,7 +264,7 @@
       "id": "tmtt99ze6anyi",
       "creata": "2026-09-08T22:43:19.278Z",
       "nome": "Fix app",
-      "desc": "- dal menu togliere la toggle scheduled\n- gruppo dei workout, il primo se nella prima capella spsosta leticchetta e io la voglio a destra come gli altri sotto\n-dove 2 gruppi si incontrano la linea si simspessisce e non deve succedere\n-anche nel menu le 2 toggle clients e my companies su 1 riga sola",
+      "desc": "- dal menu togliere la toggle scheduled\n- gruppo dei workout, il primo se nella prima capella spsosta leticchetta e io la voglio a destra come gli altri sotto\n-dove 2 gruppi si incontrano la linea si simspessisce e non deve succedere\n-anche nel menu le 2 toggle clients e my companies su 1 riga sola\n-possibilità di muoversi gli esercizi manualmente nel workout e cambiarli di ordine",
       "rank": "A",
       "cliente": null,
       "giorno": "2026-09-09",
