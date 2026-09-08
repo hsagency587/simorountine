@@ -228,7 +228,7 @@
   "workout": {
     "0": [
       "Sunday Calisthenics",
-      "15' abs + roll & stretch"
+      "Core + roll & stretch"
     ],
     "1": [
       "Deep roll",
@@ -508,7 +508,53 @@
           "10'"
         ],
         [
-          "Push up con loop",
+          "Dip",
+          "4x 12"
+        ],
+        [
+          "Emom push up",
+          "10'x 20"
+        ]
+      ],
+      "rec": "1'"
+    },
+    "15' abs + roll & stretch": {
+      "es": [
+        [
+          "",
+          ""
+        ],
+        [
+          "",
+          ""
+        ],
+        [
+          "",
+          ""
+        ],
+        [
+          "",
+          ""
+        ],
+        [
+          "",
+          ""
+        ],
+        [
+          "",
+          ""
+        ]
+      ],
+      "rec": ""
+    },
+    "Core + roll & stretch": {
+      "es": [
+        [
+          "Turkish get up",
+          "3x 6 + 3x 6 | 16kg"
+        ],
+        [
+          "",
           ""
         ]
       ],
