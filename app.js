@@ -1649,15 +1649,22 @@ function gruppiCliente(list, mie) {
   }));
 }
 
-function paintDrawer() {
-  const box = $('drawerList');
+/* Il menu' e il pescone della sessione mostrano lo stesso elenco, diviso allo
+   stesso modo: prima le due tendine dei clienti, poi i blocchi per rank
+   separati da una linea, e dentro ogni blocco le task dello stesso cliente
+   insieme. Cambia solo cosa si vede — nel pescone tutto, senza interruttori —
+   e cosa succede toccando una riga. */
+function paintLista(box, opt) {
+  const pick = !!opt.pick;
+  const vedeSched = !!opt.tutte;
+  const vedeCal = !!opt.cal;
   box.textContent = '';
   /* le task del serbatoio, o anche le schedulate. Nei blocchi RANK qui sotto
      gli eventi del calendario entrano solo col filtro Calendar; dentro un
      cliente ci sono sempre, come le schedulate. */
-  const list = tstore.tasks.filter(x => !x.evento && (tutte || !x.giorno));
+  const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno));
   const eventi = tstore.tasks.filter(x => x.evento);
-  const evs  = calendar ? eventi : [];
+  const evs  = vedeCal ? eventi : [];
   const tutto = list.concat(evs);
   /* Dentro un cliente si vede sempre tutto: il serbatoio e anche quello che e'
      gia' su un giorno, che si riconosce dal bordino verde. L'interruttore delle
@@ -1698,7 +1705,7 @@ function paintDrawer() {
         continue;
       }
       const ul = el('ul', 'trows');
-      for (const x of o.tasks) { gia.add(x.id); ul.appendChild(trowNode(x, false)); }
+      for (const x of o.tasks) { gia.add(x.id); ul.appendChild(trowNode(x, pick)); }
       box.appendChild(ul);
     }
   }
@@ -1728,12 +1735,16 @@ function paintDrawer() {
     for (const c of ordine) {
       if (c) box.appendChild(el('p', 'grpsub', clienteCorto(c)));
       const ul = el('ul', 'trows');
-      for (const x of per.get(c)) ul.appendChild(trowNode(x, false));
+      for (const x of per.get(c)) ul.appendChild(trowNode(x, pick));
       box.appendChild(ul);
     }
   }
 
-  if (!tutto.length) box.appendChild(el('p', 'vuoto', tutte ? 'No tasks' : 'Pool empty'));
+  if (!tutto.length) box.appendChild(el('p', 'vuoto', vedeSched ? 'No tasks' : 'Pool empty'));
+}
+
+function paintDrawer() {
+  paintLista($('drawerList'), { pick: false, tutte: tutte, cal: calendar });
   paintSync();
 }
 
@@ -2718,26 +2729,43 @@ let pescaGws = null;
 
 /* Il + della sessione: una task nuova gia' li' dentro, oppure una pescata dal
    serbatoio con un tocco. */
+/* Nel pescone si vede tutto: il serbatoio, quello che e' gia' su un giorno col
+   bordino verde, e gli eventi del calendario col bordino blu. Cosi' si sa cosa
+   c'e' gia' in giro prima di aggiungere. */
+function paintPesca() {
+  paintLista($('pescaList'), { pick: true, tutte: true, cal: true });
+}
+
 function openPesca(g) {
   pescaGws = g;
   $('pescaDay').textContent = 'GWS ' + (g + 1) + ' · ' + fmtLong.format(view);
-  const box = $('pescaList');
-  box.textContent = '';
-  const list = tstore.tasks.filter(x => !x.giorno).sort(byRank);
-  if (!list.length) {
-    box.appendChild(el('p', 'vuoto', 'Pool empty'));
-  } else {
-    const ul = el('ul', 'trows');
-    for (const x of list) ul.appendChild(trowNode(x, true));
-    box.appendChild(ul);
-  }
+  paintPesca();
   dlgPesca.showModal();
 }
 
 $('pescaList').addEventListener('click', ev => {
+  const root = ev.target.closest('button.grproot');
+  if (root) {
+    const k = root.dataset.root;
+    if (rootAperte.has(k)) rootAperte.delete(k); else rootAperte.add(k);
+    salvaAperti();
+    paintPesca(); paintDrawer();
+    return;
+  }
+  const g = ev.target.closest('button.grpcli');
+  if (g) {
+    const k = g.dataset.cli;
+    if (cliAperti.has(k)) cliAperti.delete(k); else cliAperti.add(k);
+    salvaAperti();
+    paintPesca(); paintDrawer();
+    return;
+  }
   const li = ev.target.closest('.trow[data-task]');
   const x = li && findTask(li.dataset.task);
   if (!x) return;
+  /* un evento del calendario sta li' per farsi vedere: l'orario glielo da' il
+     calendario, non si sposta dentro una sessione */
+  if (x.evento) return;
   /* se nel frattempo il giorno mostrato e' diventato ieri, la task va su oggi */
   x.giorno = canSchedule(viewKey) ? viewKey : dayKey(today());
   x.gws = [pescaGws];
