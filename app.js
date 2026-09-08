@@ -1981,11 +1981,14 @@ function righeScheda(tab, sc) {
    il piano e sopra l'interruttore WORKOUTS. */
 function paintOggi(box) {
   const r = tstore.workout[today().getDay()] || [];
+  let capo = false;
   for (const slot of [0, 1]) {
     const nome = r[slot];
     if (!nome) continue;
     const sc = tstore.schede[nome];
     if (!sc || (!sc.es.length && !sc.rec)) continue;
+    /* la scritta ci va solo se sotto c'e' davvero qualcosa */
+    if (!capo) { box.appendChild(el('p', 'grp', 'TODAY WORKOUTS')); capo = true; }
     const turno = el('span', 'oggisl', slot === 0 ? '1st' : '2nd');
     box.appendChild(righeScheda(tabScheda(nome, sc, turno), sc));
   }
