@@ -316,23 +316,26 @@
           "Hyperarch hop",
           "5'"
         ]
-      ]
+      ],
+      "rec": "2'"
     },
     "Wing chun": {
       "es": [
         [
-          "Corso wing chun",
+          "",
           "1H"
         ]
-      ]
+      ],
+      "rec": ""
     },
     "Priv. Wing chun": {
       "es": [
         [
-          "Privata wing chun",
+          "",
           "1H"
         ]
-      ]
+      ],
+      "rec": ""
     }
   }
 }
