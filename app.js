@@ -2077,10 +2077,15 @@ function paintSchede(box) {
       box.appendChild(righeScheda(tab, sc));
       continue;
     }
-    box.appendChild(tab);
 
-    /* aperta: prima il recupero, poi una riga per esercizio con due campi
-       liberi e la croce per toglierla */
+    /* Aperta, la scheda va tutta dentro un riquadro suo, col bordo verde: in
+       mezzo a dieci tabelle uguali, altrimenti non si capisce di chi sono i
+       campi che si stanno riempiendo. */
+    const cassa = el('div', 'schapri');
+    cassa.appendChild(tab);
+
+    /* prima il recupero, poi una riga per esercizio con due campi liberi e la
+       croce per toglierla */
     const rrow = el('div', 'wrow wrec');
     rrow.appendChild(el('span', 'wslot', 'Rec.'));
     const rin = el('input', 'wcampo');
@@ -2090,7 +2095,7 @@ function paintSchede(box) {
     rin.value = sc.rec || '';
     rin.placeholder = 'recovery';
     rrow.appendChild(rin);
-    box.appendChild(rrow);
+    cassa.appendChild(rrow);
 
     for (let i = 0; i < sc.es.length; i++) {
       const row = el('div', 'wrow');
@@ -2110,12 +2115,13 @@ function paintSchede(box) {
       x.dataset.togli = nome;
       x.dataset.riga = i;
       row.appendChild(x);
-      box.appendChild(row);
+      cassa.appendChild(row);
     }
     const piu = el('button', 'lpiu', '+  Add an exercise');
     piu.type = 'button';
     piu.dataset.piues = nome;
-    box.appendChild(piu);
+    cassa.appendChild(piu);
+    box.appendChild(cassa);
   }
 }
 

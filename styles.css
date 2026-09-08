@@ -518,6 +518,22 @@ body.menu-open{overflow:hidden}
   background:var(--surface-2);color:var(--muted);
   font-size:11px;font-weight:600;letter-spacing:0;text-transform:none;
 }
+/* La scheda che si sta scrivendo: testata e campi in un riquadro solo, col
+   bordo verde e il fondo un filo piu' chiaro. Le altre restano come sono. */
+.schapri{
+  margin:0 var(--s3) var(--s3);
+  padding-bottom:var(--s2);
+  background:var(--surface-2);
+  border:1px solid var(--accent);border-radius:var(--radius);
+  overflow:hidden;
+}
+.schapri .tab{margin:0 0 var(--s2);border:0;border-radius:0}
+.schapri .tabr.capo{background:rgba(61,220,132,.14);border-bottom:1px solid var(--line)}
+.schapri .tabr.capo .tabc{color:var(--accent)}
+.schapri .schbtn{border-color:var(--accent);color:var(--accent)}
+/* dentro il riquadro il fondo e' gia' chiaro: le caselle si staccano scurendo */
+.schapri .wcampo{background:var(--surface)}
+
 /* in modifica il recupero sta sopra gli esercizi, staccato da una linea che
    sta dentro i margini delle tabelle, non da un bordo a tutta larghezza */
 .wrec{position:relative;padding-bottom:var(--s3);margin-bottom:var(--s2)}
