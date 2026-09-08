@@ -2073,9 +2073,10 @@ function tabScheda(nome, sc, coda) {
    che si leggono e basta. Nell'elenco c'e' comunque, col trattino, cosi' si sa
    che il campo esiste. */
 function righeScheda(tab, sc, dx) {
-  /* Un raggruppamento e' un riquadro leggero intorno alle sue righe, con
-     l'etichetta sopra. Le righe sono gia' vicine, perche' raggrupparle le mette
-     in fila; `dove` e' il riquadro aperto, o la tabella quando non ce n'e'. */
+  /* Un raggruppamento e' un bordo verde chiaro intorno alle sue righe, con
+     l'etichetta dentro. Il bordo e' un'ombra interna: non occupa spazio, quindi
+     le righe restano larghe e allineate a quelle fuori. `dove` e' il riquadro
+     aperto, o la tabella quando non ce n'e'. */
   let gruppo = '';
   let dove = tab;
   for (const r of sc.es) {
@@ -2141,15 +2142,23 @@ function campiScheda(nome, sc, tab, senzaRec) {
   let gruppo = '';
   let dove = cassa;
   for (let i = 0; i < sc.es.length; i++) {
-    /* anche qui il gruppo e' un riquadro con la sua etichetta, cosi' si vede
-       cosa c'e' dentro senza chiudere la scheda */
+    /* anche qui il gruppo e' lo stesso riquadro, ma l'etichetta si scrive: il
+       nome del gruppo si cambia li' dentro, senza altri campi */
     const g = sc.es[i][2] || '';
     if (g !== gruppo) {
       gruppo = g;
       dove = cassa;
       if (g) {
         dove = el('div', 'wgrpbox');
-        dove.appendChild(el('span', 'grpeti', g));
+        const gin = el('input', 'grpeti grpin');
+        gin.type = 'text';
+        gin.maxLength = 40;
+        gin.value = g;
+        gin.placeholder = 'group';
+        gin.dataset.gnome = nome;
+        gin.dataset.gvecchio = g;
+        gin.setAttribute('aria-label', 'Group name');
+        dove.appendChild(gin);
         cassa.appendChild(dove);
       }
     }
@@ -2180,24 +2189,16 @@ function campiScheda(nome, sc, tab, senzaRec) {
     row.appendChild(x);
     dove.appendChild(row);
   }
-  /* La barra dei gruppi: c'e' solo con qualcosa di spuntato. Il nome parte da
-     quello della prima riga scelta, cosi' rinominare un gruppo e' riscriverlo.
+  /* I due bottoni dei gruppi: ci sono solo con qualcosa di spuntato. "group"
+     mette le righe scelte in un riquadro nuovo, col nome da riscrivere dentro;
      "ungroup" compare solo se fra le scelte c'e' gia' una riga in un gruppo. */
   if (scelti.length) {
-    const dentro = scelti.slice().sort((a, b) => a - b);
     const row = el('div', 'wrow wgrp');
-    const inp = el('input', 'wcampo');
-    inp.type = 'text';
-    inp.maxLength = 40;
-    inp.dataset.gnome = '1';
-    inp.value = (sc.es[dentro[0]] || [])[2] || '';
-    inp.placeholder = 'group name';
-    row.appendChild(inp);
     const b = el('button', 'schbtn', 'group');
     b.type = 'button';
     b.dataset.raggruppa = nome;
     row.appendChild(b);
-    if (dentro.some(i => (sc.es[i] || [])[2])) {
+    if (scelti.some(i => (sc.es[i] || [])[2])) {
       const u = el('button', 'schbtn', 'ungroup');
       u.type = 'button';
       u.dataset.sgruppa = nome;
@@ -2216,6 +2217,16 @@ function campiScheda(nome, sc, tab, senzaRec) {
    svuotano appena la scheda cambia o le righe si spostano, perche' sono numeri
    di posto e dopo uno spostamento indicherebbero altre righe. */
 let scelti = [];
+
+/* Il nome con cui nasce un gruppo: si riscrive dentro il riquadro. Due gruppi
+   con lo stesso nome, uno attaccato all'altro, diventerebbero un riquadro solo:
+   per questo il secondo nasce "Group 2". */
+function nomeLibero(sc) {
+  const usati = sc.es.map(r => r[2] || '');
+  if (usati.indexOf('Group') < 0) return 'Group';
+  for (let n = 2; n < 99; n++) if (usati.indexOf('Group ' + n) < 0) return 'Group ' + n;
+  return 'Group';
+}
 
 /* Raggruppa le righe scelte sotto il nome `g`, o le tira fuori se `g` e' vuoto.
    Vanno tutte insieme dove sta la prima scelta, nell'ordine in cui erano: e'
@@ -2422,11 +2433,22 @@ function paintD() {
 /* Si scrive quando si esce dalla casella: cosi' non si segna il file da salvare
    a ogni lettera battuta. */
 $('wlist').addEventListener('change', ev => {
-  const i = ev.target.closest('input.wcampo');
+  /* le caselle dei campi, e l'etichetta di un gruppo, che e' una casella anche
+     lei pur non sembrandolo */
+  const i = ev.target.closest('input.wcampo, input.grpin');
   if (!i) return;
-  /* il nome di un gruppo non si scrive uscendo dalla casella: vale quando si
-     preme il bottone, e fino a li' non e' di nessuna riga */
-  if (i.dataset.gnome) return;
+  /* l'etichetta di un gruppo: riscriverla rinomina tutte le sue righe in un
+     colpo. Svuotandola il gruppo non esiste piu' e le righe restano dov'erano */
+  if (i.dataset.gnome) {
+    const sc = tstore.schede[i.dataset.gnome];
+    const vecchio = i.dataset.gvecchio || '';
+    const v = i.value.slice(0, 40).trim();
+    if (!sc || v === vecchio) return;
+    for (const r of sc.es) if ((r[2] || '') === vecchio) r[2] = v;
+    touch();
+    paintW();
+    return;
+  }
   /* un esercizio, o il recupero: testi liberi, nessuna forma imposta, e la
      quantita' di un esercizio si puo' lasciare vuota */
   if (i.dataset.sch || i.dataset.rec) {
@@ -2587,11 +2609,11 @@ $('wlist').addEventListener('click', ev => {
     paintW();
     return;
   }
-  /* le righe scelte prendono un nome, o lo perdono */
+  /* le righe scelte entrano in un riquadro nuovo, o ne escono */
   const rg = ev.target.closest('button[data-raggruppa]');
   if (rg) {
-    const c = $('wlist').querySelector('input[data-gnome]');
-    raggruppa(rg.dataset.raggruppa, c ? c.value.slice(0, 40).trim() : '');
+    const sc = tstore.schede[rg.dataset.raggruppa];
+    if (sc) raggruppa(rg.dataset.raggruppa, nomeLibero(sc));
     return;
   }
   const sg = ev.target.closest('button[data-sgruppa]');
