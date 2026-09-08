@@ -324,27 +324,33 @@
       "es": [
         [
           "Towel curl",
-          "3' + 3'"
+          "3' + 3'",
+          []
         ],
         [
           "Marble swing",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Gait cycle",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Hyperarch hop",
-          "5'"
+          "5'",
+          []
         ],
         [
           "Hand curl",
-          "3'"
+          "3'",
+          []
         ],
         [
           "Push hands",
-          "3'"
+          "3'",
+          []
         ]
       ],
       "rec": "1'"
@@ -353,7 +359,8 @@
       "es": [
         [
           "",
-          "1H"
+          "1H",
+          []
         ]
       ],
       "rec": ""
@@ -362,23 +369,28 @@
       "es": [
         [
           "Hyperarch wall sit",
-          "3'"
+          "3'",
+          []
         ],
         [
           "Standing leg Stretch",
-          "2x 1' + 2x 1'"
+          "2x 1' + 2x 1'",
+          []
         ],
         [
           "Crescent walk",
-          "5'"
+          "5'",
+          []
         ],
         [
           "Big toe press",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Dorsiflexed toes  walking",
-          "5'"
+          "5'",
+          []
         ]
       ],
       "rec": "2'"
@@ -387,23 +399,28 @@
       "es": [
         [
           "Wall bounce",
-          "2'"
+          "2'",
+          []
         ],
         [
           "Heel Raise with marble",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Bear walk",
-          "5'"
+          "5'",
+          []
         ],
         [
           "HFT lunge",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Towels sweep",
-          "3' + 3'"
+          "3' + 3'",
+          []
         ]
       ],
       "rec": "2'"
@@ -412,7 +429,8 @@
       "es": [
         [
           "",
-          "Casa sifu"
+          "Casa sifu",
+          []
         ]
       ],
       "rec": ""
@@ -421,67 +439,83 @@
       "es": [
         [
           "Towel curl",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Marble swing",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Gait cycle",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Hyperarch hop",
-          "3'"
+          "3'",
+          []
         ],
         [
           "Hand curl",
-          "2'"
+          "2'",
+          []
         ],
         [
           "Push hands",
-          "2'"
+          "2'",
+          []
         ],
         [
           "Wall bounce",
-          "2'"
+          "2'",
+          []
         ],
         [
           "Hyperarch wall sit",
-          "2'"
+          "2'",
+          []
         ],
         [
           "Standing Leg Stretch",
-          "2x 1' + 2x 1'"
+          "2x 1' + 2x 1'",
+          []
         ],
         [
           "Crescent walk",
-          "3'"
+          "3'",
+          []
         ],
         [
           "Big toe press",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Dorsiflexed toes walking",
-          "3'"
+          "3'",
+          []
         ],
         [
           "Heel raise with marble",
-          "1' + 1'"
+          "1' + 1'",
+          []
         ],
         [
           "Bear walk",
-          "5'"
+          "5'",
+          []
         ],
         [
           "HFT Lunge",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Towel sweep",
-          "3' + 3'"
+          "3' + 3'",
+          []
         ]
       ],
       "rec": "1'"
@@ -490,23 +524,44 @@
       "es": [
         [
           "Marble swing",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Gaut cycle x corsa",
-          "2' + 2'"
+          "2' + 2'",
+          []
         ],
         [
           "Big toe press",
-          "1' + 1'"
+          "1' + 1'",
+          []
         ],
         [
-          "Sprint / corsa",
-          "3x 60m + 2x 20\" / 3-5km"
+          "Sprint",
+          "3x60m",
+          [
+            "Sprint workout"
+          ]
         ],
         [
-          "Standing leg Stretch",
-          "2x 2' + 2x 2'"
+          "Sprint graduale",
+          "2x20\"",
+          [
+            "Sprint workout"
+          ]
+        ],
+        [
+          "Running",
+          "3/5km",
+          [
+            "Running workout"
+          ]
+        ],
+        [
+          "Walk",
+          "5/10'",
+          []
         ]
       ],
       "rec": ""
@@ -515,7 +570,8 @@
       "es": [
         [
           "",
-          "Palesta"
+          "Palesta",
+          []
         ]
       ],
       "rec": ""
@@ -523,29 +579,38 @@
     "Saturday Calisthenics": {
       "es": [
         [
-          "Push hands",
-          "2'"
-        ],
-        [
           "Pull up",
-          "5 x 10"
+          "5 x 10",
+          []
         ],
         [
           "Australian pull up",
-          "5 x 15"
+          "5 x 15",
+          []
         ]
       ],
-      "rec": "1'"
+      "rec": "1'30\""
     },
     "Sunday Calisthenics": {
       "es": [
         [
           "Hand stand",
-          "10'"
+          "10'",
+          []
         ],
         [
-          "Emom push up",
-          "15'x 15"
+          "Dip",
+          "5'x10",
+          [
+            "Emom"
+          ]
+        ],
+        [
+          "push up",
+          "10\"x 15",
+          [
+            "Emom"
+          ]
         ]
       ],
       "rec": "1'"
@@ -554,51 +619,83 @@
       "es": [
         [
           "Turkish get up",
-          "3x 6 + 3x 6 | 10kg"
-        ],
-        [
-          "Clamshell plank",
-          "Tabata 20/10 x 4"
+          "3x 6 + 3x 6 | 10kg",
+          []
         ],
         [
           "Starfish side plank",
-          "Tabata 20/10 x 4"
+          "1 + 1",
+          [
+            "Tabata 20\"/10\" x4"
+          ]
         ],
         [
           "Glute bridge one leg",
-          "Tabata 20/10 x 4"
+          "1 + 1",
+          [
+            "Tabata 20\"/10\" x4"
+          ]
+        ],
+        [
+          "Clamshell plank",
+          "1 + 1",
+          [
+            "Tabata 20\"/10\" x4"
+          ]
         ],
         [
           "Roll",
-          "Chest - Back - glutei"
+          "Chest - Back - glutei",
+          []
         ],
         [
           "Leg. Allungamento lower back",
-          "Normale - farfalla"
+          "Normale - farfalla",
+          [
+            "Stretch"
+          ]
         ],
         [
           "Mobilità anche",
-          "Elica - circonduz."
+          "Elica - circonduz.",
+          [
+            "Stretch"
+          ]
         ],
         [
           "Gito laterale",
-          "Lato, fronte, quad, anca"
+          "Lato, fronte, quad, anca",
+          [
+            "Stretch"
+          ]
         ],
         [
           "World gratet's stretch",
-          "1x 10 + 1x 10"
+          "1x 10 + 1x 10",
+          [
+            "Stretch"
+          ]
         ],
         [
           "Standing leg stretch",
-          "1x 1' + 1x 1'"
+          "1x 1' + 1x 1'",
+          [
+            "Stretch"
+          ]
         ],
         [
           "Tocca punta piedi",
-          "Aperto- chiuso"
+          "Aperto- chiuso",
+          [
+            "Stretch"
+          ]
         ],
         [
           "Goblet squat",
-          "Assistito"
+          "Assistito",
+          [
+            "Stretch"
+          ]
         ]
       ],
       "rec": "1'"
