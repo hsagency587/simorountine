@@ -2040,18 +2040,11 @@ function tabScheda(nome, sc, coda) {
   return tab;
 }
 
-/* Le righe di una scheda: il recupero per primo, staccato, poi gli esercizi.
-   Con `giu` il recupero cambia posto — niente riga in cima, e se c'e' si scrive
-   in fondo a destra: e' cosi' nelle schede tirate fuori dal piano, dove una
-   riga in cima si confondeva con gli esercizi. */
-function righeScheda(tab, sc, giu) {
-  if (!giu) {
-    /* il recupero e' la prima riga, staccata da quelle degli esercizi */
-    tab.appendChild(tabRiga([
-      { t: 'Recovery', cls: 'eti' },
-      { t: sc.rec || '\u2014', cls: sc.rec ? 'val' : 'val vuota' }
-    ], 'rec'));
-  }
+/* Le righe di una scheda: gli esercizi, e il recupero in fondo. Con `dx` sta a
+   destra ed esiste solo se e' scritto: e' cosi' nelle schede tirate fuori dal
+   piano, che si leggono e basta. Nell'elenco sta a sinistra e c'e' comunque,
+   col trattino, cosi' si sa che il campo esiste. */
+function righeScheda(tab, sc, dx) {
   for (const r of sc.es) {
     /* la quantita' senza esercizio sta gia' nella banda del nome */
     if (!r[0] && r[1]) continue;
@@ -2066,15 +2059,15 @@ function righeScheda(tab, sc, giu) {
       { t: r[1], cls: 'val' }
     ]));
   }
-  if (!sc.es.length && !sc.rec) tab.appendChild(tabRiga([{ t: '\u2014', cls: 'vuota' }, { t: '' }]));
-  /* il recupero in fondo a destra: non compare se non c'e' niente scritto */
-  if (giu && sc.rec) {
-    const r = el('div', 'tabr recgiu');
+  if (sc.rec || !dx) {
+    const r = el('div', 'tabr recgiu' + (dx ? ' adx' : ''));
     const c = el('div', 'tabc');
     c.appendChild(el('span', 'receti', 'Recovery'));
-    c.appendChild(el('span', 'recval', sc.rec));
+    c.appendChild(el('span', 'recval' + (sc.rec ? '' : ' vuota'), sc.rec || '\u2014'));
     r.appendChild(c);
     tab.appendChild(r);
+  } else if (!sc.es.length) {
+    tab.appendChild(tabRiga([{ t: '\u2014', cls: 'vuota' }, { t: '' }]));
   }
   return tab;
 }

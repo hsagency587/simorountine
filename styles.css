@@ -511,12 +511,13 @@ body.menu-open{overflow:hidden}
 .tabc.tabbtn{display:flex;align-items:center;justify-content:flex-end;border-left:0}
 /* un esercizio senza quantita' si prende tutta la riga */
 .tab-i .tabr.solo{grid-template-columns:1fr}
-/* il recupero e' la prima riga e sta per conto suo: sotto, una linea piu' marcata */
-.tabr.rec{border-bottom:2px solid var(--line)}
-/* nelle schede tirate fuori dal piano il recupero sta in fondo a destra, cosi'
-   non si confonde con gli esercizi */
+/* il recupero sta in fondo alla scheda: a sinistra nell'elenco, a destra nelle
+   schede tirate fuori dal piano. In tutti e due i casi non si confonde con gli
+   esercizi, che hanno due colonne. */
 .tab-i .tabr.recgiu{grid-template-columns:1fr}
-.tabr.recgiu .tabc{text-align:right}
+.tabr.recgiu .tabc{text-align:left}
+.tabr.recgiu.adx .tabc{text-align:right}
+.recval.vuota{color:var(--line)}
 .receti{
   margin-right:var(--s2);
   font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
