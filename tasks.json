@@ -302,15 +302,15 @@
       "es": [
         [
           "Towel curl",
-          "3'"
+          "3' + 3'"
         ],
         [
           "Marble swing",
-          "2'"
+          "2' + 2'"
         ],
         [
           "Gait cycle",
-          "2'"
+          "2' + 2'"
         ],
         [
           "Hyperarch hop",
@@ -331,7 +331,7 @@
       "es": [
         [
           "",
-          "1H"
+          "palestra - 1H"
         ]
       ],
       "rec": ""
@@ -348,23 +348,130 @@
     "Fascia 2": {
       "es": [
         [
-          "",
-          ""
+          "Hyperarch wall sit",
+          "3'"
         ],
         [
-          "",
-          ""
+          "Standing leg Stretch",
+          "2x 1' + 2x 1'"
         ],
         [
-          "",
-          ""
+          "Crescent walk",
+          "5'"
         ],
         [
+          "Big toe press",
+          "2' + 2'"
+        ],
+        [
+          "Dorsiflexed toes  walking",
+          "5'"
+        ]
+      ],
+      "rec": "2'"
+    },
+    "Fascia 3": {
+      "es": [
+        [
+          "Wall bounce",
+          "2'"
+        ],
+        [
+          "Heel Raise with marble",
+          "2' + 2'"
+        ],
+        [
+          "Bear walk",
+          "5'"
+        ],
+        [
+          "HFT lunge",
+          "2' + 2'"
+        ],
+        [
+          "Towels sweep",
+          "3' + 3'"
+        ]
+      ],
+      "rec": "2'"
+    },
+    "Privata Wing chun": {
+      "es": [
+        [
           "",
-          ""
+          "Casa sifu - 1H"
         ]
       ],
       "rec": ""
+    },
+    "Fascia full": {
+      "es": [
+        [
+          "Towel curl",
+          "2' + 2'"
+        ],
+        [
+          "Marble swing",
+          "2' + 2'"
+        ],
+        [
+          "Gait cycle",
+          "2' + 2'"
+        ],
+        [
+          "Hyperarch hop",
+          "3'"
+        ],
+        [
+          "Hand curl",
+          "2'"
+        ],
+        [
+          "Push hands",
+          "2'"
+        ],
+        [
+          "Wall bounce",
+          "2'"
+        ],
+        [
+          "Hyperarch wall sit",
+          "2'"
+        ],
+        [
+          "Standing Leg Stretch",
+          "2x 1' + 2x 1'"
+        ],
+        [
+          "Crescent walk",
+          "3'"
+        ],
+        [
+          "Big toe press",
+          "2' + 2'"
+        ],
+        [
+          "Dorsiflexed toes walking",
+          "3'"
+        ],
+        [
+          "Heel raise with marble",
+          "1' + 1'"
+        ],
+        [
+          "Bear walk",
+          "5'"
+        ],
+        [
+          "HFT Lunge",
+          "2' + 2'"
+        ],
+        [
+          "Towel sweep",
+          "3' + 3'"
+        ]
+      ],
+      "rec": "1'"
     }
   }
 }
