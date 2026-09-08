@@ -479,6 +479,9 @@ body.menu-open{overflow:hidden}
 .tabr:first-child{border-top:0}
 .tab-w .tabr{grid-template-columns:38px 1fr 1fr}
 .tab-d .tabr{grid-template-columns:92px 38px minmax(0,1fr)}
+/* la riga grigia dei pasti ha una colonna in piu', per il suo bottone edit */
+.tab-d .tabr.capo{grid-template-columns:92px 38px minmax(0,1fr) auto;align-items:center}
+.tab-d .tabr.capo .tabc{padding-top:3px;padding-bottom:3px}
 .tab-i .tabr{grid-template-columns:1fr 1.2fr}
 .tabr.tocca{cursor:pointer}
 .tabr.tocca:active{background:var(--surface-2)}

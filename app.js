@@ -2119,6 +2119,10 @@ function frecceChip(riga) {
 /* Quale scheda si sta scrivendo, o null: una per volta. */
 let scheda = null;
 
+/* La tabella dei pasti aperta coi campi, col suo bottone: non dipende dal
+   bottone edit in cima al pannello, che nella dieta governa solo le info. */
+let dietaApri = false;
+
 /* Una scheda da leggere: il nome nella riga grigia in alto, il recupero come
    prima riga staccata, poi gli esercizi. In fondo alla testata ci va quello che
    passa `coda`: il bottone per modificarla, o l'etichetta del turno. */
@@ -2458,10 +2462,21 @@ function paintD() {
   const k = dayKey(today());
   const r = routineFor(k);
 
+  /* La tabella dei pasti ha il suo bottone edit, in fondo alla riga grigia in
+     alto, come le schede dei workout. Aperta, la riga grigia resta e sotto ci
+     sono i campi, dentro il riquadro verde delle schede aperte. */
+  const b = el('button', 'schbtn', dietaApri ? 'done' : 'edit');
+  b.type = 'button';
+  b.dataset.dietamod = '1';
+  const tab = el('div', 'tab tab-d');
+  const cap = tabRiga([{ t: 'Meal' }, { t: 'Time', cls: 'ora' }, { t: 'What' }], 'capo');
+  const cb = el('div', 'tabc tabbtn');
+  cb.appendChild(b);
+  cap.appendChild(cb);
+  tab.appendChild(cap);
+
   /* o la tabella dei pasti, o i campi per riempirla */
-  if (!modifica()) {
-    const tab = el('div', 'tab tab-d');
-    tab.appendChild(tabRiga([{ t: 'Meal' }, { t: 'Time', cls: 'ora' }, { t: 'What' }], 'capo'));
+  if (!dietaApri) {
     for (const t of PASTI) {
       const i = r.findIndex(v => v.id === t.id);
       const ora = (i >= 0 ? r[i] : t).t.split('|')[0].trim();
@@ -2474,6 +2489,8 @@ function paintD() {
     }
     box.appendChild(tab);
   } else {
+    const cassa = el('div', 'schapri');
+    cassa.appendChild(tab);
     for (const t of PASTI) {
       const i = r.findIndex(v => v.id === t.id);
       const tappa = i >= 0 ? r[i] : t;
@@ -2481,7 +2498,7 @@ function paintD() {
       const dur = i >= 0 ? durataTappa(k, i) : '';
       const tit = el('p', 'wcapo', t.pasto);
       tit.appendChild(el('span', 'dora', '  ' + ora + (dur ? ' \u00b7 ' + dur : '')));
-      box.appendChild(tit);
+      cassa.appendChild(tit);
       const row = el('div', 'wrow');
       const inp = el('input', 'wcampo');
       inp.type = 'text';
@@ -2490,8 +2507,9 @@ function paintD() {
       inp.value = tstore.dieta[t.id] || '';
       inp.placeholder = 'What you eat';
       row.appendChild(inp);
-      box.appendChild(row);
+      cassa.appendChild(row);
     }
+    box.appendChild(cassa);
   }
 
   /* le info: cose che non stanno dentro un pasto. Stanno in una tabella come i
@@ -2885,6 +2903,8 @@ dlgGrp.addEventListener('cancel', () => { grp = null; });
 
 $('wlist').addEventListener('click', ev => {
   if (ev.target.closest('button[data-piulimite]')) { apriLimite(null); return; }
+  /* il bottone della tabella dei pasti: apre i campi, o li chiude */
+  if (ev.target.closest('button[data-dietamod]')) { dietaApri = !dietaApri; paintW(); return; }
 
   /* l'interruttore delle schede */
   if (ev.target.closest('button[data-schroot]')) {
