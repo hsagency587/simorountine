@@ -500,6 +500,9 @@ body.menu-open{overflow:hidden}
 /* la testata di una scheda: il nome sta nella riga grigia, come 1st e 2nd nel
    piano, e il bottone per modificarla si appoggia in fondo alla stessa riga */
 .tab-i .tabr.schcapo{grid-template-columns:1fr auto}
+/* il nome sta a sinistra ma a meta' altezza: il bottone e' piu' alto di lui e
+   senza questo resterebbe appiccicato in cima */
+.tabr.schcapo{align-items:center}
 .tabr.schcapo .tabc{padding-top:3px;padding-bottom:3px}
 .tabc.tabbtn{display:flex;align-items:center;justify-content:flex-end;border-left:0}
 /* il recupero e' la prima riga e sta per conto suo: sotto, una linea piu' marcata */
