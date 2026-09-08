@@ -204,8 +204,11 @@ const SABATO = {
 /* Il martedi' il wing chun e' lungo: il secondo workout tira fino alle 21:30, e
    dietro si spostano cena, ultima sessione e routine serale. Gli altri giorni
    di wing chun restano come sono. */
+/* Il tempo scritto e' 2h e non 3: mezz'ora prima e mezz'ora dopo se ne vanno,
+   e allenarsi si allena due ore. La tappa resta lunga tre ore, e' solo il
+   tempo scritto che dice quello che si fa davvero. */
 const MARTEDI = {
-  'workout-2': { dur: '3h' },
+  'workout-2': { dur: '2h' },
   'cena':      { da: 1290, t: '21:30 | DINNER' },
   'gws5':      { da: 1320, t: '22:00 | 5TH G WORK SESSION' },
   'serale':    { da: 1350, t: '22:30 | EVENING ROUTINE' }
@@ -2097,22 +2100,25 @@ function righeScheda(tab, sc, dx) {
 /* I campi di una scheda aperta. La scheda va tutta dentro un riquadro suo, col
    bordo verde: in mezzo a dieci tabelle uguali, altrimenti non si capisce di chi
    sono i campi che si stanno riempiendo. */
-function campiScheda(nome, sc, tab) {
+function campiScheda(nome, sc, tab, senzaRec) {
   const cassa = el('div', 'schapri');
   cassa.appendChild(tab);
 
   /* prima il recupero, poi una riga per esercizio: due campi liberi e la
-     croce per toglierla. Il secondo si puo' lasciare vuoto. */
-  const rrow = el('div', 'wrow wrec');
-  rrow.appendChild(el('span', 'wslot', 'Rec.'));
-  const rin = el('input', 'wcampo');
-  rin.type = 'text';
-  rin.maxLength = 60;
-  rin.dataset.rec = nome;
-  rin.value = sc.rec || '';
-  rin.placeholder = 'recovery';
-  rrow.appendChild(rin);
-  cassa.appendChild(rrow);
+     croce per toglierla. Il secondo si puo' lasciare vuoto. Dove il recupero
+     non si scrive non c'e' nemmeno il campo, se no si riempirebbe a vuoto. */
+  if (!senzaRec) {
+    const rrow = el('div', 'wrow wrec');
+    rrow.appendChild(el('span', 'wslot', 'Rec.'));
+    const rin = el('input', 'wcampo');
+    rin.type = 'text';
+    rin.maxLength = 60;
+    rin.dataset.rec = nome;
+    rin.value = sc.rec || '';
+    rin.placeholder = 'recovery';
+    rrow.appendChild(rin);
+    cassa.appendChild(rrow);
+  }
 
   for (let i = 0; i < sc.es.length; i++) {
     const row = el('div', 'wrow');
@@ -2153,9 +2159,11 @@ function paintMorning(box) {
   b.type = 'button';
   b.dataset.scheda = MORNING;
   const tab = tabScheda(MORNING, sc, b);
-  /* vuota resta comunque una tabella, col trattino: altrimenti non si vede
-     dove toccare per riempirla */
-  box.appendChild(aperta ? campiScheda(MORNING, sc, tab) : righeScheda(tab, sc));
+  /* niente recupero, qui: la mattina non si recupera fra un esercizio e
+     l'altro. Vuota resta comunque una tabella, col trattino, altrimenti non si
+     vede dove toccare per riempirla. */
+  box.appendChild(aperta ? campiScheda(MORNING, sc, tab, true)
+                         : righeScheda(tab, { es: sc.es, rec: '' }, true));
 }
 
 /* Quello che si fa oggi, tirato fuori senza aprire niente: le due schede del
