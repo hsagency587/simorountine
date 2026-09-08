@@ -247,6 +247,18 @@
       "gws": [
         2
       ]
+    },
+    {
+      "id": "tmtt7chwg3poa",
+      "creata": "2026-09-08T21:49:17.344Z",
+      "nome": "Client post",
+      "desc": "Postare foto e aggiornamenti profilo Google clienti",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-09",
+      "gws": [
+        3
+      ]
     }
   ],
   "workout": {
