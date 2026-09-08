@@ -1449,9 +1449,12 @@ function validSchede(w) {
     const nome = String(k).slice(0, 60).trim();
     if (!nome) continue;
     const v = w[k] || {};
+    /* terza casella: il raggruppamento. Vuota vuol dire nessuno, ed e' cosi'
+       per tutte le righe scritte prima che i gruppi esistessero. */
     const es = (Array.isArray(v.es) ? v.es : []).map(r => [
       String((Array.isArray(r) ? r[0] : '') || '').slice(0, 60).trim(),
-      String((Array.isArray(r) ? r[1] : '') || '').slice(0, 60).trim()
+      String((Array.isArray(r) ? r[1] : '') || '').slice(0, 60).trim(),
+      String((Array.isArray(r) ? r[2] : '') || '').slice(0, 40).trim()
     ]).filter(r => r[0] || r[1]);
     const rec = String(v.rec == null ? '' : v.rec).slice(0, 60).trim();
     if (es.length || rec) out[nome] = { es: es, rec: rec };
@@ -2070,16 +2073,31 @@ function tabScheda(nome, sc, coda) {
    che si leggono e basta. Nell'elenco c'e' comunque, col trattino, cosi' si sa
    che il campo esiste. */
 function righeScheda(tab, sc, dx) {
+  /* Un raggruppamento e' un riquadro leggero intorno alle sue righe, con
+     l'etichetta sopra. Le righe sono gia' vicine, perche' raggrupparle le mette
+     in fila; `dove` e' il riquadro aperto, o la tabella quando non ce n'e'. */
+  let gruppo = '';
+  let dove = tab;
   for (const r of sc.es) {
     /* la quantita' senza esercizio sta gia' nella banda del nome */
     if (!r[0] && r[1]) continue;
+    const g = r[2] || '';
+    if (g !== gruppo) {
+      gruppo = g;
+      dove = tab;
+      if (g) {
+        dove = el('div', 'grpbox');
+        dove.appendChild(el('span', 'grpeti', g));
+        tab.appendChild(dove);
+      }
+    }
     /* Un esercizio senza quantita' si prende tutta la riga: la colonna vuota
        col trattino faceva sembrare che mancasse qualcosa. */
     if (!r[1]) {
-      tab.appendChild(tabRiga([{ t: r[0], cls: 'eti' }], 'solo'));
+      dove.appendChild(tabRiga([{ t: r[0], cls: 'eti' }], 'solo'));
       continue;
     }
-    tab.appendChild(tabRiga([
+    dove.appendChild(tabRiga([
       { t: r[0] || '\u2014', cls: r[0] ? 'eti' : 'eti vuota' },
       { t: r[1], cls: 'val' }
     ]));
@@ -2120,8 +2138,30 @@ function campiScheda(nome, sc, tab, senzaRec) {
     cassa.appendChild(rrow);
   }
 
+  let gruppo = '';
+  let dove = cassa;
   for (let i = 0; i < sc.es.length; i++) {
+    /* anche qui il gruppo e' un riquadro con la sua etichetta, cosi' si vede
+       cosa c'e' dentro senza chiudere la scheda */
+    const g = sc.es[i][2] || '';
+    if (g !== gruppo) {
+      gruppo = g;
+      dove = cassa;
+      if (g) {
+        dove = el('div', 'wgrpbox');
+        dove.appendChild(el('span', 'grpeti', g));
+        cassa.appendChild(dove);
+      }
+    }
     const row = el('div', 'wrow');
+    /* la casella per scegliere la riga: si spunta, e in fondo compare la barra
+       per dare un nome a quelle scelte */
+    const sel = el('input', 'schsel');
+    sel.type = 'checkbox';
+    sel.checked = scelti.indexOf(i) >= 0;
+    sel.dataset.sel = i;
+    sel.setAttribute('aria-label', 'Pick this exercise');
+    row.appendChild(sel);
     for (const j of [0, 1]) {
       const inp = el('input', 'wcampo');
       inp.type = 'text';
@@ -2138,6 +2178,31 @@ function campiScheda(nome, sc, tab, senzaRec) {
     x.dataset.togli = nome;
     x.dataset.riga = i;
     row.appendChild(x);
+    dove.appendChild(row);
+  }
+  /* La barra dei gruppi: c'e' solo con qualcosa di spuntato. Il nome parte da
+     quello della prima riga scelta, cosi' rinominare un gruppo e' riscriverlo.
+     "ungroup" compare solo se fra le scelte c'e' gia' una riga in un gruppo. */
+  if (scelti.length) {
+    const dentro = scelti.slice().sort((a, b) => a - b);
+    const row = el('div', 'wrow wgrp');
+    const inp = el('input', 'wcampo');
+    inp.type = 'text';
+    inp.maxLength = 40;
+    inp.dataset.gnome = '1';
+    inp.value = (sc.es[dentro[0]] || [])[2] || '';
+    inp.placeholder = 'group name';
+    row.appendChild(inp);
+    const b = el('button', 'schbtn', 'group');
+    b.type = 'button';
+    b.dataset.raggruppa = nome;
+    row.appendChild(b);
+    if (dentro.some(i => (sc.es[i] || [])[2])) {
+      const u = el('button', 'schbtn', 'ungroup');
+      u.type = 'button';
+      u.dataset.sgruppa = nome;
+      row.appendChild(u);
+    }
     cassa.appendChild(row);
   }
   const piu = el('button', 'lpiu', '+  Add an exercise');
@@ -2145,6 +2210,31 @@ function campiScheda(nome, sc, tab, senzaRec) {
   piu.dataset.piues = nome;
   cassa.appendChild(piu);
   return cassa;
+}
+
+/* Le righe scelte dentro la scheda aperta. Servono solo a raggrupparle: si
+   svuotano appena la scheda cambia o le righe si spostano, perche' sono numeri
+   di posto e dopo uno spostamento indicherebbero altre righe. */
+let scelti = [];
+
+/* Raggruppa le righe scelte sotto il nome `g`, o le tira fuori se `g` e' vuoto.
+   Vanno tutte insieme dove sta la prima scelta, nell'ordine in cui erano: e'
+   quello che "metterle in fila" vuol dire. */
+function raggruppa(nome, g) {
+  const sc = tstore.schede[nome];
+  if (!sc || !scelti.length) return;
+  const dentro = scelti.slice().sort((a, b) => a - b).filter(i => sc.es[i]);
+  if (!dentro.length) { scelti = []; return paintW(); }
+  const prese = dentro.map(i => sc.es[i]);
+  for (const r of prese) r[2] = g;
+  const resto = sc.es.filter((r, i) => dentro.indexOf(i) < 0);
+  /* quante righe non scelte stanno prima della prima scelta: il posto dove
+     rientra il blocco */
+  const posto = sc.es.slice(0, dentro[0]).filter((r, i) => dentro.indexOf(i) < 0).length;
+  sc.es = resto.slice(0, posto).concat(prese, resto.slice(posto));
+  scelti = [];
+  touch();
+  paintW();
 }
 
 /* L'attivita' del mattino ha una scheda sua, che non viene dal piano: il nome
@@ -2334,6 +2424,9 @@ function paintD() {
 $('wlist').addEventListener('change', ev => {
   const i = ev.target.closest('input.wcampo');
   if (!i) return;
+  /* il nome di un gruppo non si scrive uscendo dalla casella: vale quando si
+     preme il bottone, e fino a li' non e' di nessuna riga */
+  if (i.dataset.gnome) return;
   /* un esercizio, o il recupero: testi liberi, nessuna forma imposta, e la
      quantita' di un esercizio si puo' lasciare vuota */
   if (i.dataset.sch || i.dataset.rec) {
@@ -2343,7 +2436,7 @@ $('wlist').addEventListener('change', ev => {
     if (i.dataset.rec) { if (sc.rec === v) return; sc.rec = v; }
     else {
       const r = +i.dataset.riga, c = +i.dataset.col;
-      if (!sc.es[r]) sc.es[r] = ['', ''];
+      if (!sc.es[r]) sc.es[r] = ['', '', ''];
       if (sc.es[r][c] === v) return;
       sc.es[r][c] = v;
     }
@@ -2472,7 +2565,7 @@ $('wlist').addEventListener('click', ev => {
   if (ch) {
     const n = ch.dataset.chipsch;
     const i = mostra.off.indexOf(n);
-    if (i < 0) { mostra.off = mostra.off.concat([n]); if (scheda === n) scheda = null; }
+    if (i < 0) { mostra.off = mostra.off.concat([n]); if (scheda === n) { scheda = null; scelti = []; } }
     else mostra.off = mostra.off.filter(x => x !== n);
     salvaMostra();
     paintW();
@@ -2482,7 +2575,28 @@ $('wlist').addEventListener('click', ev => {
   const sb = ev.target.closest('button[data-scheda]');
   if (sb) {
     scheda = scheda === sb.dataset.scheda ? null : sb.dataset.scheda;
+    scelti = [];
     paintW();
+    return;
+  }
+  /* una riga scelta, o lasciata */
+  const cs = ev.target.closest('input[data-sel]');
+  if (cs) {
+    const i = +cs.dataset.sel;
+    scelti = scelti.indexOf(i) < 0 ? scelti.concat([i]) : scelti.filter(v => v !== i);
+    paintW();
+    return;
+  }
+  /* le righe scelte prendono un nome, o lo perdono */
+  const rg = ev.target.closest('button[data-raggruppa]');
+  if (rg) {
+    const c = $('wlist').querySelector('input[data-gnome]');
+    raggruppa(rg.dataset.raggruppa, c ? c.value.slice(0, 40).trim() : '');
+    return;
+  }
+  const sg = ev.target.closest('button[data-sgruppa]');
+  if (sg) {
+    raggruppa(sg.dataset.sgruppa, '');
     return;
   }
   /* un esercizio in piu' */
@@ -2490,7 +2604,7 @@ $('wlist').addEventListener('click', ev => {
   if (pe) {
     const n = pe.dataset.piues;
     const sc = tstore.schede[n] || { es: [], rec: '' };
-    sc.es = sc.es.concat([['', '']]);
+    sc.es = sc.es.concat([['', '', '']]);
     tstore.schede[n] = sc;
     touch();
     paintW();
@@ -2503,6 +2617,7 @@ $('wlist').addEventListener('click', ev => {
     const sc = tstore.schede[n];
     if (sc) {
       sc.es = sc.es.filter((r, j) => j !== i);
+      scelti = [];
       if (!sc.es.length && !sc.rec) delete tstore.schede[n];
       touch();
       paintW();

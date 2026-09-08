@@ -560,6 +560,29 @@ body.menu-open{overflow:hidden}
   content:'';position:absolute;bottom:0;
   left:var(--s3);right:var(--s3);height:1px;background:var(--line);
 }
+/* un raggruppamento: un riquadro leggero intorno alle righe che stanno
+   insieme, con l'etichetta sopra. Nella tabella e fra i campi e' lo stesso
+   riquadro, cambia solo quanto sta staccato dai bordi. */
+.grpbox{
+  margin:var(--s1) var(--s2);
+  background:var(--surface-2);
+  border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;
+}
+.grpbox .tabr:first-of-type{border-top:0}
+.wgrpbox{margin:0 var(--s3) var(--s2);padding-top:2px}
+.wgrpbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.wgrpbox .wrow{padding-left:var(--s2);padding-right:var(--s2)}
+.grpeti{
+  display:block;padding:3px var(--s2) 2px;
+  font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--accent);
+}
+/* la casella con cui si sceglie una riga da raggruppare */
+.schsel{flex:0 0 auto;width:18px;height:18px;margin:0;accent-color:var(--accent)}
+/* la barra che da' il nome alle righe scelte */
+.wgrp{padding-top:var(--s1)}
+
 /* la croce che toglie un esercizio */
 .schx{
   flex:0 0 auto;width:30px;height:34px;
