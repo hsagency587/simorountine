@@ -113,13 +113,15 @@
   <div class="wtabs">
     <button type="button" class="wtab on" id="tabW" aria-pressed="true">Workout</button>
     <button type="button" class="wtab" id="tabD" aria-pressed="false">Diet</button>
-    <button type="button" class="schbtn wedit" id="wMod">edit</button>
     <button type="button" class="chiudi wchiudi" id="chiudiW" aria-label="Close the panel">×</button>
   </div>
-  <label class="switch wswitch">
-    <input type="checkbox" id="wMostra">
-    <span>Show in the day</span>
-  </label>
+  <div class="wswitch">
+    <label class="switch">
+      <input type="checkbox" id="wMostra">
+      <span>Show in the day</span>
+    </label>
+    <button type="button" class="schbtn wedit" id="wMod">edit</button>
+  </div>
   <div class="drawer-list" id="wlist"></div>
 </aside>
 

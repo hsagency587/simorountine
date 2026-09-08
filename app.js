@@ -1944,28 +1944,53 @@ function paintSchede(box) {
 
   for (const nome of nomi) {
     const sc = tstore.schede[nome] || { es: [], rec: '' };
-    const cap = el('p', 'wcapo', nome);
-    const b = el('button', 'schbtn', scheda === nome ? 'done' : 'edit');
+    const apertaSc = scheda === nome;
+
+    /* Il nome della scheda sta nella riga grigia in alto della sua tabella,
+       come 1st e 2nd nel piano. Il bottone per modificarla sta in fondo alla
+       stessa riga. */
+    const tab = el('div', 'tab tab-i');
+    const cap = el('div', 'tabr capo schcapo');
+    cap.appendChild(el('div', 'tabc', nome));
+    const cb = el('div', 'tabc tabbtn');
+    const b = el('button', 'schbtn', apertaSc ? 'done' : 'edit');
     b.type = 'button';
     b.dataset.scheda = nome;
-    cap.appendChild(b);
-    box.appendChild(cap);
+    cb.appendChild(b);
+    cap.appendChild(cb);
+    tab.appendChild(cap);
 
-    if (scheda !== nome) {
-      const tab = el('div', 'tab tab-i');
+    if (!apertaSc) {
+      /* il recupero e' la prima riga, staccata da quelle degli esercizi */
+      tab.appendChild(tabRiga([
+        { t: 'Recovery', cls: 'eti' },
+        { t: sc.rec || '—', cls: sc.rec ? 'val' : 'val vuota' }
+      ], 'rec'));
       for (const r of sc.es) {
         tab.appendChild(tabRiga([
           { t: r[0] || '—', cls: r[0] ? 'eti' : 'eti vuota' },
           { t: r[1] || '—', cls: r[1] ? 'val' : 'val vuota' }
         ]));
       }
-      if (sc.rec) tab.appendChild(tabRiga([{ t: 'Recovery', cls: 'eti' }, { t: sc.rec, cls: 'val' }]));
-      if (!sc.es.length && !sc.rec) tab.appendChild(tabRiga([{ t: '—', cls: 'vuota' }, { t: '' }]));
+      if (!sc.es.length) tab.appendChild(tabRiga([{ t: '—', cls: 'vuota' }, { t: '' }]));
       box.appendChild(tab);
       continue;
     }
+    box.appendChild(tab);
 
-    /* aperta: una riga per esercizio, due campi liberi e la croce per toglierla */
+    /* aperta: prima il recupero, poi una riga per esercizio con due campi
+       liberi e la croce per toglierla */
+    const rrow = el('div', 'wrow wrec');
+    rrow.appendChild(el('span', 'wslot', 'Rec.'));
+    const rin = el('input', 'wcampo');
+    rin.type = 'text';
+    rin.maxLength = 60;
+    rin.dataset.rec = nome;
+    rin.value = sc.rec || '';
+    rin.placeholder = 'recovery';
+    rrow.appendChild(rin);
+    box.appendChild(rrow);
+
     for (let i = 0; i < sc.es.length; i++) {
       const row = el('div', 'wrow');
       for (const j of [0, 1]) {
@@ -1990,17 +2015,6 @@ function paintSchede(box) {
     piu.type = 'button';
     piu.dataset.piues = nome;
     box.appendChild(piu);
-
-    const rrow = el('div', 'wrow');
-    rrow.appendChild(el('span', 'wslot', 'Rec.'));
-    const rin = el('input', 'wcampo');
-    rin.type = 'text';
-    rin.maxLength = 60;
-    rin.dataset.rec = nome;
-    rin.value = sc.rec || '';
-    rin.placeholder = 'recovery';
-    rrow.appendChild(rin);
-    box.appendChild(rrow);
   }
 }
 
@@ -2016,7 +2030,7 @@ function paintD() {
   /* o la tabella dei pasti, o i campi per riempirla */
   if (!modifica()) {
     const tab = el('div', 'tab tab-d');
-    tab.appendChild(tabRiga([{ t: 'Meal' }, { t: 'Time' }, { t: 'What' }], 'capo'));
+    tab.appendChild(tabRiga([{ t: 'Meal' }, { t: 'Time', cls: 'ora' }, { t: 'What' }], 'capo'));
     for (const t of PASTI) {
       const i = r.findIndex(v => v.id === t.id);
       const ora = (i >= 0 ? r[i] : t).t.split('|')[0].trim();
