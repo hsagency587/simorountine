@@ -560,28 +560,38 @@ body.menu-open{overflow:hidden}
   content:'';position:absolute;bottom:0;
   left:var(--s3);right:var(--s3);height:1px;background:var(--line);
 }
-/* Un raggruppamento: il bordo delle righe che stanno insieme, verde leggero,
-   con l'etichetta dentro. Il bordo e' un'ombra interna, non un border: non
-   occupa spazio, quindi le righe restano larghe e allineate a quelle fuori. */
-.grpbox, .wgrpbox{
+/* Un raggruppamento: il bordo delle righe che stanno insieme, verde leggero, e
+   il nome scritto di lato per lungo. Di lato per due motivi: non ruba nemmeno
+   una riga in altezza, e non somiglia al nome della scheda, che e' una banda
+   orizzontale in cima. Il bordo e' un'ombra interna, non un border: non sposta
+   niente, quindi le righe restano allineate a quelle fuori. */
+.grpbox{
+  display:flex;align-items:stretch;
   border-radius:var(--radius);
   box-shadow:inset 0 0 0 1px rgba(61, 220, 132, .35);
 }
+.grpcorpo{flex:1;min-width:0}
 .grpbox .tabr:first-of-type{border-top:0}
-/* l'etichetta: una riga sottile, non una riga di tabella */
+/* una scatola dentro un'altra si stacca da sola: il bordo si somma */
+.grpbox .grpbox{margin:2px}
 .grpeti{
-  display:block;padding:2px var(--s2) 1px;
-  font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  flex:0 0 15px;
+  display:flex;align-items:center;justify-content:center;
+  padding:var(--s2) 0;
+  writing-mode:vertical-rl;transform:rotate(180deg);
+  background:rgba(61, 220, 132, .08);
+  font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   color:var(--accent);
+  white-space:nowrap;overflow:hidden;
 }
 /* fra i campi l'etichetta si scrive: sembra l'etichetta, non una casella */
 .grpin{
-  width:100%;min-height:0;
-  background:none;border:0;
-  font:inherit;font-size:10px;font-weight:600;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--accent);
+  border:0;border-radius:0;
+  inline-size:auto;align-self:stretch;
+  font:inherit;font-size:9px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;text-align:center;
 }
-.grpin:focus{outline:none;color:var(--text)}
+.grpin:focus{outline:none;background:rgba(61, 220, 132, .18)}
 .grpin::placeholder{color:var(--line)}
 /* la casella con cui si sceglie una riga da raggruppare */
 .schsel{flex:0 0 auto;width:18px;height:18px;margin:0;accent-color:var(--accent)}

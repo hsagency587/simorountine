@@ -1442,6 +1442,13 @@ function validDieta(w) {
 
 /* Le schede che arrivano dal file: per ogni nome, un elenco di esercizi (due
    testi liberi ciascuno) e il recupero. Le righe vuote non si tengono. */
+/* La via dei gruppi, ripulita: al massimo quattro scatole una dentro l'altra,
+   nomi corti, niente vuoti in mezzo. */
+function viaGruppi(v) {
+  const a = Array.isArray(v) ? v : (v ? [v] : []);
+  return a.map(x => String(x == null ? '' : x).slice(0, 40).trim()).filter(Boolean).slice(0, 4);
+}
+
 function validSchede(w) {
   const out = {};
   if (!w || typeof w !== 'object') return out;
@@ -1449,12 +1456,14 @@ function validSchede(w) {
     const nome = String(k).slice(0, 60).trim();
     if (!nome) continue;
     const v = w[k] || {};
-    /* terza casella: il raggruppamento. Vuota vuol dire nessuno, ed e' cosi'
-       per tutte le righe scritte prima che i gruppi esistessero. */
+    /* terza casella: la via dei gruppi in cui sta la riga, dal piu' esterno al
+       piu' interno. Vuota vuol dire nessun gruppo, ed e' cosi' per tutte le
+       righe scritte prima che i gruppi esistessero. Un nome solo, scritto senza
+       elenco, vale come un gruppo solo. */
     const es = (Array.isArray(v.es) ? v.es : []).map(r => [
       String((Array.isArray(r) ? r[0] : '') || '').slice(0, 60).trim(),
       String((Array.isArray(r) ? r[1] : '') || '').slice(0, 60).trim(),
-      String((Array.isArray(r) ? r[2] : '') || '').slice(0, 40).trim()
+      viaGruppi(Array.isArray(r) ? r[2] : null)
     ]).filter(r => r[0] || r[1]);
     const rec = String(v.rec == null ? '' : v.rec).slice(0, 60).trim();
     if (es.length || rec) out[nome] = { es: es, rec: rec };
@@ -2073,25 +2082,16 @@ function tabScheda(nome, sc, coda) {
    che si leggono e basta. Nell'elenco c'e' comunque, col trattino, cosi' si sa
    che il campo esiste. */
 function righeScheda(tab, sc, dx) {
-  /* Un raggruppamento e' un bordo verde chiaro intorno alle sue righe, con
-     l'etichetta dentro. Il bordo e' un'ombra interna: non occupa spazio, quindi
-     le righe restano larghe e allineate a quelle fuori. `dove` e' il riquadro
-     aperto, o la tabella quando non ce n'e'. */
-  let gruppo = '';
-  let dove = tab;
+  /* Un raggruppamento e' un bordo verde chiaro intorno alle sue righe, con il
+     nome scritto di lato, per lungo: cosi' non ruba nemmeno una riga in
+     altezza, e non si confonde con il nome della scheda, che e' una banda
+     orizzontale. I gruppi possono stare uno dentro l'altro: `pila` tiene le
+     scatole aperte, e ogni riga entra nella piu' interna. */
+  const pila = new Pila(tab);
   for (const r of sc.es) {
     /* la quantita' senza esercizio sta gia' nella banda del nome */
     if (!r[0] && r[1]) continue;
-    const g = r[2] || '';
-    if (g !== gruppo) {
-      gruppo = g;
-      dove = tab;
-      if (g) {
-        dove = el('div', 'grpbox');
-        dove.appendChild(el('span', 'grpeti', g));
-        tab.appendChild(dove);
-      }
-    }
+    const dove = pila.vai(r[2] || []);
     /* Un esercizio senza quantita' si prende tutta la riga: la colonna vuota
        col trattino faceva sembrare che mancasse qualcosa. */
     if (!r[1]) {
@@ -2116,6 +2116,55 @@ function righeScheda(tab, sc, dx) {
   return tab;
 }
 
+/* Le scatole dei gruppi aperte mentre si scorre le righe di una scheda. Ogni
+   riga dice la sua via ("Tabata", oppure "Tabata" dentro "Round 1"): quello che
+   e' in comune con la riga prima resta aperto, il resto si chiude e si riapre.
+   Serve uguale in lettura e in modifica: cambia solo com'e' fatta l'etichetta,
+   che in modifica e' una casella da riscrivere. */
+function Pila(radice, scrivibile, nome) {
+  this.via = [];
+  this.dove = [radice];
+  this.scrivibile = !!scrivibile;
+  this.nome = nome;
+}
+
+Pila.prototype.vai = function (g) {
+  let n = 0;
+  while (n < this.via.length && n < g.length && this.via[n] === g[n]) n++;
+  this.via = this.via.slice(0, n);
+  this.dove = this.dove.slice(0, n + 1);
+  for (let i = n; i < g.length; i++) {
+    const box = el('div', 'grpbox');
+    box.appendChild(this.etichetta(g.slice(0, i + 1)));
+    const corpo = el('div', 'grpcorpo');
+    box.appendChild(corpo);
+    this.dove[this.dove.length - 1].appendChild(box);
+    this.via.push(g[i]);
+    this.dove.push(corpo);
+  }
+  return this.dove[this.dove.length - 1];
+};
+
+/* Il nome di lato. In modifica e' una casella: ci si riscrive sopra e il gruppo
+   si rinomina, la si svuota e il gruppo si scioglie. */
+Pila.prototype.etichetta = function (via) {
+  const t = via[via.length - 1];
+  if (!this.scrivibile) return el('span', 'grpeti', t);
+  const i = el('input', 'grpeti grpin');
+  i.type = 'text';
+  /* per lungo, la larghezza naturale di una casella diventa altezza: venti
+     caratteri di vuoto allungavano la scatola. Con size 1 e' il contenuto a
+     dire quanto e' alta, e la casella si allunga fino a li'. */
+  i.size = 1;
+  i.maxLength = 40;
+  i.value = t;
+  i.placeholder = 'group';
+  i.dataset.gnome = this.nome;
+  i.dataset.gvia = JSON.stringify(via);
+  i.setAttribute('aria-label', 'Group name');
+  return i;
+};
+
 /* I campi di una scheda aperta. La scheda va tutta dentro un riquadro suo, col
    bordo verde: in mezzo a dieci tabelle uguali, altrimenti non si capisce di chi
    sono i campi che si stanno riempiendo. */
@@ -2139,29 +2188,10 @@ function campiScheda(nome, sc, tab, senzaRec) {
     cassa.appendChild(rrow);
   }
 
-  let gruppo = '';
-  let dove = cassa;
+  const pila = new Pila(cassa, true, nome);
   for (let i = 0; i < sc.es.length; i++) {
-    /* anche qui il gruppo e' lo stesso riquadro, ma l'etichetta si scrive: il
-       nome del gruppo si cambia li' dentro, senza altri campi */
-    const g = sc.es[i][2] || '';
-    if (g !== gruppo) {
-      gruppo = g;
-      dove = cassa;
-      if (g) {
-        dove = el('div', 'wgrpbox');
-        const gin = el('input', 'grpeti grpin');
-        gin.type = 'text';
-        gin.maxLength = 40;
-        gin.value = g;
-        gin.placeholder = 'group';
-        gin.dataset.gnome = nome;
-        gin.dataset.gvecchio = g;
-        gin.setAttribute('aria-label', 'Group name');
-        dove.appendChild(gin);
-        cassa.appendChild(dove);
-      }
-    }
+    /* anche qui i gruppi sono le stesse scatole, ma l'etichetta si scrive */
+    const dove = pila.vai(sc.es[i][2] || []);
     const row = el('div', 'wrow');
     /* la casella per scegliere la riga: si spunta, e in fondo compare la barra
        per dare un nome a quelle scelte */
@@ -2198,7 +2228,7 @@ function campiScheda(nome, sc, tab, senzaRec) {
     b.type = 'button';
     b.dataset.raggruppa = nome;
     row.appendChild(b);
-    if (scelti.some(i => (sc.es[i] || [])[2])) {
+    if (scelti.some(i => ((sc.es[i] || [])[2] || []).length)) {
       const u = el('button', 'schbtn', 'ungroup');
       u.type = 'button';
       u.dataset.sgruppa = nome;
@@ -2222,22 +2252,37 @@ let scelti = [];
    con lo stesso nome, uno attaccato all'altro, diventerebbero un riquadro solo:
    per questo il secondo nasce "Group 2". */
 function nomeLibero(sc) {
-  const usati = sc.es.map(r => r[2] || '');
+  const usati = sc.es.reduce((a, r) => a.concat(r[2] || []), []);
   if (usati.indexOf('Group') < 0) return 'Group';
   for (let n = 2; n < 99; n++) if (usati.indexOf('Group ' + n) < 0) return 'Group ' + n;
   return 'Group';
 }
 
-/* Raggruppa le righe scelte sotto il nome `g`, o le tira fuori se `g` e' vuoto.
-   Vanno tutte insieme dove sta la prima scelta, nell'ordine in cui erano: e'
-   quello che "metterle in fila" vuol dire. */
+/* Con un nome, le righe scelte entrano in una scatola nuova, dentro quella in
+   cui gia' stanno tutte insieme: cosi' nascono i gruppi dentro i gruppi. Con
+   `g` nullo esce la scatola piu' interna, e quelle di fuori restano.
+   In tutti e due i casi le righe vanno insieme dove sta la prima scelta,
+   nell'ordine in cui erano: e' quello che "metterle in fila" vuol dire. */
 function raggruppa(nome, g) {
   const sc = tstore.schede[nome];
   if (!sc || !scelti.length) return;
   const dentro = scelti.slice().sort((a, b) => a - b).filter(i => sc.es[i]);
   if (!dentro.length) { scelti = []; return paintW(); }
   const prese = dentro.map(i => sc.es[i]);
-  for (const r of prese) r[2] = g;
+  if (g) {
+    /* la scatola nuova nasce dentro quelle che le righe scelte hanno gia' in
+       comune: se una sta fuori da tutto, nasce al primo livello */
+    let comune = prese[0][2] || [];
+    for (const r of prese) {
+      const v = r[2] || [];
+      let n = 0;
+      while (n < comune.length && n < v.length && comune[n] === v[n]) n++;
+      comune = comune.slice(0, n);
+    }
+    for (const r of prese) r[2] = comune.concat([g]);
+  } else {
+    for (const r of prese) r[2] = (r[2] || []).slice(0, -1);
+  }
   const resto = sc.es.filter((r, i) => dentro.indexOf(i) < 0);
   /* quante righe non scelte stanno prima della prima scelta: il posto dove
      rientra il blocco */
@@ -2441,10 +2486,18 @@ $('wlist').addEventListener('change', ev => {
      colpo. Svuotandola il gruppo non esiste piu' e le righe restano dov'erano */
   if (i.dataset.gnome) {
     const sc = tstore.schede[i.dataset.gnome];
-    const vecchio = i.dataset.gvecchio || '';
+    const via = viaGruppi(JSON.parse(i.dataset.gvia || '[]'));
+    const d = via.length - 1;
     const v = i.value.slice(0, 40).trim();
-    if (!sc || v === vecchio) return;
-    for (const r of sc.es) if ((r[2] || '') === vecchio) r[2] = v;
+    if (!sc || d < 0 || v === via[d]) return;
+    for (const r of sc.es) {
+      const g = r[2] || [];
+      /* solo le righe che stanno proprio in quella scatola, non le omonime
+         che stanno da un'altra parte */
+      if (g.length <= d || !via.every((x, j) => g[j] === x)) continue;
+      if (v) g[d] = v;
+      else g.splice(d, 1);      /* nome cancellato: quella scatola si scioglie */
+    }
     touch();
     paintW();
     return;
@@ -2458,7 +2511,7 @@ $('wlist').addEventListener('change', ev => {
     if (i.dataset.rec) { if (sc.rec === v) return; sc.rec = v; }
     else {
       const r = +i.dataset.riga, c = +i.dataset.col;
-      if (!sc.es[r]) sc.es[r] = ['', '', ''];
+      if (!sc.es[r]) sc.es[r] = ['', '', []];
       if (sc.es[r][c] === v) return;
       sc.es[r][c] = v;
     }
@@ -2626,7 +2679,7 @@ $('wlist').addEventListener('click', ev => {
   if (pe) {
     const n = pe.dataset.piues;
     const sc = tstore.schede[n] || { es: [], rec: '' };
-    sc.es = sc.es.concat([['', '', '']]);
+    sc.es = sc.es.concat([['', '', []]]);
     tstore.schede[n] = sc;
     touch();
     paintW();
