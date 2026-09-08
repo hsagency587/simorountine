@@ -193,12 +193,25 @@ const SABATO = {
   'cena':      { da: 1215, t: '20:15 | DINNER' },
   'gws5':      { da: 1245, t: '20:45 | 5TH G WORK SESSION' }
 };
-const isSabato = k => new Date(k + 'T00:00:00').getDay() === 6;
+/* Il martedi' il wing chun e' lungo: il secondo workout tira fino alle 21:30, e
+   dietro si spostano cena, ultima sessione e routine serale. Gli altri giorni
+   di wing chun restano come sono. */
+const MARTEDI = {
+  'workout-2': { dur: '3h' },
+  'cena':      { da: 1290, t: '21:30 | DINNER' },
+  'gws5':      { da: 1320, t: '22:00 | 5TH G WORK SESSION' },
+  'serale':    { da: 1350, t: '22:30 | EVENING ROUTINE' }
+};
+
+const isSabato  = k => new Date(k + 'T00:00:00').getDay() === 6;
+const isMartedi = k => new Date(k + 'T00:00:00').getDay() === 2;
 
 const routineFor = k => {
   const base = ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD);
-  if (!isSabato(k)) return base;
-  return base.map(t => SABATO[t.id] ? Object.assign({}, t, SABATO[t.id]) : t);
+  /* sabato e martedi' non capitano mai insieme: una toppa sola per giorno */
+  const toppa = isSabato(k) ? SABATO : isMartedi(k) ? MARTEDI : null;
+  if (!toppa) return base;
+  return base.map(t => toppa[t.id] ? Object.assign({}, t, toppa[t.id]) : t);
 };
 
 /* L'elenco di tutti gli id esistenti, per le ricerche che non dipendono dal
