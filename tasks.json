@@ -10,7 +10,8 @@
       "giorno": "2026-09-08",
       "gws": [
         0,
-        1
+        1,
+        2
       ]
     },
     {
@@ -70,7 +71,6 @@
       "cliente": "hs-agency",
       "giorno": "2026-09-08",
       "gws": [
-        2,
         3
       ]
     },
@@ -258,7 +258,7 @@
     ],
     "4": [
       "Fascia 3",
-      "Wing chun"
+      "Priv. Wing chun"
     ],
     "5": [
       "Deep roll",
@@ -297,5 +297,42 @@
       "valore": "Pepe - sale - origano - olio"
     }
   ],
-  "schede": {}
+  "schede": {
+    "Fascia 1": {
+      "es": [
+        [
+          "Towel curl",
+          "3'"
+        ],
+        [
+          "Marble swing",
+          "3'"
+        ],
+        [
+          "Gait cycle",
+          "3'"
+        ],
+        [
+          "Hyperarch hop",
+          "5'"
+        ]
+      ]
+    },
+    "Wing chun": {
+      "es": [
+        [
+          "Corso wing chun",
+          "1H"
+        ]
+      ]
+    },
+    "Priv. Wing chun": {
+      "es": [
+        [
+          "Privata wing chun",
+          "1H"
+        ]
+      ]
+    }
+  }
 }
