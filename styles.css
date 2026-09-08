@@ -523,8 +523,9 @@ body.menu-open{overflow:hidden}
   color:var(--muted);
 }
 .recval{color:var(--accent)}
-/* la scheda tirata fuori dal piano: il nome del workout di oggi si scrive in verde */
-.tab-oggi .tabr.capo .tabc{color:var(--accent)}
+/* il nome del workout si scrive in verde, dovunque stia la scheda: nella banda
+   grigia si riconosce al volo e non si legge come l'etichetta di un esercizio */
+.tabr.schcapo .tabc{color:var(--accent)}
 .tabr.oggi .tabc.eti{color:var(--accent)}
 .tabc.vuota{color:var(--line)}
 
