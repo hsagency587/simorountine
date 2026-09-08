@@ -1425,7 +1425,8 @@ function validSchede(w) {
       String((Array.isArray(r) ? r[0] : '') || '').slice(0, 60).trim(),
       String((Array.isArray(r) ? r[1] : '') || '').slice(0, 60).trim()
     ]).filter(r => r[0] || r[1]);
-    if (es.length) out[nome] = { es: es };
+    const rec = String(v.rec == null ? '' : v.rec).slice(0, 60).trim();
+    if (es.length || rec) out[nome] = { es: es, rec: rec };
   }
   return out;
 }
@@ -1676,6 +1677,12 @@ function paintLista(box, opt) {
      le sue task tornano sotto. */
   const gia = new Set();
 
+  /* Nel pescone le due tendine stanno su una riga sola: la' lo spazio in
+     altezza e' poco e due righe intere se lo mangiavano. Nel menu' restano
+     una sopra l'altra come sempre. */
+  const riga = opt.riga ? el('div', 'radici') : null;
+  if (riga) box.appendChild(riga);
+
   for (const rad of RADICI) {
     const gruppi = gruppiCliente(perCli, rad.mie);
     if (!gruppi.length) continue;
@@ -1687,7 +1694,7 @@ function paintLista(box, opt) {
     r.setAttribute('aria-expanded', aperta ? 'true' : 'false');
     r.appendChild(el('span', 'grpfrec', aperta ? '\u25be' : '\u25b8'));
     r.appendChild(el('span', 'grpnome', rad.nome));
-    box.appendChild(r);
+    (riga || box).appendChild(r);
 
     for (const o of aperta ? gruppi : []) {
       const open = cliAperti.has(o.g.k);
@@ -1999,6 +2006,11 @@ function tabScheda(nome, sc, coda) {
 
 /* Le righe di una scheda: il recupero per primo, staccato, poi gli esercizi. */
 function righeScheda(tab, sc) {
+  /* il recupero e' la prima riga, staccata da quelle degli esercizi */
+  tab.appendChild(tabRiga([
+    { t: 'Recovery', cls: 'eti' },
+    { t: sc.rec || '\u2014', cls: sc.rec ? 'val' : 'val vuota' }
+  ], 'rec'));
   for (const r of sc.es) {
     /* Un esercizio senza quantita' si prende tutta la riga: la colonna vuota
        col trattino faceva sembrare che mancasse qualcosa. */
@@ -2011,7 +2023,7 @@ function righeScheda(tab, sc) {
       { t: r[1], cls: 'val' }
     ]));
   }
-  if (!sc.es.length) tab.appendChild(tabRiga([{ t: '\u2014', cls: 'vuota' }, { t: '' }]));
+  if (!sc.es.length && !sc.rec) tab.appendChild(tabRiga([{ t: '\u2014', cls: 'vuota' }, { t: '' }]));
   return tab;
 }
 
@@ -2025,10 +2037,12 @@ function paintOggi(box) {
     const nome = r[slot];
     if (!nome) continue;
     const sc = tstore.schede[nome];
-    if (!sc || !sc.es.length) continue;
+    if (!sc || (!sc.es.length && !sc.rec)) continue;
     /* la scritta ci va solo se sotto c'e' davvero qualcosa */
     if (!capo) { box.appendChild(el('p', 'grp', 'TODAY WORKOUTS')); capo = true; }
-    box.appendChild(righeScheda(tabScheda(nome, sc, null), sc));
+    const t = tabScheda(nome, sc, null);
+    t.classList.add('tab-oggi');       /* il nome, qui, si scrive in verde */
+    box.appendChild(righeScheda(t, sc));
   }
 }
 
@@ -2087,7 +2101,7 @@ function paintSchede(box) {
   }
 
   for (const nome of visti) {
-    const sc = tstore.schede[nome] || { es: [] };
+    const sc = tstore.schede[nome] || { es: [], rec: '' };
     const apertaSc = scheda === nome;
 
     /* Il nome della scheda sta nella riga grigia in alto della sua tabella,
@@ -2109,8 +2123,19 @@ function paintSchede(box) {
     const cassa = el('div', 'schapri');
     cassa.appendChild(tab);
 
-    /* una riga per esercizio: due campi liberi e la croce per toglierla. Il
-       secondo si puo' lasciare vuoto. */
+    /* prima il recupero, poi una riga per esercizio: due campi liberi e la
+       croce per toglierla. Il secondo si puo' lasciare vuoto. */
+    const rrow = el('div', 'wrow wrec');
+    rrow.appendChild(el('span', 'wslot', 'Rec.'));
+    const rin = el('input', 'wcampo');
+    rin.type = 'text';
+    rin.maxLength = 60;
+    rin.dataset.rec = nome;
+    rin.value = sc.rec || '';
+    rin.placeholder = 'recovery';
+    rrow.appendChild(rin);
+    cassa.appendChild(rrow);
+
     for (let i = 0; i < sc.es.length; i++) {
       const row = el('div', 'wrow');
       for (const j of [0, 1]) {
@@ -2213,17 +2238,20 @@ function paintD() {
 $('wlist').addEventListener('change', ev => {
   const i = ev.target.closest('input.wcampo');
   if (!i) return;
-  /* un esercizio: due testi liberi, nessuna forma imposta, e il secondo si puo'
-     lasciare vuoto */
-  if (i.dataset.sch) {
-    const n = i.dataset.sch;
-    const sc = tstore.schede[n] || { es: [] };
+  /* un esercizio, o il recupero: testi liberi, nessuna forma imposta, e la
+     quantita' di un esercizio si puo' lasciare vuota */
+  if (i.dataset.sch || i.dataset.rec) {
+    const n = i.dataset.sch || i.dataset.rec;
+    const sc = tstore.schede[n] || { es: [], rec: '' };
     const v = i.value.slice(0, 60).trim();
-    const r = +i.dataset.riga, c = +i.dataset.col;
-    if (!sc.es[r]) sc.es[r] = ['', ''];
-    if (sc.es[r][c] === v) return;
-    sc.es[r][c] = v;
-    if (sc.es.some(x => x[0] || x[1])) tstore.schede[n] = sc;
+    if (i.dataset.rec) { if (sc.rec === v) return; sc.rec = v; }
+    else {
+      const r = +i.dataset.riga, c = +i.dataset.col;
+      if (!sc.es[r]) sc.es[r] = ['', ''];
+      if (sc.es[r][c] === v) return;
+      sc.es[r][c] = v;
+    }
+    if (sc.es.some(x => x[0] || x[1]) || sc.rec) tstore.schede[n] = sc;
     else delete tstore.schede[n];
     touch();
     return;
@@ -2365,7 +2393,7 @@ $('wlist').addEventListener('click', ev => {
   const pe = ev.target.closest('button[data-piues]');
   if (pe) {
     const n = pe.dataset.piues;
-    const sc = tstore.schede[n] || { es: [] };
+    const sc = tstore.schede[n] || { es: [], rec: '' };
     sc.es = sc.es.concat([['', '']]);
     tstore.schede[n] = sc;
     touch();
@@ -2379,7 +2407,7 @@ $('wlist').addEventListener('click', ev => {
     const sc = tstore.schede[n];
     if (sc) {
       sc.es = sc.es.filter((r, j) => j !== i);
-      if (!sc.es.length) delete tstore.schede[n];
+      if (!sc.es.length && !sc.rec) delete tstore.schede[n];
       touch();
       paintW();
     }
@@ -2733,7 +2761,7 @@ let pescaGws = null;
    bordino verde, e gli eventi del calendario col bordino blu. Cosi' si sa cosa
    c'e' gia' in giro prima di aggiungere. */
 function paintPesca() {
-  paintLista($('pescaList'), { pick: true, tutte: true, cal: true });
+  paintLista($('pescaList'), { pick: true, tutte: true, cal: true, riga: true });
 }
 
 function openPesca(g) {
