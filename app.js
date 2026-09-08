@@ -2155,9 +2155,9 @@ Pila.prototype.etichetta = function (via) {
   const i = el('input', 'grpeti grpin');
   i.type = 'text';
   /* per lungo, la larghezza naturale di una casella diventa altezza: venti
-     caratteri di vuoto allungavano la scatola. Con size 1 e' il contenuto a
-     dire quanto e' alta, e la casella si allunga fino a li'. */
-  i.size = 1;
+     caratteri di vuoto allungavano la targhetta. Tanti caratteri quanti ne ha
+     il nome, e la targhetta e' lunga come la scritta, come in lettura. */
+  i.size = Math.max(4, t.length);
   i.maxLength = 40;
   i.value = t;
   i.placeholder = 'group';
@@ -2172,6 +2172,11 @@ Pila.prototype.etichetta = function (via) {
    sono i campi che si stanno riempiendo. */
 function campiScheda(nome, sc, tab, senzaRec) {
   const cassa = el('div', 'schapri');
+  /* quanto spazio lasciare a destra ai nomi dei gruppi: quindici pixel per
+     ogni scatola annidata. Lo lasciano tutte le righe, cosi' i campi e la
+     croce restano alla stessa larghezza dentro e fuori dai gruppi. */
+  const prof = sc.es.reduce((m, r) => Math.max(m, (r[2] || []).length), 0);
+  cassa.style.setProperty('--gres', (prof * 15) + 'px');
   cassa.appendChild(tab);
 
   /* prima il recupero, poi una riga per esercizio: due campi liberi e la
