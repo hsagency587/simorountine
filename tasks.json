@@ -227,6 +227,16 @@
       "gws": [
         2
       ]
+    },
+    {
+      "id": "tmts99b7r2qx6",
+      "creata": "2026-09-08T05:55:01.767Z",
+      "nome": "Salva & Organizza numeri di telefono",
+      "desc": "Salva il numero di telefono delle persone arrivate dalle ADS e spostali sul profilo hsagency.seo. ",
+      "rank": "C",
+      "cliente": null,
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
