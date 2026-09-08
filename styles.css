@@ -633,14 +633,24 @@ body.menu-open{overflow:hidden}
 /* Se gli allenamenti sono tanti la fila non va a capo: resta una riga sola che
    si scorre col dito. La barra di scorrimento sta nascosta, sotto pastiglie
    alte 26 pixel sarebbe piu' ingombro che aiuto. */
+.chiprow{display:flex;align-items:center;gap:var(--s1);padding:0 var(--s2) var(--s3)}
 .chipsch{
-  padding:0 var(--s3) var(--s3);gap:var(--s1);
+  flex:1;min-width:0;padding:0;gap:var(--s1);
   flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
 }
 .chipsch::-webkit-scrollbar{display:none}
 .chips.chipsch .chip{flex:0 0 auto}
+/* le frecce ai lati: ci sono solo se la fila deborda, e si spengono al capolinea */
+.chipfrec{
+  flex:0 0 auto;width:20px;height:26px;
+  color:var(--muted);font-size:18px;line-height:1;
+}
+.chipfrec.spenta{opacity:.25}
+.chipfrec:active{color:var(--text)}
+/* il turno di oggi, in fondo alla testata di una scheda tirata fuori dal piano */
+.oggisl{color:var(--accent)}
 .chips.chipsch .chip{
   min-height:26px;padding:0 var(--s2);border-radius:13px;
   font-size:11px;

@@ -1760,7 +1760,7 @@ function paintDrawer() {
     }
     /* La fila delle pastiglie scorre di lato per conto suo: li' dentro il dito
        sposta le pastiglie, non cambia sezione. */
-    if (ev.target.closest && ev.target.closest('.chipsch')) {
+    if (ev.target.closest && ev.target.closest('.chiprow')) {
       valido = false;
       return;
     }
@@ -1883,6 +1883,7 @@ function paintW() {
       ], g === oggi ? 'oggi' : ''));
     }
     box.appendChild(tab);
+    paintOggi(box);
     paintSchede(box);
     return;
   }
@@ -1928,8 +1929,67 @@ function allenamenti() {
   return out;
 }
 
+/* Le frecce ai lati della fila: spariscono se ci sta tutto, e quella del
+   capolinea si spegne quando da quella parte non c'e' piu' niente. */
+function frecceChip(riga) {
+  const f = riga.querySelector('.chipsch');
+  const sx = riga.querySelector('[data-chipscorri="-1"]');
+  const dx = riga.querySelector('[data-chipscorri="1"]');
+  const scorre = f.scrollWidth > f.clientWidth + 1;
+  sx.hidden = !scorre;
+  dx.hidden = !scorre;
+  if (!scorre) return;
+  sx.classList.toggle('spenta', f.scrollLeft <= 1);
+  dx.classList.toggle('spenta', f.scrollLeft >= f.scrollWidth - f.clientWidth - 1);
+}
+
 /* Quale scheda si sta scrivendo, o null: una per volta. */
 let scheda = null;
+
+/* Una scheda da leggere: il nome nella riga grigia in alto, il recupero come
+   prima riga staccata, poi gli esercizi. In fondo alla testata ci va quello che
+   passa `coda`: il bottone per modificarla, o l'etichetta del turno. */
+function tabScheda(nome, sc, coda) {
+  const tab = el('div', 'tab tab-i');
+  const cap = el('div', 'tabr capo schcapo');
+  cap.appendChild(el('div', 'tabc', nome));
+  const cb = el('div', 'tabc tabbtn');
+  if (coda) cb.appendChild(coda);
+  cap.appendChild(cb);
+  tab.appendChild(cap);
+  return tab;
+}
+
+/* Le righe di una scheda: il recupero per primo, staccato, poi gli esercizi. */
+function righeScheda(tab, sc) {
+  tab.appendChild(tabRiga([
+    { t: 'Recovery', cls: 'eti' },
+    { t: sc.rec || '\u2014', cls: sc.rec ? 'val' : 'val vuota' }
+  ], 'rec'));
+  for (const r of sc.es) {
+    tab.appendChild(tabRiga([
+      { t: r[0] || '\u2014', cls: r[0] ? 'eti' : 'eti vuota' },
+      { t: r[1] || '\u2014', cls: r[1] ? 'val' : 'val vuota' }
+    ]));
+  }
+  if (!sc.es.length) tab.appendChild(tabRiga([{ t: '\u2014', cls: 'vuota' }, { t: '' }]));
+  return tab;
+}
+
+/* Quello che si fa oggi, tirato fuori senza aprire niente: le due schede del
+   giorno, ma solo quelle che hanno davvero degli esercizi scritti. Stanno sotto
+   il piano e sopra l'interruttore WORKOUTS. */
+function paintOggi(box) {
+  const r = tstore.workout[today().getDay()] || [];
+  for (const slot of [0, 1]) {
+    const nome = r[slot];
+    if (!nome) continue;
+    const sc = tstore.schede[nome];
+    if (!sc || (!sc.es.length && !sc.rec)) continue;
+    const turno = el('span', 'oggisl', slot === 0 ? '1st' : '2nd');
+    box.appendChild(righeScheda(tabScheda(nome, sc, turno), sc));
+  }
+}
 
 /* Le schede, sotto la tabella del piano. Chiuse si leggono come tabelle; con il
    loro bottone si aprono i campi, e ogni esercizio e' due testi liberi. */
@@ -1953,6 +2013,10 @@ function paintSchede(box) {
      chun, per dire, non ne ha nessuno. Le pastiglie qui sopra dicono quali
      schede si vedono; toccarne una la toglie o la rimette, e la scelta resta
      nel telefono senza toccare il file. */
+  const riga = el('div', 'chiprow');
+  const sx = el('button', 'chipfrec', '\u2039');
+  sx.type = 'button'; sx.dataset.chipscorri = '-1';
+  sx.setAttribute('aria-label', 'Scroll the workouts left');
   const chips = el('div', 'chips chipsch');
   for (const nome of nomi) {
     const acceso = mostra.off.indexOf(nome) < 0;
@@ -1962,7 +2026,14 @@ function paintSchede(box) {
     c.setAttribute('aria-pressed', acceso ? 'true' : 'false');
     chips.appendChild(c);
   }
-  box.appendChild(chips);
+  const dx = el('button', 'chipfrec', '\u203a');
+  dx.type = 'button'; dx.dataset.chipscorri = '1';
+  dx.setAttribute('aria-label', 'Scroll the workouts right');
+  riga.appendChild(sx); riga.appendChild(chips); riga.appendChild(dx);
+  box.appendChild(riga);
+  /* le frecce ci sono solo se la fila deborda, e quella del capolinea si spegne */
+  chips.addEventListener('scroll', () => frecceChip(riga), { passive: true });
+  frecceChip(riga);
 
   const visti = nomi.filter(x => mostra.off.indexOf(x) < 0);
   if (!visti.length) {
@@ -1977,31 +2048,13 @@ function paintSchede(box) {
     /* Il nome della scheda sta nella riga grigia in alto della sua tabella,
        come 1st e 2nd nel piano. Il bottone per modificarla sta in fondo alla
        stessa riga. */
-    const tab = el('div', 'tab tab-i');
-    const cap = el('div', 'tabr capo schcapo');
-    cap.appendChild(el('div', 'tabc', nome));
-    const cb = el('div', 'tabc tabbtn');
     const b = el('button', 'schbtn', apertaSc ? 'done' : 'edit');
     b.type = 'button';
     b.dataset.scheda = nome;
-    cb.appendChild(b);
-    cap.appendChild(cb);
-    tab.appendChild(cap);
+    const tab = tabScheda(nome, sc, b);
 
     if (!apertaSc) {
-      /* il recupero e' la prima riga, staccata da quelle degli esercizi */
-      tab.appendChild(tabRiga([
-        { t: 'Recovery', cls: 'eti' },
-        { t: sc.rec || '—', cls: sc.rec ? 'val' : 'val vuota' }
-      ], 'rec'));
-      for (const r of sc.es) {
-        tab.appendChild(tabRiga([
-          { t: r[0] || '—', cls: r[0] ? 'eti' : 'eti vuota' },
-          { t: r[1] || '—', cls: r[1] ? 'val' : 'val vuota' }
-        ]));
-      }
-      if (!sc.es.length) tab.appendChild(tabRiga([{ t: '—', cls: 'vuota' }, { t: '' }]));
-      box.appendChild(tab);
+      box.appendChild(righeScheda(tab, sc));
       continue;
     }
     box.appendChild(tab);
@@ -2235,6 +2288,13 @@ $('wlist').addEventListener('click', ev => {
     mostra.sch = !mostra.sch;
     salvaMostra();
     paintW();
+    return;
+  }
+  /* una freccia: la fila delle pastiglie scorre di quasi una schermata */
+  const fr = ev.target.closest('button[data-chipscorri]');
+  if (fr) {
+    const f = fr.parentElement.querySelector('.chipsch');
+    f.scrollBy({ left: +fr.dataset.chipscorri * f.clientWidth * 0.8, behavior: 'smooth' });
     return;
   }
   /* una pastiglia: quel workout si vede o non si vede fra le schede */
