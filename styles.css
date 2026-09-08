@@ -566,28 +566,36 @@ body.menu-open{overflow:hidden}
    orizzontale in cima. Il bordo e' un'ombra interna, non un border: non sposta
    niente, quindi le righe restano allineate a quelle fuori. */
 .grpbox{
-  display:flex;align-items:stretch;
+  position:relative;padding-right:15px;
   border-radius:var(--radius);
   box-shadow:inset 0 0 0 1px rgba(61, 220, 132, .35);
 }
-.grpcorpo{flex:1;min-width:0}
+.grpcorpo{min-width:0}
 .grpbox .tabr:first-of-type{border-top:0}
 /* una scatola dentro un'altra si stacca da sola: il bordo si somma */
 .grpbox .grpbox{margin:2px}
+/* il nome sbuca dal fianco destro: il fondo verde sta dietro le lettere e
+   basta, non lungo tutta la banda */
+/* Sta appoggiata sopra la sua striscia, non dentro la fila: cosi' un nome lungo
+   non allunga la scatola quando dentro c'e' una riga sola. Se non ci sta, si
+   accorcia. */
 .grpeti{
-  flex:0 0 15px;
-  display:flex;align-items:center;justify-content:center;
+  position:absolute;right:0;top:50%;
+  width:15px;max-height:100%;
+  /* se il nome non ci sta si perde la coda, non l'inizio */
+  display:flex;align-items:center;justify-content:flex-start;
   padding:var(--s2) 0;
-  writing-mode:vertical-rl;transform:rotate(180deg);
-  background:rgba(61, 220, 132, .08);
+  writing-mode:vertical-rl;transform:translateY(-50%) rotate(180deg);
+  background:rgba(61, 220, 132, .16);
+  border-radius:var(--radius);
   font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   color:var(--accent);
   white-space:nowrap;overflow:hidden;
 }
 /* fra i campi l'etichetta si scrive: sembra l'etichetta, non una casella */
 .grpin{
-  border:0;border-radius:0;
-  inline-size:auto;align-self:stretch;
+  border:0;
+  inline-size:auto;box-sizing:border-box;
   font:inherit;font-size:9px;font-weight:600;letter-spacing:.08em;
   text-transform:uppercase;text-align:center;
 }
@@ -597,6 +605,15 @@ body.menu-open{overflow:hidden}
 .schsel{flex:0 0 auto;width:18px;height:18px;margin:0;accent-color:var(--accent)}
 /* la barra che da' il nome alle righe scelte */
 .wgrp{padding-top:var(--s1)}
+
+/* l'elenco degli esercizi gia' scritti, dentro la finestra di un gruppo */
+.glista{max-height:34vh;overflow:auto;margin-bottom:var(--s2)}
+.grigar{display:flex;align-items:center;gap:var(--s2);padding:var(--s1) 0}
+.grinome{
+  flex:1;min-width:0;font-size:13px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.grival{flex:0 0 auto;font-size:12px;color:var(--accent)}
 
 /* la croce che toglie un esercizio */
 .schx{

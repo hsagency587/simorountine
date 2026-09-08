@@ -2135,9 +2135,11 @@ Pila.prototype.vai = function (g) {
   this.dove = this.dove.slice(0, n + 1);
   for (let i = n; i < g.length; i++) {
     const box = el('div', 'grpbox');
-    box.appendChild(this.etichetta(g.slice(0, i + 1)));
     const corpo = el('div', 'grpcorpo');
     box.appendChild(corpo);
+    /* il nome sta a destra, dopo le righe: di la' non incrocia le etichette
+       degli esercizi, che cominciano tutte a sinistra */
+    box.appendChild(this.etichetta(g.slice(0, i + 1)));
     this.dove[this.dove.length - 1].appendChild(box);
     this.via.push(g[i]);
     this.dove.push(corpo);
@@ -2240,6 +2242,12 @@ function campiScheda(nome, sc, tab, senzaRec) {
   piu.type = 'button';
   piu.dataset.piues = nome;
   cassa.appendChild(piu);
+  /* un gruppo si fa anche da qui: la finestra chiede il nome, quali esercizi
+     gia' scritti ci entrano, e quelli nuovi da scrivere sul momento */
+  const pg = el('button', 'lpiu', '+  Add a group');
+  pg.type = 'button';
+  pg.dataset.piugrp = nome;
+  cassa.appendChild(pg);
   return cassa;
 }
 
@@ -2248,41 +2256,17 @@ function campiScheda(nome, sc, tab, senzaRec) {
    di posto e dopo uno spostamento indicherebbero altre righe. */
 let scelti = [];
 
-/* Il nome con cui nasce un gruppo: si riscrive dentro il riquadro. Due gruppi
-   con lo stesso nome, uno attaccato all'altro, diventerebbero un riquadro solo:
-   per questo il secondo nasce "Group 2". */
-function nomeLibero(sc) {
-  const usati = sc.es.reduce((a, r) => a.concat(r[2] || []), []);
-  if (usati.indexOf('Group') < 0) return 'Group';
-  for (let n = 2; n < 99; n++) if (usati.indexOf('Group ' + n) < 0) return 'Group ' + n;
-  return 'Group';
-}
-
-/* Con un nome, le righe scelte entrano in una scatola nuova, dentro quella in
-   cui gia' stanno tutte insieme: cosi' nascono i gruppi dentro i gruppi. Con
-   `g` nullo esce la scatola piu' interna, e quelle di fuori restano.
-   In tutti e due i casi le righe vanno insieme dove sta la prima scelta,
-   nell'ordine in cui erano: e' quello che "metterle in fila" vuol dire. */
-function raggruppa(nome, g) {
+/* Le righe scelte escono dalla scatola piu' interna; quelle di fuori restano.
+   Vanno insieme dove sta la prima scelta, nell'ordine in cui erano: e' quello
+   che "metterle in fila" vuol dire. Per entrare in un gruppo c'e' la finestra,
+   che chiede il nome. */
+function sgruppa(nome) {
   const sc = tstore.schede[nome];
   if (!sc || !scelti.length) return;
   const dentro = scelti.slice().sort((a, b) => a - b).filter(i => sc.es[i]);
   if (!dentro.length) { scelti = []; return paintW(); }
   const prese = dentro.map(i => sc.es[i]);
-  if (g) {
-    /* la scatola nuova nasce dentro quelle che le righe scelte hanno gia' in
-       comune: se una sta fuori da tutto, nasce al primo livello */
-    let comune = prese[0][2] || [];
-    for (const r of prese) {
-      const v = r[2] || [];
-      let n = 0;
-      while (n < comune.length && n < v.length && comune[n] === v[n]) n++;
-      comune = comune.slice(0, n);
-    }
-    for (const r of prese) r[2] = comune.concat([g]);
-  } else {
-    for (const r of prese) r[2] = (r[2] || []).slice(0, -1);
-  }
+  for (const r of prese) r[2] = (r[2] || []).slice(0, -1);
   const resto = sc.es.filter((r, i) => dentro.indexOf(i) < 0);
   /* quante righe non scelte stanno prima della prima scelta: il posto dove
      rientra il blocco */
@@ -2618,6 +2602,123 @@ $('lElimina').addEventListener('click', () => {
   paintW();
 });
 
+/* ---------------------------------------------------- i gruppi nuovi ---- */
+
+/* La finestra che fa un gruppo: il nome, le spunte sugli esercizi gia' scritti,
+   e le righe nuove da scrivere qui. Una scheda parte sempre senza gruppi: ne
+   esiste uno solo quando lo si fa da qui, col nome che si vuole. */
+const dlgGrp = $('gruppo');
+let grp = null;                   /* { scheda, dentro: [posti], nuovi: [[a, b]] } */
+
+function apriGruppo(nome, dentro) {
+  grp = { scheda: nome, dentro: (dentro || []).slice(), nuovi: [['', '']] };
+  $('gNome').value = '';
+  disegnaGruppo();
+  dlgGrp.showModal();
+  dlgGrp.focus();                 /* niente tastiera addosso appena si apre */
+}
+
+function disegnaGruppo() {
+  if (!grp) return;
+  const sc = tstore.schede[grp.scheda] || { es: [] };
+  const box = $('gLista');
+  box.textContent = '';
+  sc.es.forEach((r, i) => {
+    if (!r[0] && !r[1]) return;
+    const l = el('label', 'grigar');
+    const c = el('input', 'schsel');
+    c.type = 'checkbox';
+    c.checked = grp.dentro.indexOf(i) >= 0;
+    c.dataset.gsel = i;
+    l.appendChild(c);
+    l.appendChild(el('span', 'grinome', r[0] || '\u2014'));
+    if (r[1]) l.appendChild(el('span', 'grival', r[1]));
+    box.appendChild(l);
+  });
+  if (!box.children.length) box.appendChild(el('p', 'vuoto', 'Nothing written yet'));
+
+  const nb = $('gNuovi');
+  nb.textContent = '';
+  grp.nuovi.forEach((r, i) => {
+    const row = el('div', 'wrow');
+    for (const j of [0, 1]) {
+      const inp = el('input', 'wcampo');
+      inp.type = 'text';
+      inp.maxLength = 60;
+      inp.dataset.gnuovo = i;
+      inp.dataset.gcol = j;
+      inp.value = r[j] || '';
+      inp.placeholder = j === 0 ? 'exercise' : 'how much';
+      row.appendChild(inp);
+    }
+    nb.appendChild(row);
+  });
+}
+
+$('gLista').addEventListener('change', ev => {
+  const c = ev.target.closest('input[data-gsel]');
+  if (!c || !grp) return;
+  const i = +c.dataset.gsel;
+  grp.dentro = c.checked ? grp.dentro.concat([i]) : grp.dentro.filter(v => v !== i);
+});
+
+$('gNuovi').addEventListener('input', ev => {
+  const c = ev.target.closest('input[data-gnuovo]');
+  if (!c || !grp) return;
+  const i = +c.dataset.gnuovo, j = +c.dataset.gcol;
+  if (!grp.nuovi[i]) grp.nuovi[i] = ['', ''];
+  grp.nuovi[i][j] = c.value;
+});
+
+$('gPiu').addEventListener('click', () => {
+  if (!grp) return;
+  grp.nuovi = grp.nuovi.concat([['', '']]);
+  disegnaGruppo();
+});
+
+$('gAnnulla').addEventListener('click', () => { grp = null; dlgGrp.close(); });
+dlgGrp.addEventListener('cancel', () => { grp = null; });
+
+$('gruppoForm').addEventListener('submit', ev => {
+  if (!grp) return;
+  const nome = $('gNome').value.slice(0, 40).trim();
+  const sc = tstore.schede[grp.scheda] || { es: [], rec: '' };
+  const nuovi = grp.nuovi
+    .map(r => [String(r[0] || '').slice(0, 60).trim(), String(r[1] || '').slice(0, 60).trim()])
+    .filter(r => r[0] || r[1]);
+  /* senza nome, o senza niente dentro, la finestra resta aperta */
+  if (!nome || (!grp.dentro.length && !nuovi.length)) {
+    ev.preventDefault();
+    $('gNome').focus();
+    return;
+  }
+  const dentro = grp.dentro.slice().sort((a, b) => a - b).filter(i => sc.es[i]);
+  const prese = dentro.map(i => sc.es[i]);
+  /* il gruppo nuovo nasce dentro quelli che le righe scelte hanno gia' in
+     comune, come quando si raggruppa dalle caselle */
+  let comune = prese.length ? (prese[0][2] || []) : [];
+  for (const r of prese) {
+    const v = r[2] || [];
+    let n = 0;
+    while (n < comune.length && n < v.length && comune[n] === v[n]) n++;
+    comune = comune.slice(0, n);
+  }
+  const via = comune.concat([nome]).slice(0, 4);
+  for (const r of prese) r[2] = via.slice();
+  const agg = nuovi.map(r => [r[0], r[1], via.slice()]);
+  const resto = sc.es.filter((r, i) => dentro.indexOf(i) < 0);
+  /* le scelte vanno dove sta la prima; senza scelte il gruppo va in fondo */
+  const posto = prese.length
+    ? sc.es.slice(0, dentro[0]).filter((r, i) => dentro.indexOf(i) < 0).length
+    : resto.length;
+  sc.es = resto.slice(0, posto).concat(prese, agg, resto.slice(posto));
+  tstore.schede[grp.scheda] = sc;
+  grp = null;
+  scelti = [];
+  touch();
+  paintW();
+});
+
 $('wlist').addEventListener('click', ev => {
   if (ev.target.closest('button[data-piulimite]')) { apriLimite(null); return; }
 
@@ -2662,18 +2763,16 @@ $('wlist').addEventListener('click', ev => {
     paintW();
     return;
   }
-  /* le righe scelte entrano in un riquadro nuovo, o ne escono */
+  /* le righe scelte entrano in un gruppo nuovo, o escono da quello piu' interno.
+     "group" apre la stessa finestra del piu', gia' spuntata su quelle righe:
+     un gruppo non nasce mai con un nome messo da me. */
   const rg = ev.target.closest('button[data-raggruppa]');
-  if (rg) {
-    const sc = tstore.schede[rg.dataset.raggruppa];
-    if (sc) raggruppa(rg.dataset.raggruppa, nomeLibero(sc));
-    return;
-  }
+  if (rg) { apriGruppo(rg.dataset.raggruppa, scelti); return; }
   const sg = ev.target.closest('button[data-sgruppa]');
-  if (sg) {
-    raggruppa(sg.dataset.sgruppa, '');
-    return;
-  }
+  if (sg) { sgruppa(sg.dataset.sgruppa); return; }
+  /* un gruppo nuovo, dalla sua finestra */
+  const pgr = ev.target.closest('button[data-piugrp]');
+  if (pgr) { apriGruppo(pgr.dataset.piugrp); return; }
   /* un esercizio in piu' */
   const pe = ev.target.closest('button[data-piues]');
   if (pe) {

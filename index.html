@@ -147,6 +147,30 @@
   </form>
 </dialog>
 
+<!-- Un gruppo nuovo: il nome, quali esercizi gia' scritti ci entrano, e quelli
+     che si scrivono qui sul momento. -->
+<dialog class="chiusura" id="gruppo" tabindex="-1" aria-labelledby="gruppoTit">
+  <form method="dialog" class="chiusura-box" id="gruppoForm">
+    <h2 class="chiusura-tit" id="gruppoTit">New group</h2>
+
+    <label class="commento-lab" for="gNome">Name</label>
+    <input class="campo" id="gNome" type="text" maxlength="40" autocomplete="off"
+           placeholder="e.g. Tabata">
+
+    <p class="commento-lab">What goes in</p>
+    <div class="glista" id="gLista"></div>
+
+    <p class="commento-lab">New exercises</p>
+    <div id="gNuovi"></div>
+    <button type="button" class="lpiu" id="gPiu">+  Add an exercise</button>
+
+    <div class="chiusura-btn">
+      <button type="button" class="btn" id="gAnnulla">Cancel</button>
+      <button type="submit" class="btn btn-ok" value="ok">Confirm</button>
+    </div>
+  </form>
+</dialog>
+
 <!-- Un editor solo, per creare e per modificare. -->
 <dialog class="chiusura" id="editor" tabindex="-1" aria-labelledby="editorTit">
   <form method="dialog" class="chiusura-box" id="editorForm">
