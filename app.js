@@ -1425,8 +1425,7 @@ function validSchede(w) {
       String((Array.isArray(r) ? r[0] : '') || '').slice(0, 60).trim(),
       String((Array.isArray(r) ? r[1] : '') || '').slice(0, 60).trim()
     ]).filter(r => r[0] || r[1]);
-    const rec = String(v.rec == null ? '' : v.rec).slice(0, 60).trim();
-    if (es.length || rec) out[nome] = { es: es, rec: rec };
+    if (es.length) out[nome] = { es: es };
   }
   return out;
 }
@@ -1974,23 +1973,28 @@ function tabScheda(nome, sc, coda) {
   const tab = el('div', 'tab tab-i');
   const cap = el('div', 'tabr capo schcapo');
   cap.appendChild(el('div', 'tabc', nome));
-  const cb = el('div', 'tabc tabbtn');
-  if (coda) cb.appendChild(coda);
-  cap.appendChild(cb);
+  /* senza niente in coda la testata e' il nome e basta */
+  if (coda) {
+    const cb = el('div', 'tabc tabbtn');
+    cb.appendChild(coda);
+    cap.appendChild(cb);
+  }
   tab.appendChild(cap);
   return tab;
 }
 
 /* Le righe di una scheda: il recupero per primo, staccato, poi gli esercizi. */
 function righeScheda(tab, sc) {
-  tab.appendChild(tabRiga([
-    { t: 'Recovery', cls: 'eti' },
-    { t: sc.rec || '\u2014', cls: sc.rec ? 'val' : 'val vuota' }
-  ], 'rec'));
   for (const r of sc.es) {
+    /* Un esercizio senza quantita' si prende tutta la riga: la colonna vuota
+       col trattino faceva sembrare che mancasse qualcosa. */
+    if (!r[1]) {
+      tab.appendChild(tabRiga([{ t: r[0], cls: 'eti' }], 'solo'));
+      continue;
+    }
     tab.appendChild(tabRiga([
       { t: r[0] || '\u2014', cls: r[0] ? 'eti' : 'eti vuota' },
-      { t: r[1] || '\u2014', cls: r[1] ? 'val' : 'val vuota' }
+      { t: r[1], cls: 'val' }
     ]));
   }
   if (!sc.es.length) tab.appendChild(tabRiga([{ t: '\u2014', cls: 'vuota' }, { t: '' }]));
@@ -2007,11 +2011,10 @@ function paintOggi(box) {
     const nome = r[slot];
     if (!nome) continue;
     const sc = tstore.schede[nome];
-    if (!sc || (!sc.es.length && !sc.rec)) continue;
+    if (!sc || !sc.es.length) continue;
     /* la scritta ci va solo se sotto c'e' davvero qualcosa */
     if (!capo) { box.appendChild(el('p', 'grp', 'TODAY WORKOUTS')); capo = true; }
-    const turno = el('span', 'oggisl', slot === 0 ? '1st' : '2nd');
-    box.appendChild(righeScheda(tabScheda(nome, sc, turno), sc));
+    box.appendChild(righeScheda(tabScheda(nome, sc, null), sc));
   }
 }
 
@@ -2070,7 +2073,7 @@ function paintSchede(box) {
   }
 
   for (const nome of visti) {
-    const sc = tstore.schede[nome] || { es: [], rec: '' };
+    const sc = tstore.schede[nome] || { es: [] };
     const apertaSc = scheda === nome;
 
     /* Il nome della scheda sta nella riga grigia in alto della sua tabella,
@@ -2092,19 +2095,8 @@ function paintSchede(box) {
     const cassa = el('div', 'schapri');
     cassa.appendChild(tab);
 
-    /* prima il recupero, poi una riga per esercizio con due campi liberi e la
-       croce per toglierla */
-    const rrow = el('div', 'wrow wrec');
-    rrow.appendChild(el('span', 'wslot', 'Rec.'));
-    const rin = el('input', 'wcampo');
-    rin.type = 'text';
-    rin.maxLength = 60;
-    rin.dataset.rec = nome;
-    rin.value = sc.rec || '';
-    rin.placeholder = 'recovery';
-    rrow.appendChild(rin);
-    cassa.appendChild(rrow);
-
+    /* una riga per esercizio: due campi liberi e la croce per toglierla. Il
+       secondo si puo' lasciare vuoto. */
     for (let i = 0; i < sc.es.length; i++) {
       const row = el('div', 'wrow');
       for (const j of [0, 1]) {
@@ -2207,19 +2199,17 @@ function paintD() {
 $('wlist').addEventListener('change', ev => {
   const i = ev.target.closest('input.wcampo');
   if (!i) return;
-  /* un esercizio, o il recupero: due testi liberi, nessuna forma imposta */
-  if (i.dataset.sch || i.dataset.rec) {
-    const n = i.dataset.sch || i.dataset.rec;
-    const sc = tstore.schede[n] || { es: [], rec: '' };
+  /* un esercizio: due testi liberi, nessuna forma imposta, e il secondo si puo'
+     lasciare vuoto */
+  if (i.dataset.sch) {
+    const n = i.dataset.sch;
+    const sc = tstore.schede[n] || { es: [] };
     const v = i.value.slice(0, 60).trim();
-    if (i.dataset.rec) { if (sc.rec === v) return; sc.rec = v; }
-    else {
-      const r = +i.dataset.riga, c = +i.dataset.col;
-      if (!sc.es[r]) sc.es[r] = ['', ''];
-      if (sc.es[r][c] === v) return;
-      sc.es[r][c] = v;
-    }
-    if (sc.es.some(r => r[0] || r[1]) || sc.rec) tstore.schede[n] = sc;
+    const r = +i.dataset.riga, c = +i.dataset.col;
+    if (!sc.es[r]) sc.es[r] = ['', ''];
+    if (sc.es[r][c] === v) return;
+    sc.es[r][c] = v;
+    if (sc.es.some(x => x[0] || x[1])) tstore.schede[n] = sc;
     else delete tstore.schede[n];
     touch();
     return;
@@ -2361,7 +2351,7 @@ $('wlist').addEventListener('click', ev => {
   const pe = ev.target.closest('button[data-piues]');
   if (pe) {
     const n = pe.dataset.piues;
-    const sc = tstore.schede[n] || { es: [], rec: '' };
+    const sc = tstore.schede[n] || { es: [] };
     sc.es = sc.es.concat([['', '']]);
     tstore.schede[n] = sc;
     touch();
@@ -2375,7 +2365,7 @@ $('wlist').addEventListener('click', ev => {
     const sc = tstore.schede[n];
     if (sc) {
       sc.es = sc.es.filter((r, j) => j !== i);
-      if (!sc.es.length && !sc.rec) delete tstore.schede[n];
+      if (!sc.es.length) delete tstore.schede[n];
       touch();
       paintW();
     }

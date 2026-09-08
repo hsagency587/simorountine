@@ -444,10 +444,6 @@ body.menu-open{overflow:hidden}
 }
 .wgiorno.oggi{color:var(--accent)}
 .wrow{display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3) var(--s1)}
-.wslot{
-  flex:0 0 34px;font-size:11px;color:var(--muted);
-  font-variant-numeric:tabular-nums;
-}
 .wcampo{
   flex:1;min-width:0;min-height:34px;padding:0 var(--s2);
   background:var(--surface-2);color:var(--text);
@@ -505,8 +501,8 @@ body.menu-open{overflow:hidden}
 .tabr.schcapo{align-items:center}
 .tabr.schcapo .tabc{padding-top:3px;padding-bottom:3px}
 .tabc.tabbtn{display:flex;align-items:center;justify-content:flex-end;border-left:0}
-/* il recupero e' la prima riga e sta per conto suo: sotto, una linea piu' marcata */
-.tabr.rec{border-bottom:2px solid var(--line)}
+/* un esercizio senza quantita' si prende tutta la riga */
+.tab-i .tabr.solo{grid-template-columns:1fr}
 .tabr.oggi .tabc.eti{color:var(--accent)}
 .tabc.vuota{color:var(--line)}
 
@@ -534,13 +530,6 @@ body.menu-open{overflow:hidden}
 /* dentro il riquadro il fondo e' gia' chiaro: le caselle si staccano scurendo */
 .schapri .wcampo{background:var(--surface)}
 
-/* in modifica il recupero sta sopra gli esercizi, staccato da una linea che
-   sta dentro i margini delle tabelle, non da un bordo a tutta larghezza */
-.wrec{position:relative;padding-bottom:var(--s3);margin-bottom:var(--s2)}
-.wrec::after{
-  content:'';position:absolute;bottom:0;
-  left:var(--s3);right:var(--s3);height:1px;background:var(--line);
-}
 /* la croce che toglie un esercizio */
 .schx{
   flex:0 0 auto;width:30px;height:34px;
@@ -665,8 +654,6 @@ body.menu-open{overflow:hidden}
 }
 .chipfrec.spenta{opacity:.25}
 .chipfrec:active{color:var(--text)}
-/* il turno di oggi, in fondo alla testata di una scheda tirata fuori dal piano */
-.oggisl{color:var(--accent)}
 .chips.chipsch .chip{
   min-height:26px;padding:0 var(--s2);border-radius:13px;
   font-size:11px;
