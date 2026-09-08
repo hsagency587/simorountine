@@ -499,7 +499,11 @@ body.menu-open{overflow:hidden}
 .tabc.ora{padding-left:2px;padding-right:2px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
 /* la testata di una scheda: il nome sta nella riga grigia, come 1st e 2nd nel
    piano, e il bottone per modificarla si appoggia in fondo alla stessa riga */
-.tab-i .tabr.schcapo{grid-template-columns:1fr auto}
+.tab-i .tabr.schcapo{grid-template-columns:1fr auto auto}
+/* dentro la banda del nome non ci vanno linee di mezzo */
+.tabr.schcapo .tabc + .tabc{border-left:0}
+/* una quantita' scritta li' dentro resta verde come nelle righe */
+.tabr.capo .tabc.val{color:var(--accent)}
 /* il nome sta a sinistra ma a meta' altezza: il bottone e' piu' alto di lui e
    senza questo resterebbe appiccicato in cima */
 .tabr.schcapo{align-items:center}
@@ -579,6 +583,8 @@ body.menu-open{overflow:hidden}
 /* le due tendine affiancate, dove lo spazio in altezza e' poco */
 .radici{display:flex}
 .radici .grproot{flex:1;min-width:0}
+/* sotto la riga delle tendine la linea sta stretta: li' il vuoto si vedeva */
+.radici + .rankgap{margin-top:var(--s1);margin-bottom:var(--s1)}
 .grproot.open{color:var(--muted)}
 /* le attivita' mie si distinguono dal colore del titolo */
 .grproot.oro,

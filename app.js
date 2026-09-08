@@ -1994,6 +1994,10 @@ function tabScheda(nome, sc, coda) {
   const tab = el('div', 'tab tab-i');
   const cap = el('div', 'tabr capo schcapo');
   cap.appendChild(el('div', 'tabc', nome));
+  /* Una quantita' scritta senza esercizio non fa una riga con mezzo lato
+     vuoto: si scrive qui, nella banda grigia di fianco al nome. */
+  const sole = (sc.es || []).filter(r => !r[0] && r[1]).map(r => r[1]);
+  if (sole.length) cap.appendChild(el('div', 'tabc val', sole.join('  \u00b7  ')));
   /* senza niente in coda la testata e' il nome e basta */
   if (coda) {
     const cb = el('div', 'tabc tabbtn');
@@ -2012,6 +2016,8 @@ function righeScheda(tab, sc) {
     { t: sc.rec || '\u2014', cls: sc.rec ? 'val' : 'val vuota' }
   ], 'rec'));
   for (const r of sc.es) {
+    /* la quantita' senza esercizio sta gia' nella banda del nome */
+    if (!r[0] && r[1]) continue;
     /* Un esercizio senza quantita' si prende tutta la riga: la colonna vuota
        col trattino faceva sembrare che mancasse qualcosa. */
     if (!r[1]) {
