@@ -125,12 +125,10 @@ const PROTETTE_STD = [[0, 450], [750, 840], [1125, 1230], [1320, 1440]];
 /* il sabato il pranzo comincia dopo e la cena si sposta: le finestre lo seguono */
 const PROTETTE_SAB = [[0, 450], [765, 840], [1140, 1245], [1320, 1440]];
 /* il martedi' il workout della sera tira fino alle 21:30 e tutto slitta: la
-   finestra della sera arriva fino alla cena, e quella della notte comincia alle
-   23. La quinta sessione, il martedi', comincia alle 22 e dura mezz'ora: senza
-   quella mezz'ora in piu' un evento di un'ora dentro la sessione sconfinerebbe
-   nella notte e diventerebbe rosso. Cena e ultima sessione restano scoperte,
-   come negli altri giorni. */
-const PROTETTE_MAR = [[0, 450], [750, 840], [1095, 1290], [1380, 1440]];
+   finestra della sera arriva fino alla cena, e quella della notte comincia con
+   la routine serale, alle 22:30. Cena e ultima sessione restano scoperte, come
+   negli altri giorni. */
+const PROTETTE_MAR = [[0, 450], [750, 840], [1095, 1290], [1350, 1440]];
 const protetteOf = k => isSabato(k)  ? PROTETTE_SAB
                       : isMartedi(k) ? PROTETTE_MAR
                       : isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
@@ -357,6 +355,10 @@ function prepEvent(ev, k) {
     title:  String(ev.title || '(no title)'),
     desc:   String(ev.description || '').trim(),
     txt:    sTxt + '–' + eTxt,
+    da:     sMin,
+    a:      span,
+    /* l'allarme dell'evento intero: serve al menu', dove l'evento e' una riga
+       sola. Nella giornata conta invece il pezzo, che si calcola in groupEvents */
     alarm:  protetteOf(k).some(w => sMin < w[1] && span > w[0]),
     fascia: fascia < 0 ? 0 : fascia,
     fasce:  fasce.length ? fasce : [fascia < 0 ? 0 : fascia]
@@ -392,6 +394,8 @@ function titoloEvento(x) {
 function groupEvents(k) {
   const out = routineFor(k).map(() => []);
   if (!isCovered(k)) return out;
+  const fin  = finestre(k);
+  const prot = protetteOf(k);
   const list = Array.isArray(cal.days[k]) ? cal.days[k] : [];
   for (const raw of list) {
     const e = prepEvent(raw, k);
@@ -399,9 +403,16 @@ function groupEvents(k) {
     /* un pezzo per tappa. Con una tappa sola la chiave resta l'id dell'evento,
        com'e' sempre stata: le spunte gia' scritte continuano a valere. */
     e.fasce.forEach((f, j) => {
+      /* il rosso lo prende il pezzo, non l'evento intero: si guarda solo il
+         tratto che cade dentro questa tappa. Una riunione che comincia in una
+         sessione e sfora nella tappa protetta dopo e' bianca nella sessione e
+         rossa nella tappa che si mangia, invece di essere rossa dappertutto. */
+      const da = Math.max(e.da, fin[f][0]);
+      const a  = Math.min(e.a,  fin[f][1]);
       out[f].push(Object.assign({}, e, {
         evId:   e.id,
         id:     n > 1 ? e.id + '@' + f : e.id,
+        alarm:  prot.some(w => da < w[1] && a > w[0]),
         pezzi:  n,
         ultimo: j === n - 1
       }));
