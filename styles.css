@@ -577,11 +577,13 @@ body.menu-open{overflow:hidden}
 /* il nome sbuca dal fianco destro: il fondo verde sta dietro le lettere e
    basta, non lungo tutta la banda */
 /* Sta appoggiata sopra la sua striscia, non dentro la fila: cosi' un nome lungo
-   non allunga la scatola quando dentro c'e' una riga sola. Se non ci sta, si
-   accorcia. */
+   non allunga la scatola quando dentro c'e' una riga sola. Se non ci sta puo'
+   sforare di venti pixel per parte, che e' meno di una riga: sconfina sul
+   bordo destro di sopra e di sotto, dove non c'e' scritto niente. Oltre quel
+   limite si accorcia. */
 .grpeti{
-  position:absolute;right:0;top:50%;
-  width:15px;max-height:100%;
+  position:absolute;right:0;top:50%;z-index:1;
+  width:15px;max-height:calc(100% + 40px);
   /* se il nome non ci sta si perde la coda, non l'inizio */
   display:flex;align-items:center;justify-content:flex-start;
   padding:var(--s2) 0;
