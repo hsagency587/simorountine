@@ -237,6 +237,16 @@
       "cliente": null,
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmtsb25yin49k",
+      "creata": "2026-09-08T06:45:27.594Z",
+      "nome": "Biglietto da visita",
+      "desc": "Prepara un po' di versioni per il biglietto di visita della Manuela Lobo e sistema quelle esistenti. ",
+      "rank": "B",
+      "cliente": "manuela-lovo",
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
