@@ -1655,6 +1655,27 @@ function gruppiCliente(list, mie) {
    separati da una linea, e dentro ogni blocco le task dello stesso cliente
    insieme. Cambia solo cosa si vede — nel pescone tutto, senza interruttori —
    e cosa succede toccando una riga. */
+/* Un elenco di task diviso per cliente: il nome una volta sola sopra il suo
+   gruppo, e chi non ha cliente per primo. L'ordine dei gruppi e' quello della
+   prima task di ognuno, cioe' sempre per data. */
+function bloccoPerCliente(box, l, pick) {
+  const ordine = [], per = new Map();
+  for (const x of l) {
+    const c = x.cliente || '';
+    if (!per.has(c)) { per.set(c, []); ordine.push(c); }
+    per.get(c).push(x);
+  }
+  /* quelle senza cliente per prime: non hanno un nome sopra, e sotto il nome
+     di un cliente ci deve stare solo roba sua */
+  ordine.sort((a, b) => (a ? 1 : 0) - (b ? 1 : 0));
+  for (const c of ordine) {
+    if (c) box.appendChild(el('p', 'grpsub', clienteCorto(c)));
+    const ul = el('ul', 'trows');
+    for (const x of per.get(c)) ul.appendChild(trowNode(x, pick));
+    box.appendChild(ul);
+  }
+}
+
 function paintLista(box, opt) {
   const pick = !!opt.pick;
   const vedeSched = !!opt.tutte;
@@ -1663,7 +1684,13 @@ function paintLista(box, opt) {
   /* le task del serbatoio, o anche le schedulate. Nei blocchi RANK qui sotto
      gli eventi del calendario entrano solo col filtro Calendar; dentro un
      cliente ci sono sempre, come le schedulate. */
-  const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno));
+  /* Nel pescone quello che e' gia' su un giorno si chiude in una tendina sua,
+     sotto le altre due: grigia, che non e' un cliente. Sotto restano solo le
+     task ancora libere. */
+  const chiudiSched = !!opt.chiudiSched;
+  const sched = chiudiSched ? tstore.tasks.filter(x => !x.evento && x.giorno) : [];
+  const inSched = new Set(sched.map(x => x.id));
+  const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno) && !inSched.has(x.id));
   const eventi = tstore.tasks.filter(x => x.evento);
   const evs  = vedeCal ? eventi : [];
   const tutto = list.concat(evs);
@@ -1717,6 +1744,23 @@ function paintLista(box, opt) {
     }
   }
 
+  /* La tendina delle schedulate, sotto le altre due. Non c'e' se non c'e'
+     niente di gia' collocato. */
+  if (chiudiSched) {
+    const l = sched.filter(x => !gia.has(x.id)).sort(byMenu);
+    if (l.length) {
+      const aperta = rootAperte.has('sched');
+      const r = el('button', 'grp grpcli grproot' + (aperta ? ' open' : ''));
+      r.type = 'button';
+      r.dataset.root = 'sched';
+      r.setAttribute('aria-expanded', aperta ? 'true' : 'false');
+      r.appendChild(el('span', 'grpfrec', aperta ? '\u25be' : '\u25b8'));
+      r.appendChild(el('span', 'grpnome', 'SCHEDULED'));
+      box.appendChild(r);
+      if (aperta) bloccoPerCliente(box, l, pick);
+    }
+  }
+
   /* Sotto le tendine, il resto diviso per rank come e' sempre stato. Quello che
      si e' gia' visto dentro un cliente aperto non si ripete qui: si guarda una
      cosa sola per volta. Chiuso il cliente, le sue task tornano. */
@@ -1727,24 +1771,8 @@ function paintLista(box, opt) {
        sta gia' sulla pastiglia di ogni task, e senza quella riga i nomi dei
        clienti si leggono di fila. Fra un blocco e l'altro, una linea. */
     if (box.childNodes.length) box.appendChild(el('div', 'rankgap'));
-    /* dentro il rank, le task dello stesso cliente stanno insieme e il nome si
-       scrive una volta sola sopra il gruppo, invece che su ogni riga. L'ordine
-       dei gruppi e' quello della prima task di ognuno, cioe' sempre per data. */
-    const ordine = [], per = new Map();
-    for (const x of l) {
-      const c = x.cliente || '';
-      if (!per.has(c)) { per.set(c, []); ordine.push(c); }
-      per.get(c).push(x);
-    }
-    /* quelle senza cliente per prime: non hanno un nome sopra, e sotto il nome
-       di un cliente ci deve stare solo roba sua */
-    ordine.sort((a, b) => (a ? 1 : 0) - (b ? 1 : 0));
-    for (const c of ordine) {
-      if (c) box.appendChild(el('p', 'grpsub', clienteCorto(c)));
-      const ul = el('ul', 'trows');
-      for (const x of per.get(c)) ul.appendChild(trowNode(x, pick));
-      box.appendChild(ul);
-    }
+    /* dentro il rank, le task dello stesso cliente stanno insieme */
+    bloccoPerCliente(box, l, pick);
   }
 
   if (!tutto.length) box.appendChild(el('p', 'vuoto', vedeSched ? 'No tasks' : 'Pool empty'));
@@ -2008,13 +2036,18 @@ function tabScheda(nome, sc, coda) {
   return tab;
 }
 
-/* Le righe di una scheda: il recupero per primo, staccato, poi gli esercizi. */
-function righeScheda(tab, sc) {
-  /* il recupero e' la prima riga, staccata da quelle degli esercizi */
-  tab.appendChild(tabRiga([
-    { t: 'Recovery', cls: 'eti' },
-    { t: sc.rec || '\u2014', cls: sc.rec ? 'val' : 'val vuota' }
-  ], 'rec'));
+/* Le righe di una scheda: il recupero per primo, staccato, poi gli esercizi.
+   Con `giu` il recupero cambia posto — niente riga in cima, e se c'e' si scrive
+   in fondo a destra: e' cosi' nelle schede tirate fuori dal piano, dove una
+   riga in cima si confondeva con gli esercizi. */
+function righeScheda(tab, sc, giu) {
+  if (!giu) {
+    /* il recupero e' la prima riga, staccata da quelle degli esercizi */
+    tab.appendChild(tabRiga([
+      { t: 'Recovery', cls: 'eti' },
+      { t: sc.rec || '\u2014', cls: sc.rec ? 'val' : 'val vuota' }
+    ], 'rec'));
+  }
   for (const r of sc.es) {
     /* la quantita' senza esercizio sta gia' nella banda del nome */
     if (!r[0] && r[1]) continue;
@@ -2030,6 +2063,15 @@ function righeScheda(tab, sc) {
     ]));
   }
   if (!sc.es.length && !sc.rec) tab.appendChild(tabRiga([{ t: '\u2014', cls: 'vuota' }, { t: '' }]));
+  /* il recupero in fondo a destra: non compare se non c'e' niente scritto */
+  if (giu && sc.rec) {
+    const r = el('div', 'tabr recgiu');
+    const c = el('div', 'tabc');
+    c.appendChild(el('span', 'receti', 'Recovery'));
+    c.appendChild(el('span', 'recval', sc.rec));
+    r.appendChild(c);
+    tab.appendChild(r);
+  }
   return tab;
 }
 
@@ -2048,7 +2090,7 @@ function paintOggi(box) {
     if (!capo) { box.appendChild(el('p', 'grp', 'TODAY WORKOUTS')); capo = true; }
     const t = tabScheda(nome, sc, null);
     t.classList.add('tab-oggi');       /* il nome, qui, si scrive in verde */
-    box.appendChild(righeScheda(t, sc));
+    box.appendChild(righeScheda(t, sc, true));
   }
 }
 
@@ -2767,7 +2809,7 @@ let pescaGws = null;
    bordino verde, e gli eventi del calendario col bordino blu. Cosi' si sa cosa
    c'e' gia' in giro prima di aggiungere. */
 function paintPesca() {
-  paintLista($('pescaList'), { pick: true, tutte: true, cal: true, riga: true });
+  paintLista($('pescaList'), { pick: true, tutte: true, cal: true, riga: true, chiudiSched: true });
 }
 
 function openPesca(g) {
