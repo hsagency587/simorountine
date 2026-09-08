@@ -496,6 +496,21 @@ body.menu-open{overflow:hidden}
 .tabr.oggi .tabc.eti{color:var(--accent)}
 .tabc.vuota{color:var(--line)}
 
+/* il bottone di una scheda, in fondo alla sua testata */
+.wcapo{display:flex;align-items:center;gap:var(--s2)}
+.schbtn{
+  margin-left:auto;min-height:26px;padding:0 var(--s2);
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--surface-2);color:var(--muted);
+  font-size:11px;font-weight:600;letter-spacing:0;text-transform:none;
+}
+/* la croce che toglie un esercizio */
+.schx{
+  flex:0 0 auto;width:30px;height:34px;
+  border-radius:var(--radius);color:var(--muted);font-size:18px;line-height:1;
+}
+.schx:active{background:var(--surface-2)}
+
 /* il bottone per aggiungere una info */
 .lpiu{
   display:block;width:calc(100% - 2 * var(--s3));margin:var(--s2) var(--s3);

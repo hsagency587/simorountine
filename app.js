@@ -1292,6 +1292,9 @@ if (!Array.isArray(tstore.known)) tstore.known = [];
 if (!tstore.workout || typeof tstore.workout !== 'object') tstore.workout = {};
 if (!tstore.dieta || typeof tstore.dieta !== 'object') tstore.dieta = {};
 if (!Array.isArray(tstore.limiti)) tstore.limiti = [];
+/* Le schede: per ogni allenamento diverso scritto nel piano, gli esercizi e il
+   recupero. La chiave e' il nome dell'allenamento. */
+if (!tstore.schede || typeof tstore.schede !== 'object') tstore.schede = {};
 
 let archivio = readStore(ARCHIVIO_KEY);
 let mancate  = readStore(MANCATE_KEY);
@@ -1409,6 +1412,25 @@ function validDieta(w) {
   return out;
 }
 
+/* Le schede che arrivano dal file: per ogni nome, un elenco di esercizi (due
+   testi liberi ciascuno) e il recupero. Le righe vuote non si tengono. */
+function validSchede(w) {
+  const out = {};
+  if (!w || typeof w !== 'object') return out;
+  for (const k of Object.keys(w)) {
+    const nome = String(k).slice(0, 60).trim();
+    if (!nome) continue;
+    const v = w[k] || {};
+    const es = (Array.isArray(v.es) ? v.es : []).map(r => [
+      String((Array.isArray(r) ? r[0] : '') || '').slice(0, 60).trim(),
+      String((Array.isArray(r) ? r[1] : '') || '').slice(0, 60).trim()
+    ]).filter(r => r[0] || r[1]);
+    const rec = String(v.rec == null ? '' : v.rec).slice(0, 60).trim();
+    if (es.length || rec) out[nome] = { es: es, rec: rec };
+  }
+  return out;
+}
+
 /* I pasti della giornata, nell'ordine in cui capitano. Uguali tutti i giorni:
    si prendono dalla routine standard, che li ha tutti. */
 const PASTI = ROUTINE_GIORNO.concat(SERA_STD).filter(t => t.pasto);
@@ -1420,6 +1442,7 @@ const PASTI = ROUTINE_GIORNO.concat(SERA_STD).filter(t => t.pasto);
 tstore.workout = validWorkout(tstore.workout);
 tstore.dieta   = validDieta(tstore.dieta);
 tstore.limiti  = validLimiti(tstore.limiti);
+tstore.schede  = validSchede(tstore.schede);
 
 /* Cosa si fa in quel workout, quel giorno: la casella del piano, se c'e'. */
 function workoutDi(k, slot) {
@@ -1515,9 +1538,9 @@ let mostra = (() => {
   try {
     const v = JSON.parse(localStorage.getItem(MOSTRA_KEY) || 'null');
     if (v && typeof v === 'object')
-      return { w: v.w !== false, d: v.d !== false, mw: !!v.mw, md: !!v.md };
+      return { w: v.w !== false, d: v.d !== false, mw: !!v.mw, md: !!v.md, sch: !!v.sch };
   } catch (e) { /* si parte accesi, e senza i campi per scrivere */ }
-  return { w: true, d: true, mw: false, md: false };
+  return { w: true, d: true, mw: false, md: false, sch: false };
 })();
 function salvaMostra() {
   try { localStorage.setItem(MOSTRA_KEY, JSON.stringify(mostra)); } catch (e) {}
@@ -1847,7 +1870,7 @@ function paintW() {
     ], g === oggi ? 'oggi' : ''));
   }
   box.appendChild(tab);
-  if (!modifica()) return;
+  if (!modifica()) { paintSchede(box); return; }
   /* Il piano e' generico, non parte da oggi: da lunedi' a domenica, sempre
      uguale. Per gli orari serve pero' una data vera con quel giorno della
      settimana, e la si pesca nei sette giorni davanti. */
@@ -1874,6 +1897,102 @@ function paintW() {
       row.appendChild(inp);
       box.appendChild(row);
     }
+  }
+  paintSchede(box);
+}
+
+/* Gli allenamenti diversi scritti nel piano, nell'ordine in cui compaiono.
+   Non si scrivono qui: si leggono dalle quattordici caselle. */
+function allenamenti() {
+  const out = [];
+  for (const g of [1, 2, 3, 4, 5, 6, 0]) {
+    for (const v of (tstore.workout[g] || [])) {
+      if (v && out.indexOf(v) < 0) out.push(v);
+    }
+  }
+  return out;
+}
+
+/* Quale scheda si sta scrivendo, o null: una per volta. */
+let scheda = null;
+
+/* Le schede, sotto la tabella del piano. Chiuse si leggono come tabelle; con il
+   loro bottone si aprono i campi, e ogni esercizio e' due testi liberi. */
+function paintSchede(box) {
+  const apri = el('button', 'grp grpcli grproot' + (mostra.sch ? ' open' : ''));
+  apri.type = 'button';
+  apri.dataset.schroot = '1';
+  apri.setAttribute('aria-expanded', mostra.sch ? 'true' : 'false');
+  apri.appendChild(el('span', 'grpfrec', mostra.sch ? '\u25be' : '\u25b8'));
+  apri.appendChild(el('span', 'grpnome', 'WORKOUTS'));
+  box.appendChild(apri);
+  if (!mostra.sch) return;
+
+  const nomi = allenamenti();
+  if (!nomi.length) {
+    box.appendChild(el('p', 'vuoto', 'Nothing in the plan yet'));
+    return;
+  }
+
+  for (const nome of nomi) {
+    const sc = tstore.schede[nome] || { es: [], rec: '' };
+    const cap = el('p', 'wcapo', nome);
+    const b = el('button', 'schbtn', scheda === nome ? 'done' : 'edit');
+    b.type = 'button';
+    b.dataset.scheda = nome;
+    cap.appendChild(b);
+    box.appendChild(cap);
+
+    if (scheda !== nome) {
+      const tab = el('div', 'tab tab-i');
+      for (const r of sc.es) {
+        tab.appendChild(tabRiga([
+          { t: r[0] || '—', cls: r[0] ? 'eti' : 'eti vuota' },
+          { t: r[1] || '—', cls: r[1] ? 'val' : 'val vuota' }
+        ]));
+      }
+      if (sc.rec) tab.appendChild(tabRiga([{ t: 'Recovery', cls: 'eti' }, { t: sc.rec, cls: 'val' }]));
+      if (!sc.es.length && !sc.rec) tab.appendChild(tabRiga([{ t: '—', cls: 'vuota' }, { t: '' }]));
+      box.appendChild(tab);
+      continue;
+    }
+
+    /* aperta: una riga per esercizio, due campi liberi e la croce per toglierla */
+    for (let i = 0; i < sc.es.length; i++) {
+      const row = el('div', 'wrow');
+      for (const j of [0, 1]) {
+        const inp = el('input', 'wcampo');
+        inp.type = 'text';
+        inp.maxLength = 60;
+        inp.dataset.sch = nome;
+        inp.dataset.riga = i;
+        inp.dataset.col = j;
+        inp.value = sc.es[i][j] || '';
+        inp.placeholder = j === 0 ? 'exercise' : 'how much';
+        row.appendChild(inp);
+      }
+      const x = el('button', 'schx', '\u00d7');
+      x.type = 'button';
+      x.dataset.togli = nome;
+      x.dataset.riga = i;
+      row.appendChild(x);
+      box.appendChild(row);
+    }
+    const piu = el('button', 'lpiu', '+  Add an exercise');
+    piu.type = 'button';
+    piu.dataset.piues = nome;
+    box.appendChild(piu);
+
+    const rrow = el('div', 'wrow');
+    rrow.appendChild(el('span', 'wslot', 'Rec.'));
+    const rin = el('input', 'wcampo');
+    rin.type = 'text';
+    rin.maxLength = 60;
+    rin.dataset.rec = nome;
+    rin.value = sc.rec || '';
+    rin.placeholder = 'recovery';
+    rrow.appendChild(rin);
+    box.appendChild(rrow);
   }
 }
 
@@ -1948,6 +2067,23 @@ function paintD() {
 $('wlist').addEventListener('change', ev => {
   const i = ev.target.closest('input.wcampo');
   if (!i) return;
+  /* un esercizio, o il recupero: due testi liberi, nessuna forma imposta */
+  if (i.dataset.sch || i.dataset.rec) {
+    const n = i.dataset.sch || i.dataset.rec;
+    const sc = tstore.schede[n] || { es: [], rec: '' };
+    const v = i.value.slice(0, 60).trim();
+    if (i.dataset.rec) { if (sc.rec === v) return; sc.rec = v; }
+    else {
+      const r = +i.dataset.riga, c = +i.dataset.col;
+      if (!sc.es[r]) sc.es[r] = ['', ''];
+      if (sc.es[r][c] === v) return;
+      sc.es[r][c] = v;
+    }
+    if (sc.es.some(r => r[0] || r[1]) || sc.rec) tstore.schede[n] = sc;
+    else delete tstore.schede[n];
+    touch();
+    return;
+  }
   if (i.dataset.pasto) {
     const v = i.value.slice(0, 120).trim();
     if ((tstore.dieta[i.dataset.pasto] || '') === v) return;
@@ -2040,6 +2176,45 @@ $('lElimina').addEventListener('click', () => {
 
 $('wlist').addEventListener('click', ev => {
   if (ev.target.closest('button[data-piulimite]')) { apriLimite(null); return; }
+
+  /* l'interruttore delle schede */
+  if (ev.target.closest('button[data-schroot]')) {
+    mostra.sch = !mostra.sch;
+    salvaMostra();
+    paintW();
+    return;
+  }
+  /* il bottone di una scheda: apre i campi, o li chiude e lascia la tabella */
+  const sb = ev.target.closest('button[data-scheda]');
+  if (sb) {
+    scheda = scheda === sb.dataset.scheda ? null : sb.dataset.scheda;
+    paintW();
+    return;
+  }
+  /* un esercizio in piu' */
+  const pe = ev.target.closest('button[data-piues]');
+  if (pe) {
+    const n = pe.dataset.piues;
+    const sc = tstore.schede[n] || { es: [], rec: '' };
+    sc.es = sc.es.concat([['', '']]);
+    tstore.schede[n] = sc;
+    touch();
+    paintW();
+    return;
+  }
+  /* una riga in meno */
+  const tg = ev.target.closest('button[data-togli]');
+  if (tg) {
+    const n = tg.dataset.togli, i = +tg.dataset.riga;
+    const sc = tstore.schede[n];
+    if (sc) {
+      sc.es = sc.es.filter((r, j) => j !== i);
+      if (!sc.es.length && !sc.rec) delete tstore.schede[n];
+      touch();
+      paintW();
+    }
+    return;
+  }
   const r = ev.target.closest('[data-limite]');
   if (r) apriLimite(r.dataset.limite);
 });
@@ -2619,6 +2794,7 @@ async function pullTasks() {
   const piano  = validWorkout(data.workout);
   const dieta  = validDieta(data.dieta);
   const limiti = validLimiti(data.limiti);
+  const schede = validSchede(data.schede);
 
   if (tstore.dirty) {
     /* e' la nostra stessa versione, salvata dal salvagente senza risposta? */
@@ -2635,6 +2811,7 @@ async function pullTasks() {
   tstore.workout = piano;
   tstore.dieta = dieta;
   tstore.limiti = limiti;
+  tstore.schede = schede;
   rememberSha(j.sha);
   tstore.dirty = false;
   saveLocal();
@@ -2657,7 +2834,8 @@ async function pushTasks(opts) {
   const n = tstore.tasks.filter(x => !x.giorno).length;
   /* con la chiave impostata il file parte chiuso; senza, in chiaro come prima */
   const testo = JSON.stringify({ tasks: tstore.tasks, workout: tstore.workout,
-                                 dieta: tstore.dieta, limiti: tstore.limiti }, null, 2) + '\n';
+                                 dieta: tstore.dieta, limiti: tstore.limiti,
+                                 schede: tstore.schede }, null, 2) + '\n';
   let corpo;
   try {
     corpo = await cifra(testo);
