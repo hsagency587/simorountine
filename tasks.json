@@ -283,6 +283,16 @@
       "gws": [
         2
       ]
+    },
+    {
+      "id": "tmtu5tza8dvx4",
+      "creata": "2026-09-09T13:54:39.968Z",
+      "nome": "Indexing lovo new pages",
+      "desc": "Manually index all the new location pages and fix the link attached to the principal one",
+      "rank": "B",
+      "cliente": "manuela-lovo",
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
