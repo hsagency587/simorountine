@@ -1555,7 +1555,44 @@ function workoutDi(k, slot) {
   return r && r[slot] ? r[slot] : '';
 }
 
-function saveLocal() { writeStore(TASKS_KEY, tstore); }
+/* Ogni scrittura nel telefono lascia l'ora. Serve a capire chi e' piu' recente
+   fra quello che ha in memoria questa pagina e quello che c'e' scritto nel
+   telefono: due copie della stessa app aperte insieme scrivono nello stesso
+   posto, ma ognuna ha la sua memoria, e la memoria non si aggiorna da sola. */
+function saveLocal() {
+  tstore.stamp = Date.now();
+  writeStore(TASKS_KEY, tstore);
+}
+
+/* Una pagina rimasta in secondo piano per ore ha in memoria la situazione di
+   allora. Se nel frattempo un'altra copia dell'app ha scritto nel telefono,
+   quella e' la buona: questa se la riprende invece di riscriverci sopra.
+   Senza, la pagina che si sveglia salva il passato — ed e' cosi' che una
+   giornata di lavoro puo' sparire. */
+function ripescaLocale() {
+  const v = readStore(TASKS_KEY);
+  if (!v || !Array.isArray(v.tasks)) return false;
+  /* la nostra memoria e' aggiornata a ogni nostra scrittura: se quello scritto
+     nel telefono e' piu' recente, non l'abbiamo scritto noi */
+  if (!(v.stamp > (tstore.stamp || 0))) return false;
+  tstore = v;
+  if (!Array.isArray(tstore.known)) tstore.known = [];
+  tstore.workout = validWorkout(tstore.workout);
+  tstore.dieta   = validDieta(tstore.dieta);
+  tstore.limiti  = validLimiti(tstore.limiti);
+  tstore.schede  = validSchede(tstore.schede);
+  return true;
+}
+
+/* Ripesca e ridisegna. Torna true se qualcosa e' cambiato. */
+function sincronizzaLocale() {
+  if (!ripescaLocale()) return false;
+  render();
+  paintDrawer();
+  paintSalva();
+  if ($('wdrawer').classList.contains('open')) paintW();
+  return true;
+}
 
 /* Ogni modifica passa di qui: si segna, e compare Salva. */
 function touch() {
@@ -3847,7 +3884,11 @@ function salvagente() {
    sistema la persona, riprovare sarebbe solo rumore. */
 let salvaRetry = false;
 function riprovaSalva() {
-  if (tstore.dirty && salvaRetry && !salvando && token) pushTasks();
+  if (!(tstore.dirty && salvaRetry && !salvando && token)) return;
+  /* prima si guarda se nel telefono c'e' qualcosa di piu' fresco: non si manda
+     su una copia vecchia rimasta in memoria */
+  sincronizzaLocale();
+  if (tstore.dirty && !salvando) pushTasks();
 }
 
 $('salva').addEventListener('click', () => pushTasks());
@@ -3904,10 +3945,21 @@ setInterval(() => { loadBeat(); riprovaSalva(); }, BEAT_MS);   /* solo mentre l'
    Chiudendola parte il salvagente: un tentativo di salvare quello che e'
    rimasto in sospeso, nei pochi istanti che il browser concede. */
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) salvagente();
-  else { checkDay(); loadCalendar(); loadBeat(); pullTasks(); riprovaSalva(); }
+  /* in tutti e due i versi si guarda prima cosa c'e' scritto nel telefono:
+     tornando, per rimettersi in pari; andando via, per non salvare il vecchio */
+  if (document.hidden) { sincronizzaLocale(); salvagente(); }
+  else {
+    sincronizzaLocale();
+    checkDay(); loadCalendar(); loadBeat(); pullTasks(); riprovaSalva();
+  }
 });
-window.addEventListener('pagehide', salvagente);
+window.addEventListener('pagehide', () => { sincronizzaLocale(); salvagente(); });
+
+/* Un'altra copia dell'app ha appena scritto nel telefono: questa se ne accorge
+   subito, senza aspettare di tornare in primo piano. */
+window.addEventListener('storage', ev => {
+  if (!ev || ev.key === TASKS_KEY) sincronizzaLocale();
+});
 
 /* La rete che va e viene: appena torna si rilegge tutto e si riprova il
    salvataggio rimasto in sospeso; appena manca la riga in alto lo dice. */
