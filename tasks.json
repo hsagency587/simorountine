@@ -264,18 +264,6 @@
       "creata": "2026-09-08T21:49:17.344Z"
     },
     {
-      "id": "tmtt99ze6anyi",
-      "nome": "Fix app",
-      "desc": "- dal menu togliere la toggle scheduled\n- gruppo dei workout, il primo se nella prima capella spsosta leticchetta e io la voglio a destra come gli altri sotto\n-dove 2 gruppi si incontrano la linea si si inpessisce e non deve succedere\n-anche nel menu le 2 toggle clients e my companies su 1 riga sola\n-possibilità di muoversi gli esercizi manualmente nel workout e cambiarli di ordine\n- Dal menu delle task, se clicco sui tre puntini, si apre una tendina con \"Edit\" oppure \"Sposta in G-Work Session\". Se clicco \"Sposta in G-Work Session\" si apre a sinistra, quindi di fianco, un tab che mi chiede in che G-Work Session la voglio mettere. Appena clicco ci si trasporta. \n- Assicurarsi che, se ora io tolgo una task dalla GW session, venga rimessa nel menu categorizzata correttamente. ",
-      "rank": "B",
-      "cliente": null,
-      "giorno": "2026-09-09",
-      "gws": [
-        4
-      ],
-      "creata": "2026-09-08T22:43:19.278Z"
-    },
-    {
       "id": "tmtto58fukp8n",
       "nome": "Loom pineta 1903",
       "desc": "Lead dalle ads - 23:30\nDiagnosi in cartella hsagency",
@@ -346,7 +334,7 @@
       "id": "tmtumjvvfaygl",
       "creata": "2026-09-09T21:42:42.459Z",
       "nome": "Fix app",
-      "desc": "1. Nel menu Task c'è ancora la toggle Scheduled e il bottone non funziona.\n2. Vorrei che la percentuale della giornata non si completasse se io non completo delle sottotask.\nAdesso la task principale comanda, ma io vorrei che fosse distribuita in base al numero di task secondarie, si divide la percentuale restante.\n ",
+      "desc": "1. Nel menu Task c'è ancora la toggle Scheduled e il bottone non funziona.\n2. Vorrei che la percentuale della giornata non si completasse se io non completo delle sottotask.\nAdesso la task principale comanda, ma io vorrei che fosse distribuita in base al numero di task secondarie, si divide la percentuale restante.\n3 Nel menù Allenamento la freccetta, ora dove c'è una descrizione, quella della toggle, è brutta e piccola. Si vede poco. Vorrei leggermente più enfasi, soprattutto nel menù, soprattutto a tabella, e nell'editor mettila più lontano dal tasto X perché continuo a sbagliare. ",
       "rank": "B",
       "cliente": null,
       "giorno": "2026-09-10",
@@ -972,56 +960,64 @@
           "SOP",
           [
             "Walk - 2 idea"
-          ]
+          ],
+          ""
         ],
         [
           "Poss. 2",
           "Relationship",
           [
             "Walk - 2 idea"
-          ]
+          ],
+          ""
         ],
         [
           "Poss. 3",
           "Business",
           [
             "Walk - 2 idea"
-          ]
+          ],
+          ""
         ],
         [
           "Poss. 4",
           "Problem solution",
           [
             "Walk - 2 idea"
-          ]
+          ],
+          ""
         ],
         [
           "Poss. 5",
           "Personal/agency improvement",
           [
             "Walk - 2 idea"
-          ]
+          ],
+          ""
         ],
         [
           "Feet",
           "2' + 2'",
           [
             "Roll"
-          ]
+          ],
+          ""
         ],
         [
           "Glute",
           "2'+ 2'",
           [
             "Roll"
-          ]
+          ],
+          ""
         ],
         [
           "Back",
           "7'",
           [
             "Roll"
-          ]
+          ],
+          ""
         ]
       ],
       "rec": ""
