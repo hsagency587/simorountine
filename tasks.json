@@ -2,7 +2,6 @@
   "tasks": [
     {
       "id": "tmtrmexc5c3b0",
-      "creata": "2026-09-07T19:15:32.549Z",
       "nome": "sitoweb",
       "desc": "- Collegare pagine create da Gabri \n- aggiustare visualizzazione e dettagli\n- aggiustamenti SEO\n- copy\n",
       "rank": "A",
@@ -12,23 +11,23 @@
         0,
         1,
         2
-      ]
+      ],
+      "creata": "2026-09-07T19:15:32.549Z"
     },
     {
       "id": "ev:6so6coj564p6cbb36kojgb9k6sp62b9p68s34b9g6ss62dpj6ks66oplcc@google.com",
-      "creata": "2026-09-07T19:39:59.317Z",
-      "evento": "6so6coj564p6cbb36kojgb9k6sp62b9p68s34b9g6ss62dpj6ks66oplcc@google.com",
       "nome": "Di nucci - Incontro",
-      "ora": "08:30–12:30",
       "desc": "",
       "rank": "A",
       "cliente": "di-nucci",
       "giorno": "2026-09-09",
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T19:39:59.317Z",
+      "evento": "6so6coj564p6cbb36kojgb9k6sp62b9p68s34b9g6ss62dpj6ks66oplcc@google.com",
+      "ora": "08:30–12:30"
     },
     {
       "id": "tmtrnva27s0xq",
-      "creata": "2026-09-07T19:56:15.152Z",
       "nome": "Mandare aggiornamenti",
       "desc": "Aggiornare manuela sulla situazione del sito e della mail",
       "rank": "A",
@@ -36,11 +35,11 @@
       "giorno": "2026-09-08",
       "gws": [
         0
-      ]
+      ],
+      "creata": "2026-09-07T19:56:15.152Z"
     },
     {
       "id": "tmtrny09vllf2",
-      "creata": "2026-09-07T19:58:22.435Z",
       "nome": "Fix Workout and Diet",
       "desc": "",
       "rank": "A",
@@ -48,173 +47,173 @@
       "giorno": "2026-09-08",
       "gws": [
         4
-      ]
+      ],
+      "creata": "2026-09-07T19:58:22.435Z"
     },
     {
       "id": "ev:6co62e1kclijib9lcgqm2b9k75imcb9p60r3ab9ic4pjgc1n64rmae9m6g@google.com",
-      "creata": "2026-09-07T20:18:43.382Z",
-      "evento": "6co62e1kclijib9lcgqm2b9k75imcb9p60r3ab9ic4pjgc1n64rmae9m6g@google.com",
       "nome": "Sifu - Evento Volantini",
-      "ora": "09:40–14:45",
       "desc": "",
       "rank": "A",
       "cliente": "longkai",
       "giorno": "2026-09-13",
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T20:18:43.382Z",
+      "evento": "6co62e1kclijib9lcgqm2b9k75imcb9p60r3ab9ic4pjgc1n64rmae9m6g@google.com",
+      "ora": "09:40–14:45"
     },
     {
       "id": "tmtrpfj08igi2",
-      "creata": "2026-09-07T20:39:59.480Z",
       "nome": "ADS su Google entro lunedi 14",
       "desc": "Target: albergatori\nOffert: Google ADS + GBP\nBudget: 1k/month",
       "rank": "B",
       "cliente": "hs-agency",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T20:39:59.480Z"
     },
     {
       "id": "tmtrphxs3bsxi",
-      "creata": "2026-09-07T20:41:51.939Z",
       "nome": "3 conti in 3 paesi + 5 crypto wallet",
       "desc": "-Trovare il modo di aprire 3 conti bancari, 1/2 EXTRA UE , 1/2 UE\n-avere 5 crypto wallet e distribuire I propri soldi",
       "rank": "C",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T20:41:51.939Z"
     },
     {
       "id": "tmtrpkk3vbboo",
-      "creata": "2026-09-07T20:43:54.187Z",
       "nome": "Canale youtube: come dimagrire senza sbatti",
       "desc": "Creare video e vendere percorsi seguiti per dimagrire senza sbattersi\nCollab con sifu",
       "rank": "C",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T20:43:54.187Z"
     },
     {
       "id": "tmtrpmaqwayq1",
-      "creata": "2026-09-07T20:45:15.368Z",
       "nome": "BISQ x vendere bitcoin",
       "desc": "Quando sarà il momento di vendere usa la piattaforma bisq, chiederà una fee ma meglio delle tasse. Io mando I btc e un \"random dude\" mi farà un bonifico",
       "rank": "C",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T20:45:15.368Z"
     },
     {
       "id": "tmtrpnmd5o4t7",
-      "creata": "2026-09-07T20:46:17.082Z",
       "nome": "Mettersi in regola con l'agezia",
       "desc": "Parlare con claude consulente e valuatre il percorso corretto per mettersi in regola ",
       "rank": "B",
       "cliente": "hs-agency",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T20:46:17.082Z"
     },
     {
       "id": "tmtrqadf9div0",
-      "creata": "2026-09-07T21:03:58.581Z",
       "nome": "Check citazioni bergamaschi",
       "desc": "Controllare se ci sono cose da aggiustare o citazioni da aggiungere. ",
       "rank": "B",
       "cliente": "bergamaschi",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T21:03:58.581Z"
     },
     {
       "id": "tmtrqccn12xlp",
-      "creata": "2026-09-07T21:05:30.877Z",
       "nome": "Fix sito e start citazioni",
       "desc": "Aggiustare il sito esattamente come lo vorrei io, Paolo, poi creare una versione SEO corretta e iniziare le citazioni. ",
       "rank": "B",
       "cliente": "fisio-leone",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T21:05:30.877Z"
     },
     {
       "id": "tmtrqdmez9du8",
-      "creata": "2026-09-07T21:06:30.204Z",
       "nome": "Check citazioni Omnia",
       "desc": "Controllare se ci sono errori nelle citazioni attuali e aggiungere quelli mancati. ",
       "rank": "B",
       "cliente": "omnia",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T21:06:30.204Z"
     },
     {
       "id": "tmtrqe8624qro",
-      "creata": "2026-09-07T21:06:58.394Z",
       "nome": "Check citazioni Manuela Lovo",
       "desc": "Controllare le citazioni attuali e aggiungere quelle mancanti. ",
       "rank": "B",
       "cliente": "manuela-lovo",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T21:06:58.394Z"
     },
     {
       "id": "tmtrqetwxdpyv",
-      "creata": "2026-09-07T21:07:26.577Z",
       "nome": "Completamento GBP",
       "desc": "Completa al 100% il profilo Google Business. ",
       "rank": "A",
       "cliente": "osteria-anna",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T21:07:26.577Z"
     },
     {
       "id": "tmtrqg9xeb077",
-      "creata": "2026-09-07T21:08:33.986Z",
       "nome": "Fix sito web + check citaizoni",
       "desc": "Aggiusta le pagine rank 2. E controlla le citazioni che sono in giro. ",
       "rank": "C",
       "cliente": "longkai",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T21:08:33.986Z"
     },
     {
       "id": "tmtrqlcrnt0fb",
-      "creata": "2026-09-07T21:12:30.947Z",
       "nome": "Creative for meta ads",
       "desc": "Registrare altri sei creativi da sostituire a quelli eliminati nelle pubblicità Meta. ",
       "rank": "B",
       "cliente": "hs-agency",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-07T21:12:30.947Z"
     },
     {
       "id": "tmts99b7r2qx6",
-      "creata": "2026-09-08T05:55:01.767Z",
       "nome": "Salva & Organizza numeri di telefono",
       "desc": "Salva il numero di telefono delle persone arrivate dalle ADS e spostali sul profilo hsagency.seo. ",
       "rank": "C",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-08T05:55:01.767Z"
     },
     {
       "id": "tmtsb25yin49k",
-      "creata": "2026-09-08T06:45:27.594Z",
       "nome": "Biglietto da visita",
       "desc": "Prepara un po' di versioni per il biglietto di visita della Manuela Lobo e sistema quelle esistenti. ",
       "rank": "B",
       "cliente": "manuela-lovo",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-08T06:45:27.594Z"
     },
     {
       "id": "tmtt4824pobh9",
-      "creata": "2026-09-08T20:21:51.433Z",
       "nome": "Scheda sifu e zia",
       "desc": "Crea la scheda al sifo e alla zia. ",
       "rank": "A",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-08T20:21:51.433Z"
     },
     {
       "id": "tmtt75uuzih3b",
-      "creata": "2026-09-08T21:44:07.547Z",
       "nome": "Check copy",
       "desc": "Controllare pagina per pagina il copy del sito della gioielleria ",
       "rank": "A",
@@ -222,11 +221,11 @@
       "giorno": "2026-09-09",
       "gws": [
         0
-      ]
+      ],
+      "creata": "2026-09-08T21:44:07.547Z"
     },
     {
       "id": "tmtt77enwqsal",
-      "creata": "2026-09-08T21:45:19.868Z",
       "nome": "Cosa dire",
       "desc": "Segnare una scaletta dell'ordine dei punti da toccare da Giorgia ",
       "rank": "A",
@@ -234,23 +233,21 @@
       "giorno": "2026-09-09",
       "gws": [
         0
-      ]
+      ],
+      "creata": "2026-09-08T21:45:19.868Z"
     },
     {
       "id": "tmtt79lhrd6aq",
-      "creata": "2026-09-08T21:47:02.031Z",
       "nome": "Google ads",
       "desc": "",
       "rank": "A",
       "cliente": "hs-agency",
-      "giorno": "2026-09-09",
-      "gws": [
-        2
-      ]
+      "giorno": null,
+      "gws": null,
+      "creata": "2026-09-08T21:47:02.031Z"
     },
     {
       "id": "tmtt7chwg3poa",
-      "creata": "2026-09-08T21:49:17.344Z",
       "nome": "Client post",
       "desc": "Postare foto e aggiornamenti profilo Google clienti",
       "rank": "A",
@@ -258,11 +255,11 @@
       "giorno": "2026-09-09",
       "gws": [
         3
-      ]
+      ],
+      "creata": "2026-09-08T21:49:17.344Z"
     },
     {
       "id": "tmtt99ze6anyi",
-      "creata": "2026-09-08T22:43:19.278Z",
       "nome": "Fix app",
       "desc": "- dal menu togliere la toggle scheduled\n- gruppo dei workout, il primo se nella prima capella spsosta leticchetta e io la voglio a destra come gli altri sotto\n-dove 2 gruppi si incontrano la linea si si inpessisce e non deve succedere\n-anche nel menu le 2 toggle clients e my companies su 1 riga sola\n-possibilità di muoversi gli esercizi manualmente nel workout e cambiarli di ordine\n- Dal menu delle task, se clicco sui tre puntini, si apre una tendina con \"Edit\" oppure \"Sposta in G-Work Session\". Se clicco \"Sposta in G-Work Session\" si apre a sinistra, quindi di fianco, un tab che mi chiede in che G-Work Session la voglio mettere. Appena clicco ci si trasporta. \n- Assicurarsi che, se ora io tolgo una task dalla GW session, venga rimessa nel menu categorizzata correttamente. ",
       "rank": "B",
@@ -270,11 +267,11 @@
       "giorno": "2026-09-09",
       "gws": [
         4
-      ]
+      ],
+      "creata": "2026-09-08T22:43:19.278Z"
     },
     {
       "id": "tmtto58fukp8n",
-      "creata": "2026-09-09T05:39:31.962Z",
       "nome": "Loom pineta 1903",
       "desc": "Lead dalle ads - 23:30\nDiagnosi in cartella hsagency",
       "rank": "A",
@@ -282,27 +279,28 @@
       "giorno": "2026-09-09",
       "gws": [
         2
-      ]
+      ],
+      "creata": "2026-09-09T05:39:31.962Z"
     },
     {
       "id": "tmtu5tza8dvx4",
-      "creata": "2026-09-09T13:54:39.968Z",
       "nome": "Indexing lovo new pages",
       "desc": "Manually index all the new location pages and fix the link attached to the principal one",
       "rank": "B",
       "cliente": "manuela-lovo",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-09T13:54:39.968Z"
     },
     {
       "id": "tmtu68321vnvd",
-      "creata": "2026-09-09T14:05:38.041Z",
       "nome": "Video editing faster",
       "desc": "Find a way to edit video faster ",
       "rank": "B",
       "cliente": "hs-agency",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-09T14:05:38.041Z"
     }
   ],
   "workout": {
@@ -816,4 +814,3 @@
     }
   }
 }
-
