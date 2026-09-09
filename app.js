@@ -3165,7 +3165,27 @@ function dayChoices(current) {
    Si apre fuori schermo, si misura e solo allora si mette al suo posto:
    misurarla prima di aprirla darebbe zero. Sta sotto il bottone; se sotto non
    ci sta, sopra. */
-const dlgTend = $('tendMenu');
+/* La tendina se la costruisce da sola se nel documento non c'e'. Serve a non
+   dipendere dalla pagina: se il telefono carica il codice nuovo insieme a un
+   index.html vecchio rimasto in cache, senza questa rete l'app andrebbe in
+   errore qui e non disegnerebbe piu' niente — ne' le task ne' la routine. */
+const dlgTend = (() => {
+  let d = $('tendMenu');
+  if (!d) {
+    d = el('dialog', 'tendmenu');
+    d.id = 'tendMenu';
+    d.setAttribute('aria-label', 'Task options');
+    const ul = el('ul', 'tendlist');
+    ul.id = 'tendList';
+    d.appendChild(ul);
+    document.body.appendChild(d);
+  }
+  /* i due pezzi che la tengono in piedi anche con un foglio di stile vecchio:
+     il resto e' aspetto, questi sono il suo funzionamento */
+  d.style.position = 'fixed';
+  d.style.margin = '0';
+  return d;
+})();
 let tendCb = null;
 
 function apriTendina(bottone, items, cb) {
