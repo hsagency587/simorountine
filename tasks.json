@@ -109,8 +109,10 @@
       "desc": "Parlare con claude consulente e valuatre il percorso corretto per mettersi in regola ",
       "rank": "B",
       "cliente": "hs-agency",
-      "giorno": null,
-      "gws": null
+      "giorno": "2026-09-09",
+      "gws": [
+        2
+      ]
     },
     {
       "id": "tmtrqadf9div0",
