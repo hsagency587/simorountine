@@ -288,6 +288,21 @@
   </div>
 </dialog>
 
+<!-- La descrizione di un esercizio: si apre a tutto schermo, con il testo
+     grande, perche' e' fatta per essere letta mentre ci si allena. In modifica
+     la stessa finestra si scrive. -->
+<dialog class="descbox" id="descrizione" aria-labelledby="descTit">
+  <div class="descbox-in">
+    <h2 class="desctit" id="descTit"></h2>
+    <div class="desctesto" id="descTesto"></div>
+    <textarea class="desccampo" id="descCampo" rows="10" placeholder="How it goes, what to watch out for"></textarea>
+    <div class="chiusura-btn">
+      <button type="button" class="btn" id="descChiudi">Close</button>
+      <button type="button" class="btn btn-ok" id="descOk">Confirm</button>
+    </div>
+  </div>
+</dialog>
+
 <!-- La tendina dei tre puntini: piccola, appesa al bottone che l'ha aperta.
      Non e' una finestra in mezzo allo schermo: le due voci stanno sotto il
      dito che ha appena toccato i puntini. -->

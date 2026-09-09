@@ -537,6 +537,13 @@ body.menu-open{overflow:hidden}
   background:var(--surface-2);color:var(--muted);
   font-size:11px;font-weight:600;letter-spacing:0;text-transform:none;
 }
+/* La riga sotto le righe spuntate: raggruppa, sgruppa, e le due frecce per
+   cambiare l'ordine. Con quattro bottoni lo spazio non basta per spargerli:
+   stanno tutti a destra, uno di fianco all'altro. */
+.wgrp{justify-content:flex-end}
+.wgrp .schbtn{margin-left:0}
+.schfrec{min-width:34px;text-align:center;font-size:13px;line-height:1}
+
 /* La scheda che si sta scrivendo: testata e campi in un riquadro solo, col
    bordo verde e il fondo un filo piu' chiaro. Le altre restano come sono. */
 .schapri{
@@ -577,6 +584,10 @@ body.menu-open{overflow:hidden}
   background:rgba(61, 220, 132, .04);
   box-shadow:inset 0 1px 0 rgba(61, 220, 132, .3), inset 0 -1px 0 rgba(61, 220, 132, .3);
 }
+/* Due gruppi attaccati mettevano una linea l'uno sotto e l'altro sopra, e nel
+   punto in cui si toccano il segno veniva doppio. Il secondo la sua sopra non
+   la disegna: la linea che chiude il primo basta per tutti e due. */
+.grpbox + .grpbox{box-shadow:inset 0 -1px 0 rgba(61, 220, 132, .3)}
 .grpcorpo{min-width:0}
 .grpbox .tabr:first-of-type{border-top:0}
 .grpbox::before{
@@ -601,9 +612,6 @@ body.menu-open{overflow:hidden}
 }
 .grpbox .grpbox .grpeti{right:14px}
 .grpbox .grpbox .grpbox .grpeti{right:18px}
-/* se il gruppo comincia sulla prima riga, la targhetta cavalca la banda del
-   nome: si sposta a sinistra per non finire sul bottone edit che sta li' */
-.tabr.capo + .grpbox > .grpeti{right:64px}
 /* fra i campi la targhetta e' un bottone, e il fondo e' quello del riquadro */
 .schapri .grpeti{background:var(--surface-2);cursor:pointer}
 .schapri .grpeti:active{background:var(--accent);color:var(--bg)}
@@ -611,7 +619,19 @@ body.menu-open{overflow:hidden}
    lo lasciano tutte le righe, dentro e fuori dai gruppi: `--gres` e' la
    larghezza che serve, e la mette la scheda contando quanto e' annidata. Senza
    gruppi non toglie niente a nessuno. */
-.schapri .wrow{padding-right:calc(var(--s3) + var(--gres, 0px))}
+/* Nella scheda aperta lo spazio e' dei due campi. Tutto il resto si stringe:
+   spazi piu' stretti fra un pezzo e l'altro, croce e freccia piu' magre, e la
+   quantita' — che e' corta, "4x8", "60\"" — smette di prendersi meta' riga. */
+.schapri .wrow{
+  gap:var(--s1);
+  padding-left:var(--s2);
+  padding-right:calc(var(--s2) + var(--gres, 0px));
+}
+.schapri .wcampo{padding:0 6px}
+.schapri .wcampo + .wcampo{flex:0 1 78px}
+.schapri .schsel{margin:0 2px 0 0}
+.schapri .schx{width:24px}
+.schapri .schdesc{min-width:18px}
 
 /* il pannello dei gruppi */
 .gchips{margin-bottom:var(--s3)}
@@ -942,6 +962,72 @@ button.tendina{
   background-repeat:no-repeat;
 }
 button.tendina:active{background-color:var(--line)}
+
+/* ---------- la descrizione di un esercizio ---------- */
+
+/* A tutto schermo, testo grande: si legge da lontano, con il telefono appoggiato
+   per terra e le mani occupate. */
+.descbox{
+  width:100vw;max-width:100vw;height:100vh;max-height:100vh;
+  margin:0;padding:0;border:0;border-radius:0;
+  background:var(--bg);color:var(--text);
+}
+.descbox::backdrop{background:var(--bg)}
+.descbox-in{
+  display:flex;flex-direction:column;height:100%;
+  padding:var(--s4) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom));
+}
+.descbox .desctit{
+  display:block;margin:0 0 var(--s3);padding-bottom:var(--s2);
+  font-size:16px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--accent);
+  /* la linea sotto: e' la banda del nome delle tabelle, ridotta a una riga */
+  border-bottom:1px solid var(--line);
+}
+.descbox .desctit{text-align:center}
+.desctesto{
+  flex:1;margin:0;overflow-y:auto;
+  font-size:19px;line-height:1.5;
+}
+/* una riga per riga scritta; quelle vuote restano, ma valgono meno spazio */
+.desriga{margin:0;white-space:pre-wrap}
+.desriga.vuota{height:.55em}
+/* una voce di elenco: il segno da una parte, il testo dall'altra, cosi' quando
+   la riga va a capo resta incolonnata sotto la prima lettera */
+.desriga.conpunto{display:flex;gap:4px;align-items:flex-start}
+/* Il segno e' piccolo: serve a dire dove comincia la voce, non a farsi leggere.
+   La larghezza fissa tiene i numeri incolonnati anche oltre il nove, e l'altezza
+   di riga uguale a quella del testo (19 x 1.5) lo mette a meta' della prima
+   riga invece che appoggiato sotto. */
+.despunto{
+  flex:0 0 auto;min-width:16px;
+  font-size:11px;font-weight:700;color:var(--accent);
+  line-height:28.5px;
+}
+.destesto{min-width:0}
+.desccampo{
+  flex:1;width:100%;resize:none;
+  padding:var(--s3);
+  background:var(--surface);color:var(--text);
+  border:1px solid var(--line);border-radius:var(--radius);
+  font:inherit;font-size:17px;line-height:1.45;
+}
+/* La freccia che dice "qui sotto c'e' scritto qualcosa". Nella tabella da
+   leggere sta in fondo alla riga, all'estremita' destra, non attaccata al
+   numero: cosi' le frecce di tutte le righe stanno incolonnate. */
+.desfrec{margin-left:6px;font-size:10px;color:var(--accent)}
+.tabr.condesc .tabc:last-child{display:flex;align-items:center}
+.tabr.condesc .desfrec{margin-left:auto}
+.tabr.condesc{cursor:pointer}
+/* Il bottone della descrizione e' solo la freccia: niente cornice, niente
+   fondo. Spento e' un accenno grigio, con una descrizione dentro e' verde. */
+.schdesc,
+.schapri .schdesc{
+  min-width:18px;min-height:26px;padding:0;
+  border:0;background:none;color:var(--muted);font-size:11px;
+}
+.schdesc.piena,
+.schapri .schdesc.piena{border:0;background:none;color:var(--accent)}
 
 /* ---------- la tendina dei tre puntini ---------- */
 

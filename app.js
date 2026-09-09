@@ -1498,10 +1498,13 @@ function validSchede(w) {
        piu' interno. Vuota vuol dire nessun gruppo, ed e' cosi' per tutte le
        righe scritte prima che i gruppi esistessero. Un nome solo, scritto senza
        elenco, vale come un gruppo solo. */
+    /* quarta casella: la descrizione dell'esercizio, testo libero e piu' lungo.
+       Le righe scritte prima non ce l'hanno e restano vuote. */
     const es = (Array.isArray(v.es) ? v.es : []).map(r => [
       String((Array.isArray(r) ? r[0] : '') || '').slice(0, 60).trim(),
       String((Array.isArray(r) ? r[1] : '') || '').slice(0, 60).trim(),
-      viaGruppi(Array.isArray(r) ? r[2] : null)
+      viaGruppi(Array.isArray(r) ? r[2] : null),
+      String((Array.isArray(r) ? r[3] : '') || '').slice(0, 2000)
     ]).filter(r => r[0] || r[1]);
     const rec = String(v.rec == null ? '' : v.rec).slice(0, 60).trim();
     if (es.length || rec) out[nome] = { es: es, rec: rec };
@@ -1665,8 +1668,6 @@ function togliSpunte(x) {
 }
 
 /* ------------------------------------------------------------- menu' ---- */
-
-let tutte = false;               /* l'interruttore "mostra anche le schedulate" */
 
 /* Il filtro "Calendar": acceso, gli eventi del calendario a cui si e' dato un
    cliente entrano nel menu', con giorno e ora, primi fra i rank A. Spento, nel
@@ -1950,10 +1951,10 @@ function paintLista(box, opt) {
 }
 
 function paintDrawer() {
-  /* Le task messe su un giorno non spariscono piu' dal menu': con
-     l'interruttore spento stanno nella loro tendina SCHEDULED, acceso
-     tornano in fila con le altre dentro i blocchi per rank. */
-  paintLista($('drawerList'), { pick: false, tutte: true, chiudiSched: !tutte, cal: calendar });
+  /* Le task messe su un giorno stanno nella loro tendina SCHEDULED, e le due
+     tendine dei clienti su una riga sola, come nel pescone. */
+  paintLista($('drawerList'), { pick: false, tutte: true, chiudiSched: true,
+                                cal: calendar, riga: true });
   paintSync();
 }
 
@@ -2215,28 +2216,32 @@ function tabScheda(nome, sc, coda) {
    `dx` esiste solo se e' scritto: e' cosi' nelle schede tirate fuori dal piano,
    che si leggono e basta. Nell'elenco c'e' comunque, col trattino, cosi' si sa
    che il campo esiste. */
-function righeScheda(tab, sc, dx) {
+function righeScheda(tab, sc, dx, nome) {
   /* Un raggruppamento e' un bordo verde chiaro intorno alle sue righe, con il
      nome scritto di lato, per lungo: cosi' non ruba nemmeno una riga in
      altezza, e non si confonde con il nome della scheda, che e' una banda
      orizzontale. I gruppi possono stare uno dentro l'altro: `pila` tiene le
      scatole aperte, e ogni riga entra nella piu' interna. */
   const pila = new Pila(tab);
-  for (const r of sc.es) {
+  sc.es.forEach((r, i) => {
     /* la quantita' senza esercizio sta gia' nella banda del nome */
-    if (!r[0] && r[1]) continue;
+    if (!r[0] && r[1]) return;
     const dove = pila.vai(r[2] || []);
     /* Un esercizio senza quantita' si prende tutta la riga: la colonna vuota
        col trattino faceva sembrare che mancasse qualcosa. */
-    if (!r[1]) {
-      dove.appendChild(tabRiga([{ t: r[0], cls: 'eti' }], 'solo'));
-      continue;
+    const riga = r[1]
+      ? tabRiga([{ t: r[0] || '\u2014', cls: r[0] ? 'eti' : 'eti vuota' },
+                 { t: r[1], cls: 'val' }])
+      : tabRiga([{ t: r[0], cls: 'eti' }], 'solo');
+    /* con una descrizione dentro, la riga si tocca e si apre: la freccia dice
+       che sotto c'e' qualcosa da leggere */
+    if (r[3] && nome) {
+      riga.classList.add('condesc');
+      riga.dataset.desces = nome + '|' + i;
+      riga.lastChild.appendChild(el('span', 'desfrec', '\u25be'));
     }
-    dove.appendChild(tabRiga([
-      { t: r[0] || '\u2014', cls: r[0] ? 'eti' : 'eti vuota' },
-      { t: r[1], cls: 'val' }
-    ]));
-  }
+    dove.appendChild(riga);
+  });
   if (sc.rec || !dx) {
     const r = el('div', 'tabr recgiu');
     const c = el('div', 'tabc');
@@ -2348,6 +2353,12 @@ function campiScheda(nome, sc, tab, senzaRec, voci) {
       inp.placeholder = j === 0 ? voci.es : voci.qta;
       row.appendChild(inp);
     }
+    /* il bottone della descrizione: acceso quando la descrizione c'e' gia' */
+    const dsc = el('button', 'schbtn schdesc' + (sc.es[i][3] ? ' piena' : ''), '\u25be');
+    dsc.type = 'button';
+    dsc.dataset.desmod = nome + '|' + i;
+    dsc.setAttribute('aria-label', 'Description of this exercise');
+    row.appendChild(dsc);
     const x = el('button', 'schx', '\u00d7');
     x.type = 'button';
     x.dataset.togli = nome;
@@ -2369,6 +2380,14 @@ function campiScheda(nome, sc, tab, senzaRec, voci) {
       u.type = 'button';
       u.dataset.sgruppa = nome;
       row.appendChild(u);
+    }
+    /* e le due frecce, per cambiare l'ordine a mano */
+    for (const f of [['su', '\u2191'], ['giu', '\u2193']]) {
+      const m = el('button', 'schbtn schfrec', f[1]);
+      m.type = 'button';
+      m.dataset[f[0]] = nome;
+      m.setAttribute('aria-label', f[0] === 'su' ? 'Move up' : 'Move down');
+      row.appendChild(m);
     }
     cassa.appendChild(row);
   }
@@ -2411,6 +2430,29 @@ function sgruppa(nome) {
   paintW();
 }
 
+/* Le righe scelte salgono o scendono di un posto. La riga scavalcata dice
+   anche in quale gruppo si finisce: entrando in un riquadro la riga ci entra
+   davvero, uscendone ne esce. Cosi' con le frecce si fa tutto, senza dover
+   passare dal pannello dei gruppi. */
+function spostaScelti(nome, dir) {
+  const sc = tstore.schede[nome];
+  if (!sc || !scelti.length) return;
+  const idx = scelti.slice().sort((a, b) => a - b).filter(i => sc.es[i]);
+  if (!idx.length) return;
+  const vicino = dir < 0 ? idx[0] - 1 : idx[idx.length - 1] + 1;
+  if (vicino < 0 || vicino >= sc.es.length || idx.indexOf(vicino) >= 0) return;
+  const blocco = idx.map(i => sc.es[i]);
+  const scavalcata = sc.es[vicino];
+  for (const r of blocco) r[2] = (scavalcata[2] || []).slice();
+  const resto = sc.es.filter((r, i) => idx.indexOf(i) < 0);
+  const posto = resto.indexOf(scavalcata) + (dir < 0 ? 0 : 1);
+  sc.es = resto.slice(0, posto).concat(blocco, resto.slice(posto));
+  /* le spunte seguono le righe: si puo' premere la freccia piu' volte di fila */
+  scelti = blocco.map(r => sc.es.indexOf(r));
+  touch();
+  paintW();
+}
+
 /* L'attivita' del mattino ha una scheda sua, che non viene dal piano: il nome
    e' fisso, e si riempie come le altre. Sta sotto il piano e sopra i workout
    del giorno, senza scritta sopra e senza pastiglia. */
@@ -2427,7 +2469,7 @@ function paintMorning(box) {
      l'altro. Vuota resta comunque una tabella, col trattino, altrimenti non si
      vede dove toccare per riempirla. */
   box.appendChild(aperta ? campiScheda(MORNING, sc, tab, true)
-                         : righeScheda(tab, { es: sc.es, rec: '' }, true));
+                         : righeScheda(tab, { es: sc.es, rec: '' }, true, MORNING));
 }
 
 /* Quello che si fa oggi, tirato fuori senza aprire niente: le due schede del
@@ -2445,7 +2487,7 @@ function paintOggi(box) {
     if (!capo) { box.appendChild(el('p', 'grp', 'TODAY WORKOUTS')); capo = true; }
     const t = tabScheda(nome, sc, null);
     t.classList.add('tab-oggi');       /* il nome, qui, si scrive in verde */
-    box.appendChild(righeScheda(t, sc, true));
+    box.appendChild(righeScheda(t, sc, true, nome));
   }
 }
 
@@ -2516,7 +2558,7 @@ function paintSchede(box) {
     const tab = tabScheda(nome, sc, b);
 
     if (!apertaSc) {
-      box.appendChild(righeScheda(tab, sc));
+      box.appendChild(righeScheda(tab, sc, false, nome));
       continue;
     }
 
@@ -2567,7 +2609,7 @@ function paintInt(box) {
   b.dataset.scheda = INTEGRATORI;
   const tab = tabScheda(INTEGRATORI, sc, b);
   box.appendChild(aperta ? campiScheda(INTEGRATORI, sc, tab, true, VOCI_INT)
-                         : righeScheda(tab, { es: sc.es, rec: '' }, true));
+                         : righeScheda(tab, { es: sc.es, rec: '' }, true, INTEGRATORI));
 }
 
 /* La dieta: un pasto per riga, con il suo orario e quanto dura. Non ha giorni:
@@ -2639,7 +2681,7 @@ function paintInfo(box) {
   b.dataset.scheda = INFO;
   const tab = tabScheda(INFO, sc, b);
   box.appendChild(aperta ? campiScheda(INFO, sc, tab, true, VOCI_INFO)
-                         : righeScheda(tab, { es: sc.es, rec: '' }, true));
+                         : righeScheda(tab, { es: sc.es, rec: '' }, true, INFO));
 }
 
 /* Si scrive quando si esce dalla casella: cosi' non si segna il file da salvare
@@ -2711,6 +2753,66 @@ function riportaSu() {
   if (fila) fila.scrollLeft = 0;
   $('wdrawer').querySelector('.wswitch').classList.remove('via');
 }
+
+/* ------------------------------------------- descrizione di un esercizio --- */
+
+/* Si apre a tutto schermo, col testo grande: la descrizione di un esercizio si
+   legge mentre lo si fa, non seduti al computer. Dalla scheda aperta la stessa
+   finestra si scrive. */
+const dlgDesc = $('descrizione');
+let desc = null;                  /* { nome, riga } mentre si scrive, o null */
+
+/* Il testo della descrizione, riga per riga. Una riga che comincia con un
+   trattino, un asterisco o un numero e' una voce di elenco: il segno davanti si
+   stacca dal testo e si colora di verde, e quello che va a capo resta
+   incolonnato sotto la prima lettera. Trattino e asterisco diventano un
+   pallino; i numeri restano come sono scritti. */
+function testoDesc(box, txt) {
+  box.textContent = '';
+  for (const riga of String(txt || '').split('\n')) {
+    const m = riga.match(/^\s*([-*\u2022]|\d+[.)])\s+(.*)$/);
+    if (m) {
+      const p = el('p', 'desriga conpunto');
+      p.appendChild(el('span', 'despunto', /\d/.test(m[1]) ? m[1] : '\u2022'));
+      p.appendChild(el('span', 'destesto', m[2]));
+      box.appendChild(p);
+    } else {
+      box.appendChild(el('p', 'desriga' + (riga.trim() ? '' : ' vuota'), riga));
+    }
+  }
+}
+
+function apriDesc(nome, i, scrivibile) {
+  const sc = tstore.schede[nome];
+  const r = sc && sc.es[i];
+  if (!r) return;
+  $('descTit').textContent = r[0] || nome;
+  testoDesc($('descTesto'), r[3]);
+  $('descTesto').hidden = !!scrivibile;
+  $('descCampo').hidden = !scrivibile;
+  $('descCampo').value = r[3] || '';
+  $('descOk').hidden = !scrivibile;
+  desc = scrivibile ? { nome: nome, riga: i } : null;
+  dlgDesc.showModal();
+  dlgDesc.focus();                /* niente tastiera addosso appena si apre */
+}
+
+$('descChiudi').addEventListener('click', () => { desc = null; dlgDesc.close(); });
+dlgDesc.addEventListener('cancel', () => { desc = null; });
+
+$('descOk').addEventListener('click', () => {
+  if (desc) {
+    const sc = tstore.schede[desc.nome];
+    const r = sc && sc.es[desc.riga];
+    if (r) {
+      const v = $('descCampo').value.slice(0, 2000).trim();
+      if ((r[3] || '') !== v) { r[3] = v; touch(); }
+    }
+  }
+  desc = null;
+  dlgDesc.close();
+  paintW();
+});
 
 /* ------------------------------------------------ i limiti della dieta ---- */
 
@@ -3057,6 +3159,23 @@ $('wlist').addEventListener('click', ev => {
   if (rg) { apriGruppi(rg.dataset.raggruppa, null); return; }
   const sg = ev.target.closest('button[data-sgruppa]');
   if (sg) { sgruppa(sg.dataset.sgruppa); return; }
+  /* la descrizione: dalla scheda aperta si scrive, da quella chiusa si legge */
+  const dm = ev.target.closest('button[data-desmod]');
+  if (dm) {
+    const q = dm.dataset.desmod.split('|');
+    apriDesc(q[0], +q[1], true);
+    return;
+  }
+  const dl = ev.target.closest('.tabr[data-desces]');
+  if (dl) {
+    const q = dl.dataset.desces.split('|');
+    apriDesc(q[0], +q[1], false);
+    return;
+  }
+  const su = ev.target.closest('button[data-su]');
+  if (su) { spostaScelti(su.dataset.su, -1); return; }
+  const giu = ev.target.closest('button[data-giu]');
+  if (giu) { spostaScelti(giu.dataset.giu, 1); return; }
   /* il pannello dei gruppi, dal suo bottone o toccando una targhetta */
   const pgr = ev.target.closest('button[data-piugrp]');
   if (pgr) { apriGruppi(pgr.dataset.piugrp, null); return; }
@@ -3096,7 +3215,6 @@ $('chiudiW').addEventListener('click', () => openW(false));
 $('menuBtn').addEventListener('click', () => openMenu(true));
 $('chiudiMenu').addEventListener('click', () => openMenu(false));
 $('velo').addEventListener('click', () => { openMenu(false); openW(false); });
-$('tutte').addEventListener('change', e => { tutte = e.target.checked; paintDrawer(); });
 $('calendar').checked = calendar;
 $('calendar').addEventListener('change', e => {
   calendar = e.target.checked;
@@ -3160,9 +3278,44 @@ $('drawerList').addEventListener('click', ev => {
     paintDrawer();
     return;
   }
+  /* i tre puntini: la tendina. Tutto il resto della riga apre l'editor. */
+  const more = ev.target.closest('button.more[data-task]');
+  if (more) { menuDalMenu(more.dataset.task, more); return; }
   const li = ev.target.closest('.trow[data-task]');
   if (li) openEditor(li.dataset.task);
 });
+
+/* I tre puntini nel menu': modificare, oppure mandare la task dritta in una
+   sessione senza passare dall'editor. */
+function menuDalMenu(id, bottone) {
+  const x = findTask(id);
+  if (!x) return;
+  if (x.evento) { openEditor(id); return; }   /* un evento ha solo il cliente */
+  apriTendina(bottone, [
+    { k: 'modifica', lab: 'Edit' },
+    { k: 'sposta',   lab: 'Move to G Work session' }
+  ], v => {
+    if (v === 'modifica') openEditor(id);
+    else if (v === 'sposta') apriSessioni(id, bottone);
+  });
+}
+
+/* Il secondo pannellino, di fianco al primo: in quale sessione la vuoi. */
+function apriSessioni(id, bottone) {
+  apriTendina(bottone, [0, 1, 2, 3, 4].map(g => ({ k: String(g), lab: 'GWS ' + (g + 1) })),
+    v => {
+      const x = findTask(id);
+      if (!x) return;
+      /* una task senza giorno va sul giorno che si sta guardando, o su oggi se
+         quello e' passato; una che ce l'ha gia' resta sul suo */
+      if (!x.giorno || !canSchedule(x.giorno)) {
+        x.giorno = canSchedule(viewKey) ? viewKey : dayKey(today());
+      }
+      x.gws = [+v];
+      riapriSessione(x);
+      touch(); render(); paintDrawer();
+    }, { lato: 'sx' });
+}
 
 /* ------------------------------------------------------------ editor ---- */
 
@@ -3225,7 +3378,7 @@ const dlgTend = (() => {
 })();
 let tendCb = null;
 
-function apriTendina(bottone, items, cb) {
+function apriTendina(bottone, items, cb, opt) {
   const ul = $('tendList');
   ul.textContent = '';
   for (const it of items) {
@@ -3240,9 +3393,15 @@ function apriTendina(bottone, items, cb) {
   const M = 8;                          /* quanto sta lontana dai bordi */
   const r = bottone.getBoundingClientRect();
   const b = dlgTend.getBoundingClientRect();
-  const x = Math.max(M, Math.min(r.right - b.width, window.innerWidth - b.width - M));
-  let y = r.bottom + 4;
-  if (y + b.height > window.innerHeight - M) y = r.top - b.height - 4;
+  /* di norma sotto il bottone, allineata al suo bordo destro. Con lato 'sx' si
+     apre di fianco, a sinistra: e' il secondo pannellino che esce dal primo. */
+  const sx = !!(opt && opt.lato === 'sx');
+  const x = sx
+    ? Math.max(M, r.left - b.width - 4)
+    : Math.max(M, Math.min(r.right - b.width, window.innerWidth - b.width - M));
+  let y = sx ? r.top : r.bottom + 4;
+  if (y + b.height > window.innerHeight - M) y = sx ? window.innerHeight - b.height - M
+                                                   : r.top - b.height - 4;
   dlgTend.style.left = x + 'px';
   dlgTend.style.top = Math.max(M, y) + 'px';
 }
