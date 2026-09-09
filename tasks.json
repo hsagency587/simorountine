@@ -346,32 +346,38 @@
         [
           "Towel curl",
           "3' + 3'",
-          []
+          [],
+          ""
         ],
         [
           "Marble swing",
           "2' + 2'",
-          []
+          [],
+          ""
         ],
         [
           "Gait cycle",
           "2' + 2'",
-          []
+          [],
+          ""
         ],
         [
           "Hyperarch hop",
           "5'",
-          []
+          [],
+          ""
         ],
         [
           "Hand curl",
           "3'",
-          []
+          [],
+          ""
         ],
         [
           "Push hands",
           "3'",
-          []
+          [],
+          ""
         ]
       ],
       "rec": "1'"
@@ -381,7 +387,8 @@
         [
           "",
           "1H",
-          []
+          [],
+          ""
         ]
       ],
       "rec": ""
@@ -391,27 +398,32 @@
         [
           "Hyperarch wall sit",
           "3'",
-          []
+          [],
+          ""
         ],
         [
           "Standing leg Stretch",
           "2x 1' + 2x 1'",
-          []
+          [],
+          ""
         ],
         [
           "Crescent walk",
           "5'",
-          []
+          [],
+          ""
         ],
         [
           "Big toe press",
           "2' + 2'",
-          []
+          [],
+          ""
         ],
         [
           "Dorsiflexed toes walking",
           "5'",
-          []
+          [],
+          ""
         ]
       ],
       "rec": "2'"
@@ -421,27 +433,32 @@
         [
           "Heel Raise with marble",
           "2' + 2'",
-          []
+          [],
+          ""
         ],
         [
           "Bear walk",
           "5'",
-          []
+          [],
+          ""
         ],
         [
           "HFT lunge",
           "2' + 2'",
-          []
+          [],
+          ""
         ],
         [
           "Towels sweep",
           "3' + 3'",
-          []
+          [],
+          ""
         ],
         [
           "Wall bounce",
           "2'",
-          []
+          [],
+          ""
         ]
       ],
       "rec": "2'"
@@ -451,7 +468,8 @@
         [
           "",
           "Casa sifu",
-          []
+          [],
+          ""
         ]
       ],
       "rec": ""
@@ -463,112 +481,128 @@
           "2' + 2' / 3'",
           [
             "Fascia 1"
-          ]
+          ],
+          ""
         ],
         [
           "Marble swing",
           "2' + 2'",
           [
             "Fascia 1"
-          ]
+          ],
+          ""
         ],
         [
           "Gait cycle",
           "2' + 2'",
           [
             "Fascia 1"
-          ]
+          ],
+          ""
         ],
         [
           "Hyperarch hop",
           "3' / 5'",
           [
             "Fascia 1"
-          ]
+          ],
+          ""
         ],
         [
           "Hand curl",
           "2' / 3'",
           [
             "Fascia 1"
-          ]
+          ],
+          ""
         ],
         [
           "Push hands",
           "2' / 3'",
           [
             "Fascia 1"
-          ]
+          ],
+          ""
         ],
         [
           "Hyperarch wall sit",
           "2' / 3'",
           [
             "Fascia 2"
-          ]
+          ],
+          ""
         ],
         [
           "Standing Leg Stretch",
           "2x 1' + 2x 1' / 2'",
           [
             "Fascia 2"
-          ]
+          ],
+          ""
         ],
         [
           "Crescent walk",
           "3' / 5'",
           [
             "Fascia 2"
-          ]
+          ],
+          ""
         ],
         [
           "Big toe press",
           "2' + 2'",
           [
             "Fascia 2"
-          ]
+          ],
+          ""
         ],
         [
           "Dorsiflexed toes walking",
           "3' / 5'",
           [
             "Fascia 2"
-          ]
+          ],
+          ""
         ],
         [
           "Heel raise with marble",
           "1' + 1' / 2'",
           [
             "Fascia 3"
-          ]
+          ],
+          ""
         ],
         [
           "Bear walk",
           "5'",
           [
             "Fascia 3"
-          ]
+          ],
+          ""
         ],
         [
           "HFT Lunge",
           "2' + 2'",
           [
             "Fascia 3"
-          ]
+          ],
+          ""
         ],
         [
           "Towel sweep",
           "3' + 3'",
           [
             "Fascia 3"
-          ]
+          ],
+          ""
         ],
         [
           "Wall bounce",
           "2' / 3'",
           [
             "Fascia 3"
-          ]
+          ],
+          ""
         ]
       ],
       "rec": "1'"
@@ -578,43 +612,50 @@
         [
           "Marble swing",
           "2' + 2'",
-          []
+          [],
+          ""
         ],
         [
           "Gaut cycle x corsa",
           "2' + 2'",
-          []
+          [],
+          ""
         ],
         [
           "Big toe press",
           "1' + 1'",
-          []
+          [],
+          ""
         ],
         [
           "Sprint",
           "3x60m",
           [
             "Sprint workout"
-          ]
+          ],
+          ""
         ],
         [
           "Sprint graduale",
           "2x20\"",
           [
             "Sprint workout"
-          ]
+          ],
+          ""
         ],
         [
           "Running",
           "3/5km",
           [
             "Running workout"
-          ]
+          ],
+          ""
         ],
         [
           "Walk",
           "5/10'",
-          []
+          [],
+          ""
         ]
       ],
       "rec": ""
@@ -624,7 +665,8 @@
         [
           "",
           "Palesta",
-          []
+          [],
+          ""
         ]
       ],
       "rec": ""
@@ -634,12 +676,14 @@
         [
           "Pull up",
           "5 x 10",
-          []
+          [],
+          ""
         ],
         [
           "Australian pull up",
           "5 x 15",
-          []
+          [],
+          ""
         ]
       ],
       "rec": "1'30\""
@@ -649,21 +693,24 @@
         [
           "Hand stand",
           "10'",
-          []
+          [],
+          ""
         ],
         [
           "Dip",
           "5'x10",
           [
             "Emom"
-          ]
+          ],
+          ""
         ],
         [
           "push up",
           "10\"x 15",
           [
             "Emom"
-          ]
+          ],
+          ""
         ]
       ],
       "rec": "1'"
@@ -673,96 +720,110 @@
         [
           "Turkish get up",
           "3x 6 + 3x 6 | 10kg",
-          []
+          [],
+          ""
         ],
         [
           "Starfish side plank",
           "1 + 1",
           [
             "Tabata 20\"/10\" x4"
-          ]
+          ],
+          ""
         ],
         [
           "Glute bridge one leg",
           "1 + 1",
           [
             "Tabata 20\"/10\" x4"
-          ]
+          ],
+          ""
         ],
         [
           "Clamshell plank",
           "1 + 1",
           [
             "Tabata 20\"/10\" x4"
-          ]
+          ],
+          ""
         ],
         [
           "Roll",
           "Chest - Back - glutei",
-          []
+          [],
+          ""
         ],
         [
           "Leg. Allungamento lower back",
           "Normale - farfalla",
           [
             "Stretch"
-          ]
+          ],
+          ""
         ],
         [
           "Mobilità anche",
           "Elica - circonduz.",
           [
             "Stretch"
-          ]
+          ],
+          ""
         ],
         [
           "Gito laterale",
           "Lato, fronte, quad, anca",
           [
             "Stretch"
-          ]
+          ],
+          ""
         ],
         [
           "World gratet's stretch",
           "1x 10 + 1x 10",
           [
             "Stretch"
-          ]
+          ],
+          ""
         ],
         [
           "Standing leg stretch",
           "1x 1' + 1x 1'",
           [
             "Stretch"
-          ]
+          ],
+          ""
         ],
         [
           "Tocca punta piedi",
           "Aperto- chiuso - dx & sx",
           [
             "Stretch"
-          ]
+          ],
+          ""
         ],
         [
           "Goblet squat",
           "",
           [
             "Stretch"
-          ]
+          ],
+          ""
         ],
         [
           "Prayer stretch",
           "",
           [
             "Stretch"
-          ]
+          ],
+          ""
         ],
         [
           "Eccentric curl-up",
           "",
           [
             "Stretch"
-          ]
+          ],
+          ""
         ]
       ],
       "rec": "1'"
@@ -772,27 +833,32 @@
         [
           "Coffee",
           "Until 18:00",
-          []
+          [],
+          ""
         ],
         [
           "Honey",
           "Max 3 spoon",
-          []
+          [],
+          ""
         ],
         [
           "Eating window",
           "10:00 - 21:00",
-          []
+          [],
+          ""
         ],
         [
           "Spezie/Condimenti",
           "Pepe - sale - origano - olio",
-          []
+          [],
+          ""
         ],
         [
           "Water",
           "6L",
-          []
+          [],
+          ""
         ]
       ],
       "rec": ""
@@ -802,12 +868,14 @@
         [
           "Creatina",
           "7:00",
-          []
+          [],
+          ""
         ],
         [
           "Fireblood",
           "7:30",
-          []
+          [],
+          ""
         ]
       ],
       "rec": ""
@@ -817,52 +885,62 @@
         [
           "Hyperarch cervical rotation",
           "2'",
-          []
+          [],
+          "Purpose:\nTo train controlled cervical rotation, upper-neck proprioception, and the muscles and fascia structures associated with the upper cervical region, primarily around C1 to C4.\n\nStarting position:\nSit or stand tall with your head centered, chin level, shoulders relaxed, and chest facing forward.\n\nInstructions:\n\n* Gently lengthen the back of your neck without forcing your chin downward.\n\n* Slowly rotate your head to one side while keeping your chin level.\n\n* Stop at a comfortable range before pain, dizziness, or compensation begins.\n\n*Slowly return your head to the center.\n\nRepeat on the opposite side.\n\nKeep your feet firmly pressed down and grip the ground.\n\nPrimary cue:\nKeep the movement smooth and controlled.\n\nImagine rotating around a tall vertical axis.\n\nKeep both shoulders facing forward.\n\nDo not tilt, extend, or force the neck.\n\nFeel gentle activation at the base of the skull and along the side of the neck.\n\nMaintain relaxed breathing.\nUse only a pain-free range.\n\nDosage:\nPerform 1 - 2 min duration.\n\nImportant note:\nThis movement may engage muscles and sensory pathways associated with the upper cervical region.\n\nStop immediately if you experience:\nRadiating arm pain, numbness, tingling, weakness, significant dizziness, nausea, severe headache, or loss of balance."
         ],
         [
           "Single arm shrug",
           "1' + 1'",
-          []
+          [],
+          ""
         ],
         [
           "Overheard rotation",
           "1'",
-          []
+          [],
+          ""
         ],
         [
           "Lunge arm swing",
           "1'",
-          []
+          [],
+          ""
         ],
         [
           "Lunge alternating arm swing",
           "1'",
-          []
+          [],
+          ""
         ],
         [
           "Relax. Rotation hop",
           "2'",
-          []
+          [],
+          ""
         ],
         [
           "Stand altern. Arm swing",
           "1'",
-          []
+          [],
+          ""
         ],
         [
           "Stand trunk rotation",
           "1'",
-          []
+          [],
+          ""
         ],
         [
           "Deep split lunge extencion",
           "1'",
-          []
+          [],
+          ""
         ],
         [
           "Body patting",
           "2'",
-          []
+          [],
+          ""
         ]
       ],
       "rec": ""
