@@ -264,8 +264,8 @@
       "id": "tmtt99ze6anyi",
       "creata": "2026-09-08T22:43:19.278Z",
       "nome": "Fix app",
-      "desc": "- dal menu togliere la toggle scheduled\n- gruppo dei workout, il primo se nella prima capella spsosta leticchetta e io la voglio a destra come gli altri sotto\n-dove 2 gruppi si incontrano la linea si simspessisce e non deve succedere\n-anche nel menu le 2 toggle clients e my companies su 1 riga sola\n-possibilità di muoversi gli esercizi manualmente nel workout e cambiarli di ordine",
-      "rank": "A",
+      "desc": "- dal menu togliere la toggle scheduled\n- gruppo dei workout, il primo se nella prima capella spsosta leticchetta e io la voglio a destra come gli altri sotto\n-dove 2 gruppi si incontrano la linea si si inpessisce e non deve succedere\n-anche nel menu le 2 toggle clients e my companies su 1 riga sola\n-possibilità di muoversi gli esercizi manualmente nel workout e cambiarli di ordine\n- Dal menu delle task, se clicco sui tre puntini, si apre una tendina con \"Edit\" oppure \"Sposta in G-Work Session\". Se clicco \"Sposta in G-Work Session\" si apre a sinistra, quindi di fianco, un tab che mi chiede in che G-Work Session la voglio mettere. Appena clicco ci si trasporta. \n- Assicurarsi che, se ora io tolgo una task dalla GW session, venga rimessa nel menu categorizzata correttamente. ",
+      "rank": "B",
       "cliente": null,
       "giorno": "2026-09-09",
       "gws": [
