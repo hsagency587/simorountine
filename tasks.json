@@ -124,8 +124,8 @@
     },
     {
       "id": "tmtrqccn12xlp",
-      "nome": "Fix sito e start citazioni",
-      "desc": "Aggiustare il sito esattamente come lo vorrei io, Paolo, poi creare una versione SEO corretta e iniziare le citazioni. ",
+      "nome": "Fix sito",
+      "desc": "Aggiustare il sito esattamente come lo vorrei io, Paolo, poi creare una versione SEO corretta ",
       "rank": "B",
       "cliente": "fisio-leone",
       "giorno": null,
@@ -318,6 +318,28 @@
       "gws": [
         3,
         4
+      ]
+    },
+    {
+      "id": "tmtul5y6l27hq",
+      "creata": "2026-09-09T21:03:52.653Z",
+      "nome": "Citazioni",
+      "desc": "S.O.P.:\n1. Aprire in anticipo delle tab con Claude dentro.\n2. In un'altra chat preparare un file dopo aver fatto una scansione con la chat Workflow Fulfillment Helper di tutte le citazioni da fare e da controllare.\n3. Un altro file in cui inserire tutte le password.\n4. Si mette tutto in una cartella, anche le foto.\n5. Si fa creare un file con il nap completo.\n6. Descrizioni per fare le citazioni si mettono anche quelle dentro la cartella.\n7. Si va nella chat con le 10 tab aperte.\n8. Si danno i file e gli si dice di iniziare secondo questa procedura:\n1. Leggi la prossima citazione, aprila nel tab.\n2. Iniziamo a completarla.\n3. Semplice: non lavorare mai nel cloud, lavora sempre nel tab.\n4. Non mandare moduli.\n5. Hai dato l'autonomia di compilare tutto tranne password e inviare moduli.\n ",
+      "rank": "A",
+      "cliente": "fisio-leone",
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmtul6q2iwdqs",
+      "creata": "2026-09-09T21:04:28.794Z",
+      "nome": "Creazione file riferimento citazioni + foto",
+      "desc": "",
+      "rank": "A",
+      "cliente": "fisio-leone",
+      "giorno": "2026-09-10",
+      "gws": [
+        2
       ]
     }
   ],
