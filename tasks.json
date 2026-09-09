@@ -341,6 +341,18 @@
       "gws": [
         2
       ]
+    },
+    {
+      "id": "tmtumjvvfaygl",
+      "creata": "2026-09-09T21:42:42.459Z",
+      "nome": "Fix app",
+      "desc": "1. Nel menu Task c'è ancora la toggle Scheduled e il bottone non funziona.\n2. Vorrei che la percentuale della giornata non si completasse se io non completo delle sottotask.\nAdesso la task principale comanda, ma io vorrei che fosse distribuita in base al numero di task secondarie, si divide la percentuale restante.\n ",
+      "rank": "B",
+      "cliente": null,
+      "giorno": "2026-09-10",
+      "gws": [
+        4
+      ]
     }
   ],
   "workout": {
