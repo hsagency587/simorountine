@@ -306,6 +306,19 @@
       "giorno": null,
       "gws": null,
       "creata": "2026-09-09T14:05:38.041Z"
+    },
+    {
+      "id": "tmtukzkeq7a37",
+      "creata": "2026-09-09T20:58:54.866Z",
+      "nome": "App x papà",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-10",
+      "gws": [
+        3,
+        4
+      ]
     }
   ],
   "workout": {
