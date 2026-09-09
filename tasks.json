@@ -109,10 +109,8 @@
       "desc": "Parlare con claude consulente e valuatre il percorso corretto per mettersi in regola ",
       "rank": "B",
       "cliente": "hs-agency",
-      "giorno": "2026-09-09",
-      "gws": [
-        2
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmtrqadf9div0",
@@ -272,6 +270,18 @@
       "giorno": "2026-09-09",
       "gws": [
         4
+      ]
+    },
+    {
+      "id": "tmtto58fukp8n",
+      "creata": "2026-09-09T05:39:31.962Z",
+      "nome": "Loom pineta 1903",
+      "desc": "Lead dalle ads - 23:30\nDiagnosi in cartella hsagency",
+      "rank": "A",
+      "cliente": "hs-agency",
+      "giorno": "2026-09-09",
+      "gws": [
+        2
       ]
     }
   ],
