@@ -274,7 +274,7 @@
       "id": "tmtumjvvfaygl",
       "creata": "2026-09-09T21:42:42.459Z",
       "nome": "Fix app",
-      "desc": "1. Nel menu Task c'è ancora la toggle Scheduled e il bottone non funziona.\n2. Vorrei che la percentuale della giornata non si completasse se io non completo delle sottotask.\nAdesso la task principale comanda, ma io vorrei che fosse distribuita in base al numero di task secondarie, si divide la percentuale restante.\n3 Nel menù Allenamento la freccetta, ora dove c'è una descrizione, quella della toggle, è brutta e piccola. Si vede poco. Vorrei leggermente più enfasi, soprattutto nel menù, soprattutto a tabella, e nell'editor mettila più lontano dal tasto X perché continuo a sbagliare. ",
+      "desc": "1. Nel menu Task c'è ancora la toggle Scheduled e il bottone non funziona.\n2. Vorrei che la percentuale della giornata non si completasse se io non completo delle sottotask.\nAdesso la task principale comanda, ma io vorrei che fosse distribuita in base al numero di task secondarie, si divide la percentuale restante.\n3 Nel menù Allenamento la freccetta, ora dove c'è una descrizione, quella della toggle, è brutta e piccola. Si vede poco. Vorrei leggermente più enfasi, soprattutto nel menù, soprattutto a tabella, e nell'editor mettila più lontano dal tasto X perché continuo a sbagliare.\n4 raggruppa commit, prima di committare aspetta 4 secondi e raggruppa tutto in 1 commit ",
       "rank": "B",
       "cliente": null,
       "giorno": "2026-09-10",
