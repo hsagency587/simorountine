@@ -1,18 +1,6 @@
 {
   "tasks": [
     {
-      "id": "ev:6so6coj564p6cbb36kojgb9k6sp62b9p68s34b9g6ss62dpj6ks66oplcc@google.com",
-      "nome": "Di nucci - Incontro",
-      "desc": "",
-      "rank": "A",
-      "cliente": "di-nucci",
-      "giorno": "2026-09-09",
-      "gws": null,
-      "creata": "2026-09-07T19:39:59.317Z",
-      "evento": "6so6coj564p6cbb36kojgb9k6sp62b9p68s34b9g6ss62dpj6ks66oplcc@google.com",
-      "ora": "08:30–12:30"
-    },
-    {
       "id": "ev:6co62e1kclijib9lcgqm2b9k75imcb9p60r3ab9ic4pjgc1n64rmae9m6g@google.com",
       "nome": "Sifu - Evento Volantini",
       "desc": "",
@@ -165,64 +153,14 @@
       "creata": "2026-09-08T20:21:51.433Z"
     },
     {
-      "id": "tmtt75uuzih3b",
-      "nome": "Check copy",
-      "desc": "Controllare pagina per pagina il copy del sito della gioielleria ",
-      "rank": "A",
-      "cliente": "di-nucci",
-      "giorno": "2026-09-09",
-      "gws": [
-        0
-      ],
-      "creata": "2026-09-08T21:44:07.547Z"
-    },
-    {
-      "id": "tmtt77enwqsal",
-      "nome": "Cosa dire",
-      "desc": "Segnare una scaletta dell'ordine dei punti da toccare da Giorgia ",
-      "rank": "A",
-      "cliente": "di-nucci",
-      "giorno": "2026-09-09",
-      "gws": [
-        0
-      ],
-      "creata": "2026-09-08T21:45:19.868Z"
-    },
-    {
       "id": "tmtt79lhrd6aq",
       "nome": "Google ads",
       "desc": "",
       "rank": "A",
       "cliente": "hs-agency",
-      "giorno": "2026-09-10",
-      "gws": [
-        2
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-09-08T21:47:02.031Z"
-    },
-    {
-      "id": "tmtt7chwg3poa",
-      "nome": "Client post",
-      "desc": "Postare foto e aggiornamenti profilo Google clienti",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-09",
-      "gws": [
-        3
-      ],
-      "creata": "2026-09-08T21:49:17.344Z"
-    },
-    {
-      "id": "tmtto58fukp8n",
-      "nome": "Loom pineta 1903",
-      "desc": "Lead dalle ads - 23:30\nDiagnosi in cartella hsagency",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-09",
-      "gws": [
-        2
-      ],
-      "creata": "2026-09-09T05:39:31.962Z"
     },
     {
       "id": "tmtu5tza8dvx4",
@@ -275,10 +213,8 @@
       "desc": "1. Nel menu Task c'è ancora la toggle Scheduled e il bottone non funziona.\n2. Vorrei che la percentuale della giornata non si completasse se io non completo delle sottotask.\nAdesso la task principale comanda, ma io vorrei che fosse distribuita in base al numero di task secondarie, si divide la percentuale restante.\n3 Nel menù Allenamento la freccetta, ora dove c'è una descrizione, quella della toggle, è brutta e piccola. Si vede poco. Vorrei leggermente più enfasi, soprattutto nel menù, soprattutto a tabella, e nell'editor mettila più lontano dal tasto X perché continuo a sbagliare.\n4 raggruppa commit, prima di committare aspetta 4 secondi e raggruppa tutto in 1 commit \n5. Come avviene per i workout, la dieta e la routine giornaliera, anch'essa deve essere modificabile come tutti gli elementi all'interno delle varie routine o pranzi e cene, con un editor simile a quello della tabella allenamento. Questo editor deve essere separato da tutto il resto del sistema perché intacca proprio la routine giornaliera stessa. Questo serve perché spesso mi si sfancula totalmente e voglio tenerne traccia. ",
       "rank": "B",
       "cliente": null,
-      "giorno": "2026-09-10",
-      "gws": [
-        4
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmtv3757c5r3j",
@@ -287,9 +223,9 @@
       "desc": "",
       "rank": "B",
       "cliente": "longkai",
-      "giorno": "2026-09-10",
+      "giorno": "2026-09-11",
       "gws": [
-        4
+        0
       ]
     },
     {
@@ -375,10 +311,8 @@
       "desc": "Modifiche App\n\nUna volta applicate tutte le modifiche funzionali descritte e richieste da mio padre, dovremo capire come venderla. Quindi, una volta terminate le modifiche, prepara un piano contenente:\n- come proteggerla e avere una cyber security ottima\n- come garantirsi che funzioni sempre, soprattutto visto che usiamo fornitori terzi\n- come avere la possibilità di offrire più memoria utilizzando un cloud esterno\n- l'infrastruttura necessaria a reggere diversi clienti che lavorano ognuno sulla propria App in modo che l'installazione sia facile, senza la richiesta di codici o, meglio, senza che il cliente debba inserire i codici\n- come gestire i pagamenti mensili in maniera sicura\n- mettere tutto a norma di legge\nE di fisco, per non avere problemi \n\nInsomma una volta approvata una versione, dovremo capire da zero come renderlo un prodotto vero e proprio, vendibile, che faccia delivery correttamente, che non si rompa, che abbia molta memoria e che sia da me totalmente gestibile e modulabile. L'account di ogni persona ",
       "rank": "B",
       "cliente": null,
-      "giorno": "2026-09-10",
-      "gws": [
-        4
-      ]
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
@@ -1060,5 +994,9 @@
       ],
       "rec": ""
     }
+  },
+  "routine": {
+    "tappe": {},
+    "log": []
   }
 }
