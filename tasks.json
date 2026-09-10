@@ -368,6 +368,18 @@
       "gws": [
         3
       ]
+    },
+    {
+      "id": "tmtvrok4iw2ho",
+      "creata": "2026-09-10T16:54:04.770Z",
+      "nome": "Fix app Papa.",
+      "desc": "Modifiche App\n\nUna volta applicate tutte le modifiche funzionali descritte e richieste da mio padre, dovremo capire come venderla. Quindi, una volta terminate le modifiche, prepara un piano contenente:\n- come proteggerla e avere una cyber security ottima\n- come garantirsi che funzioni sempre, soprattutto visto che usiamo fornitori terzi\n- come avere la possibilità di offrire più memoria utilizzando un cloud esterno\n- l'infrastruttura necessaria a reggere diversi clienti che lavorano ognuno sulla propria App in modo che l'installazione sia facile, senza la richiesta di codici o, meglio, senza che il cliente debba inserire i codici\n- come gestire i pagamenti mensili in maniera sicura\n- mettere tutto a norma di legge\nE di fisco, per non avere problemi \n\nInsomma una volta approvata una versione, dovremo capire da zero come renderlo un prodotto vero e proprio, vendibile, che faccia delivery correttamente, che non si rompa, che abbia molta memoria e che sia da me totalmente gestibile e modulabile. L'account di ogni persona ",
+      "rank": "B",
+      "cliente": null,
+      "giorno": "2026-09-10",
+      "gws": [
+        4
+      ]
     }
   ],
   "workout": {
