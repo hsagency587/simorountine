@@ -75,20 +75,10 @@
       "creata": "2026-09-07T20:46:17.082Z"
     },
     {
-      "id": "tmtrqadf9div0",
-      "nome": "Check citazioni bergamaschi",
-      "desc": "Controllare se ci sono cose da aggiustare o citazioni da aggiungere. ",
-      "rank": "B",
-      "cliente": "bergamaschi",
-      "giorno": null,
-      "gws": null,
-      "creata": "2026-09-07T21:03:58.581Z"
-    },
-    {
       "id": "tmtrqccn12xlp",
       "nome": "Fix sito",
       "desc": "Aggiustare il sito esattamente come lo vorrei io, Paolo, poi creare una versione SEO corretta ",
-      "rank": "B",
+      "rank": "A",
       "cliente": "fisio-leone",
       "giorno": null,
       "gws": null,
@@ -158,7 +148,7 @@
       "id": "tmtsb25yin49k",
       "nome": "Biglietto da visita",
       "desc": "Prepara un po' di versioni per il biglietto di visita della Manuela Lobo e sistema quelle esistenti. ",
-      "rank": "B",
+      "rank": "A",
       "cliente": "manuela-lovo",
       "giorno": null,
       "gws": null,
@@ -270,16 +260,6 @@
       ]
     },
     {
-      "id": "tmtul5y6l27hq",
-      "creata": "2026-09-09T21:03:52.653Z",
-      "nome": "Citazioni",
-      "desc": "S.O.P.:\n1. Aprire in anticipo delle tab con Claude dentro.\n2. In un'altra chat preparare un file dopo aver fatto una scansione con la chat Workflow Fulfillment Helper di tutte le citazioni da fare e da controllare.\n3. Un altro file in cui inserire tutte le password.\n4. Si mette tutto in una cartella, anche le foto.\n5. Si fa creare un file con il nap completo.\n6. Descrizioni per fare le citazioni si mettono anche quelle dentro la cartella.\n7. Si va nella chat con le 10 tab aperte.\n8. Si danno i file e gli si dice di iniziare secondo questa procedura:\n1. Leggi la prossima citazione, aprila nel tab.\n2. Iniziamo a completarla.\n3. Semplice: non lavorare mai nel cloud, lavora sempre nel tab.\n4. Non mandare moduli.\n5. Hai dato l'autonomia di compilare tutto tranne password e inviare moduli.\n ",
-      "rank": "A",
-      "cliente": "fisio-leone",
-      "giorno": null,
-      "gws": null
-    },
-    {
       "id": "tmtul6q2iwdqs",
       "creata": "2026-09-09T21:04:28.794Z",
       "nome": "Creazione file riferimento citazioni + foto",
@@ -326,6 +306,36 @@
       "gws": [
         1
       ]
+    },
+    {
+      "id": "tmtv7ai8g8poo",
+      "creata": "2026-09-10T07:23:16.816Z",
+      "nome": "Tech problem",
+      "desc": "Vuole ricevere mail su info@... dal GBP",
+      "rank": "A",
+      "cliente": "manuela-lovo",
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmtv7apo8fdqr",
+      "creata": "2026-09-10T07:23:26.456Z",
+      "nome": "Citazioni",
+      "desc": "",
+      "rank": "A",
+      "cliente": "manuela-lovo",
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmtv7bk90a3i8",
+      "creata": "2026-09-10T07:24:06.084Z",
+      "nome": "Last touch SEO",
+      "desc": "",
+      "rank": "C",
+      "cliente": "manuela-lovo",
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
