@@ -77,6 +77,7 @@
         <button type="button" class="scarica" id="scarica">Download</button>
       </div>
     </details>
+    <button type="button" class="link" id="routineBtn" hidden>Routine</button>
     <button type="button" class="link" id="impostazioniBtn">Settings</button>
   </div>
 </footer>
@@ -303,6 +304,26 @@
   </div>
 </dialog>
 
+<!-- L'editor della routine giornaliera: a tutto schermo, come la descrizione
+     di un esercizio. Lo riempie routine-editor.js, che sta in un file suo.
+     Senza quel file il bottone resta nascosto e questa finestra non si apre. -->
+<dialog class="descbox" id="routineEd" aria-labelledby="rtTit">
+  <div class="descbox-in">
+    <h2 class="desctit" id="rtTit">Daily routine</h2>
+    <div class="rtscroll">
+      <p class="nota">Names and lines of every step. The times stay as they are:
+        they change from one day to the next.</p>
+      <div id="rtLista"></div>
+      <h3 class="rtsez">Change log</h3>
+      <div id="rtLog"></div>
+    </div>
+    <div class="chiusura-btn">
+      <button type="button" class="btn btn-del" id="rtTutto">Restore everything</button>
+      <button type="button" class="btn btn-ok" id="rtChiudi">Close</button>
+    </div>
+  </div>
+</dialog>
+
 <!-- La tendina dei tre puntini: piccola, appesa al bottone che l'ha aperta.
      Non e' una finestra in mezzo allo schermo: le due voci stanno sotto il
      dito che ha appena toccato i puntini. -->
@@ -311,5 +332,7 @@
 </dialog>
 
 <script src="app.js"></script>
+<!-- l'editor della routine: dopo app.js, perche' si appoggia a quello -->
+<script src="routine-editor.js"></script>
 </body>
 </html>

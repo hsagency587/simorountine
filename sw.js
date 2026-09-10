@@ -5,7 +5,7 @@
 /* Il numero della cache: cambiandolo, all'attivazione la vecchia viene buttata
    e i file si riscaricano tutti. Si alza quando un telefono resta indietro con
    una copia vecchia in cache. */
-const CACHE = 'gwork-v2';
+const CACHE = 'gwork-v3';
 
 /* Il calendario non e` piu` un file del sito: sta su un altro dominio. Senza
    questa eccezione il service worker lo lascerebbe passare senza guardarlo, e
@@ -18,6 +18,7 @@ const SHELL = [
   'index.html',
   'styles.css',
   'app.js',
+  'routine-editor.js',
   'manifest.webmanifest',
   'icon-192.png',
   'icon-512.png'

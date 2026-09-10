@@ -631,7 +631,7 @@ body.menu-open{overflow:hidden}
 .schapri .wcampo + .wcampo{flex:0 1 78px}
 .schapri .schsel{margin:0 2px 0 0}
 .schapri .schx{width:24px}
-.schapri .schdesc{min-width:18px}
+.schapri .schdesc{min-width:18px;margin-left:0}
 
 /* il pannello dei gruppi */
 .gchips{margin-bottom:var(--s3)}
@@ -1015,15 +1015,17 @@ button.tendina:active{background-color:var(--line)}
 /* La freccia che dice "qui sotto c'e' scritto qualcosa". Nella tabella da
    leggere sta in fondo alla riga, all'estremita' destra, non attaccata al
    numero: cosi' le frecce di tutte le righe stanno incolonnate. */
-.desfrec{margin-left:6px;font-size:10px;color:var(--accent)}
+.desfrec{margin-left:6px;font-size:14px;font-weight:700;line-height:1;color:var(--accent)}
 .tabr.condesc .tabc:last-child{display:flex;align-items:center}
 .tabr.condesc .desfrec{margin-left:auto}
 .tabr.condesc{cursor:pointer}
 /* Il bottone della descrizione e' solo la freccia: niente cornice, niente
    fondo. Spento e' un accenno grigio, con una descrizione dentro e' verde. */
+/* Nell'editor la freccia sta all'inizio della riga, di fianco alla spunta:
+   dall'altra parte era attaccata alla croce e si sbagliava bottone. */
 .schdesc,
 .schapri .schdesc{
-  min-width:18px;min-height:26px;padding:0;
+  min-width:18px;min-height:26px;padding:0;margin-left:0;
   border:0;background:none;color:var(--muted);font-size:11px;
 }
 .schdesc.piena,
@@ -1077,3 +1079,43 @@ button.tendina:active{background-color:var(--line)}
   border-color:var(--accent);
   background:radial-gradient(circle at center, var(--accent) 0 5px, transparent 5px);
 }
+
+/* ---------- l'editor della routine giornaliera ---------- */
+
+/* Sta in una finestra a tutto schermo, come la descrizione di un esercizio, e
+   dentro riusa i riquadri dell'editor delle schede: cosi' si scrive nello
+   stesso modo in tutti e due i posti. */
+.rtscroll{flex:1;overflow-y:auto;margin:0 calc(-1 * var(--s4))}
+.rtscroll > .nota{padding:0 var(--s4) var(--s2)}
+.rtblocco{margin-top:var(--s3)}
+/* la banda in cima: l'orario a sinistra, il ripristino a destra, sulla stessa
+   riga */
+.rtblocco .tabr.capo{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+.rtblocco .tabr.capo .tabc{border:0}
+/* l'orario nella banda del nome: si legge e basta, non si scrive */
+.rtora{
+  color:var(--muted);font-variant-numeric:tabular-nums;
+  font-weight:600;letter-spacing:.04em;
+}
+.rtnome{font-weight:600;color:var(--accent)}
+/* le due frecce dell'ordine, strette perche' la riga ha gia' il campo */
+.rtfrec{min-width:28px;margin-left:0}
+/* la croce che sta per togliere una riga chiede conferma: diventa un punto
+   interrogativo rosso per tre secondi */
+.schx.conferma{color:var(--danger);font-weight:700}
+
+.rtsez{
+  margin:var(--s4) 0 var(--s2);padding:0 var(--s4);
+  font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);
+}
+.rtlog{
+  list-style:none;margin:0;padding:0 var(--s4) var(--s3);
+  font-size:12px;line-height:1.4;
+}
+.rtlog li{
+  display:flex;gap:var(--s2);align-items:baseline;
+  padding:var(--s1) 0;border-bottom:1px solid var(--line);
+}
+.rtlogq{flex:0 0 auto;color:var(--muted);font-variant-numeric:tabular-nums}
+.rtlogt{flex:1;min-width:0;color:var(--text-2)}
