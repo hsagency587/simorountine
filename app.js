@@ -217,12 +217,44 @@ const MARTEDI = {
 const isSabato  = k => new Date(k + 'T00:00:00').getDay() === 6;
 const isMartedi = k => new Date(k + 'T00:00:00').getDay() === 2;
 
+/* Quello che si e' riscritto a mano nell'editor della routine. Sta in
+   tstore.routine, che nasce dopo questa riga: finche' non c'e', la routine e'
+   quella di fabbrica e basta. */
+function routineOv() {
+  try { return (tstore.routine && tstore.routine.tappe) || {}; }
+  catch (e) { return {}; }
+}
+
+/* La routine di fabbrica con sopra le riscritture dell'editor: il nome della
+   tappa e le sue sottotappe. L'orario no — quello cambia da un giorno
+   all'altro e resta deciso qui sopra, quindi si tiene il pezzo prima della
+   barra e si riscrive solo quello dopo. */
+function applicaRoutine(l) {
+  const ov = routineOv();
+  if (!Object.keys(ov).length) return l;
+  return l.map(t => {
+    const o = ov[t.id];
+    if (!o) return t;
+    const c = Object.assign({}, t);
+    if (o.nome) {
+      const i = t.t.indexOf('|');
+      c.t = i >= 0 ? t.t.slice(0, i + 1) + ' ' + o.nome : o.nome;
+    }
+    if (Array.isArray(o.sub)) {
+      c.sub = o.sub.length ? o.sub.map(v => ({ id: v.id, t: v.t })) : null;
+    }
+    return c;
+  });
+}
+
 const routineFor = k => {
   const base = ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD);
   /* sabato e martedi' non capitano mai insieme: una toppa sola per giorno */
   const toppa = isSabato(k) ? SABATO : isMartedi(k) ? MARTEDI : null;
-  if (!toppa) return base;
-  return base.map(t => toppa[t.id] ? Object.assign({}, t, toppa[t.id]) : t);
+  /* prima la toppa del giorno, che sistema gli orari, poi quello che si e'
+     scritto a mano, che sistema i nomi: cosi' l'una non copre l'altra */
+  const con = toppa ? base.map(t => toppa[t.id] ? Object.assign({}, t, toppa[t.id]) : t) : base;
+  return applicaRoutine(con);
 };
 
 /* L'elenco di tutti gli id esistenti, per le ricerche che non dipendono dal
@@ -1526,6 +1558,34 @@ function validSchede(w) {
    si prendono dalla routine standard, che li ha tutti. */
 const PASTI = ROUTINE_GIORNO.concat(SERA_STD).filter(t => t.pasto);
 
+/* La routine riscritta a mano: per ogni tappa il nome nuovo e le sottotappe
+   nuove, piu' il registro di cosa e' stato cambiato. Quello che arriva mal
+   fatto si butta: una routine rotta spegnerebbe la giornata intera. */
+function validRoutine(r) {
+  const out = { tappe: {}, log: [] };
+  if (!r || typeof r !== 'object') return out;
+  const t = (r.tappe && typeof r.tappe === 'object') ? r.tappe : {};
+  for (const k of Object.keys(t)) {
+    const o = t[k];
+    if (!o || typeof o !== 'object') continue;
+    const v = {};
+    if (typeof o.nome === 'string' && o.nome.trim()) v.nome = o.nome.trim().slice(0, 80);
+    if (Array.isArray(o.sub)) {
+      v.sub = o.sub
+        .filter(x => x && typeof x.t === 'string' && x.t.trim())
+        .map(x => ({ id: String(x.id || ('rt' + Math.random().toString(36).slice(2, 8))),
+                     t: x.t.trim().slice(0, 80) }));
+    }
+    if (v.nome || v.sub) out.tappe[k] = v;
+  }
+  if (Array.isArray(r.log)) {
+    out.log = r.log.filter(v => v && typeof v.t === 'string')
+                   .map(v => ({ q: String(v.q || ''), t: String(v.t).slice(0, 200) }))
+                   .slice(0, 200);
+  }
+  return out;
+}
+
 /* Anche quello che sta gia' nel telefono passa dal controllo, non solo quello
    che arriva dal file: cosi' un piano scritto da una versione precedente si
    converte all'apertura invece di restare a meta'. Sta qui e non piu' in alto
@@ -1534,6 +1594,7 @@ tstore.workout = validWorkout(tstore.workout);
 tstore.dieta   = validDieta(tstore.dieta);
 tstore.limiti  = validLimiti(tstore.limiti);
 tstore.schede  = validSchede(tstore.schede);
+tstore.routine = validRoutine(tstore.routine);
 
 /* Le info erano un elenco a parte, con la loro finestra. Ora sono una scheda
    come gli integratori. Quello che c'era nell'elenco passa nella scheda la
@@ -1594,6 +1655,7 @@ function ripescaLocale() {
   tstore.dieta   = validDieta(tstore.dieta);
   tstore.limiti  = validLimiti(tstore.limiti);
   tstore.schede  = validSchede(tstore.schede);
+  tstore.routine = validRoutine(tstore.routine);
   return true;
 }
 
@@ -3928,6 +3990,7 @@ async function pullTasks() {
   const dieta  = validDieta(data.dieta);
   const limiti = validLimiti(data.limiti);
   const schede = validSchede(data.schede);
+  const rout   = validRoutine(data.routine);
 
   if (tstore.dirty) {
     /* e' la nostra stessa versione, salvata dal salvagente senza risposta? */
@@ -3945,6 +4008,7 @@ async function pullTasks() {
   tstore.dieta = dieta;
   tstore.limiti = limiti;
   tstore.schede = schede;
+  tstore.routine = rout;
   migraInfo();                    /* un file di prima: le info passano nella scheda */
   rememberSha(j.sha);
   tstore.dirty = false;
@@ -3969,7 +4033,8 @@ async function pushTasks(opts) {
   /* con la chiave impostata il file parte chiuso; senza, in chiaro come prima */
   const testo = JSON.stringify({ tasks: tstore.tasks, workout: tstore.workout,
                                  dieta: tstore.dieta, limiti: tstore.limiti,
-                                 schede: tstore.schede }, null, 2) + '\n';
+                                 schede: tstore.schede,
+                                 routine: tstore.routine }, null, 2) + '\n';
   let corpo;
   try {
     corpo = await cifra(testo);
