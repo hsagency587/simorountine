@@ -91,10 +91,12 @@
     <button type="button" class="plus" id="nuova" aria-label="New task">+</button>
     <button type="button" class="chiudi" id="chiudiMenu" aria-label="Close the menu">×</button>
   </div>
-  <!-- un filtro solo. La spunta "Scheduled" non c'e' piu': le task gia' messe
-       su un giorno stanno nella loro tendina SCHEDULED, e quella casella era
-       rimasta li' senza comandare niente. -->
+  <!-- i due filtri stanno su una riga sola: occupano meta' spazio -->
   <div class="switches">
+    <label class="switch">
+      <input type="checkbox" id="tutte">
+      <span>Scheduled</span>
+    </label>
     <label class="switch">
       <input type="checkbox" id="calendar">
       <span>Calendar</span>

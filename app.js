@@ -1775,6 +1775,14 @@ let calendar = (() => {
   try { return localStorage.getItem(CALENDAR_KEY) === '1'; } catch (e) { return false; }
 })();
 
+/* La spunta "Scheduled" del menu': accesa fa vedere anche le task gia' messe
+   su un giorno, spenta lascia solo il serbatoio. Resta com'e' stata lasciata,
+   anche chiudendo l'app. */
+const SCHED_KEY = 'gwork-sched-v1';
+let vedeSchedulate = (() => {
+  try { return localStorage.getItem(SCHED_KEY) === '1'; } catch (e) { return false; }
+})();
+
 function openMenu(on) {
   $('drawer').classList.toggle('open', on);
   $('velo').hidden = !on;
@@ -2032,9 +2040,10 @@ function paintLista(box, opt) {
 }
 
 function paintDrawer() {
-  /* Le task messe su un giorno stanno nella loro tendina SCHEDULED, e le due
-     tendine dei clienti su una riga sola, come nel pescone. */
-  paintLista($('drawerList'), { pick: false, tutte: true, chiudiSched: true,
+  /* Nel menu' non c'e' nessuna tendina SCHEDULED: le task gia' messe su un
+     giorno le comanda la spunta "Scheduled", e basta quella. Le due tendine
+     dei clienti restano su una riga sola, come nel pescone. */
+  paintLista($('drawerList'), { pick: false, tutte: vedeSchedulate, chiudiSched: false,
                                 cal: calendar, riga: true });
   paintSync();
 }
@@ -3296,6 +3305,12 @@ $('chiudiW').addEventListener('click', () => openW(false));
 $('menuBtn').addEventListener('click', () => openMenu(true));
 $('chiudiMenu').addEventListener('click', () => openMenu(false));
 $('velo').addEventListener('click', () => { openMenu(false); openW(false); });
+$('tutte').checked = vedeSchedulate;
+$('tutte').addEventListener('change', e => {
+  vedeSchedulate = e.target.checked;
+  try { localStorage.setItem(SCHED_KEY, vedeSchedulate ? '1' : '0'); } catch (e2) {}
+  paintDrawer();
+});
 $('calendar').checked = calendar;
 $('calendar').addEventListener('change', e => {
   calendar = e.target.checked;
