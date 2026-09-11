@@ -188,30 +188,6 @@
       "creata": "2026-09-09T14:05:38.041Z"
     },
     {
-      "id": "tmtukzkeq7a37",
-      "creata": "2026-09-09T20:58:54.866Z",
-      "nome": "App x papà",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-10",
-      "gws": [
-        0
-      ]
-    },
-    {
-      "id": "tmtul6q2iwdqs",
-      "creata": "2026-09-09T21:04:28.794Z",
-      "nome": "Creazione file riferimento citazioni + foto",
-      "desc": "",
-      "rank": "A",
-      "cliente": "fisio-leone",
-      "giorno": "2026-09-10",
-      "gws": [
-        2
-      ]
-    },
-    {
       "id": "tmtumjvvfaygl",
       "creata": "2026-09-09T21:42:42.459Z",
       "nome": "Fix app",
@@ -231,18 +207,6 @@
       "giorno": "2026-09-11",
       "gws": [
         0
-      ]
-    },
-    {
-      "id": "tmtv6u8oao8bt",
-      "creata": "2026-09-10T07:10:37.930Z",
-      "nome": "Call",
-      "desc": "- F.u\n- Call x Di Nucci\n- outreach",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-10",
-      "gws": [
-        1
       ]
     },
     {
@@ -286,30 +250,6 @@
       "gws": null
     },
     {
-      "id": "tmtvrd0q5qdc1",
-      "creata": "2026-09-10T16:45:06.413Z",
-      "nome": "App papà",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-10",
-      "gws": [
-        3
-      ]
-    },
-    {
-      "id": "tmtvrdftitess",
-      "creata": "2026-09-10T16:45:25.974Z",
-      "nome": "Documento cristian",
-      "desc": "Prospetto per Christian dopo l'incontro ",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-10",
-      "gws": [
-        3
-      ]
-    },
-    {
       "id": "tmtvrok4iw2ho",
       "creata": "2026-09-10T16:54:04.770Z",
       "nome": "Fix app Papa.",
@@ -323,7 +263,7 @@
       "id": "tmtxfgq18qyc7",
       "creata": "2026-09-11T20:47:36.140Z",
       "nome": "Modifiche app papa",
-      "desc": "- nelle impsitazuoni mamuale d'uso\n",
+      "desc": "- nelle impsitazuoni mamuale d'uso\n- cone vengono scritti I verbali\n- fare parte pagamento nelle ompostaizomo con i pacchetti iniziali",
       "rank": "A",
       "cliente": null,
       "giorno": null,
