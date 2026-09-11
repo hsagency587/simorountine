@@ -217,38 +217,12 @@ const MARTEDI = {
 const isSabato  = k => new Date(k + 'T00:00:00').getDay() === 6;
 const isMartedi = k => new Date(k + 'T00:00:00').getDay() === 2;
 
-/* Le modifiche scritte a mano nell'editor della routine, tappa per tappa.
-   Cambiano il nome della tappa e l'elenco delle sue sottotappe; l'orario no,
-   perche' quello cambia da un giorno all'altro e lo decide il codice qui
-   sopra. Senza niente scritto, la routine e' quella di fabbrica.
-
-   Sta qui e non nell'editor apposta: se l'editor non si carica, l'app parte
-   lo stesso e la routine resta quella scritta. */
-function applicaRoutine(base) {
-  const ov = tstore.routine && tstore.routine.tappe;
-  if (!ov || !Object.keys(ov).length) return base;
-  return base.map(t => {
-    const o = ov[t.id];
-    if (!o) return t;
-    const out = Object.assign({}, t);
-    if (o.nome) {
-      const i = t.t.indexOf('|');
-      out.t = i >= 0 ? t.t.slice(0, i + 1) + ' ' + o.nome : o.nome;
-    }
-    if (Array.isArray(o.sub)) {
-      if (o.sub.length) out.sub = o.sub.map(x => ({ id: x.id, t: x.t }));
-      else delete out.sub;
-    }
-    return out;
-  });
-}
-
 const routineFor = k => {
   const base = ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD);
   /* sabato e martedi' non capitano mai insieme: una toppa sola per giorno */
   const toppa = isSabato(k) ? SABATO : isMartedi(k) ? MARTEDI : null;
-  const con = toppa ? base.map(t => toppa[t.id] ? Object.assign({}, t, toppa[t.id]) : t) : base;
-  return applicaRoutine(con);
+  if (!toppa) return base;
+  return base.map(t => toppa[t.id] ? Object.assign({}, t, toppa[t.id]) : t);
 };
 
 /* L'elenco di tutti gli id esistenti, per le ricerche che non dipendono dal
@@ -468,6 +442,15 @@ const taskFatta = (x, c) => {
   return l.length > 0 && l.every(g => c[chiaveTask(x, g)]);
 };
 
+/* Una task rimasta indietro: il suo giorno e' passato e non l'ha mai spuntata.
+   Resta attaccata al suo giorno — li' si spunta ancora, finche' il giorno e'
+   dentro la finestra — e insieme torna nel serbatoio, cosi' la si puo' rimettere
+   su oggi. Spuntata, non e' piu' indietro: sparisce dal serbatoio da sola.
+   Non e' un dato scritto da nessuna parte: si ricalcola ogni volta, cosi' non
+   puo' restare indietro rispetto alle spunte. */
+const restaIndietro = x =>
+  !x.evento && !!x.giorno && x.giorno < dayKey(today()) && !taskFatta(x, dayChecks(x.giorno));
+
 function dayTasks(k) {
   const out = routineFor(k).map(() => []);
   const posto = postoDellaSessione(k);
@@ -505,14 +488,13 @@ function childState(t, c, evs) {
   return { total, done };
 }
 
-/* Il blocco di una tappa si divide fra la tappa e le sue figlie: la tappa vale
-   una quota, il resto se lo dividono in parti uguali le sottotappe, le
-   alternative e gli eventi. Spuntare la tappa non chiude piu' il blocco: se le
-   sottotappe restano indietro, la giornata non arriva al cento per cento. */
+/* La tappa e' un pezzo come le sue figlie: vale uno, e ogni figlia vale uno.
+   Spuntare la tappa non chiude piu' il blocco — la percentuale restante e'
+   divisa fra le sottotask, e finche' ne resta una da spuntare la giornata non
+   arriva al cento per cento. */
 function tappaState(t, c, evs) {
   const ch = childState(t, c, evs);
-  const total = ch.total + 1;
-  return { total, done: ch.done + (c[t.id] ? 1 : 0) };
+  return { total: ch.total + 1, done: ch.done + (c[t.id] ? 1 : 0) };
 }
 
 function tally(k) {
@@ -1540,42 +1522,6 @@ function validSchede(w) {
   return out;
 }
 
-/* La routine scritta a mano, come arriva dal file. Per ogni tappa un nome e un
-   elenco di sottotappe, ognuna con il suo id: gli id non si toccano mai, sono
-   quelli con cui sono scritte le spunte gia' fatte. In coda il registro delle
-   modifiche, che dice cosa e' cambiato e quando. */
-function validRoutine(w) {
-  const out = { tappe: {}, log: [] };
-  if (!w || typeof w !== 'object') return out;
-  const t = w.tappe && typeof w.tappe === 'object' ? w.tappe : {};
-  for (const k of Object.keys(t)) {
-    const v = t[k] || {};
-    const o = {};
-    const nome = String(v.nome == null ? '' : v.nome).slice(0, 80).trim();
-    if (nome) o.nome = nome;
-    if (Array.isArray(v.sub)) {
-      o.sub = v.sub.map(x => {
-        if (!x || typeof x !== 'object') return null;
-        const testo = String(x.t == null ? '' : x.t).slice(0, 80).trim();
-        const id = String(x.id == null ? '' : x.id).slice(0, 60).trim();
-        if (!testo || !id) return null;
-        return { id: id, t: testo };
-      }).filter(Boolean);
-    }
-    if (o.nome || o.sub) out.tappe[String(k).slice(0, 60)] = o;
-  }
-  if (Array.isArray(w.log)) {
-    out.log = w.log.map(x => {
-      if (!x || typeof x !== 'object') return null;
-      const q = String(x.q == null ? '' : x.q).slice(0, 40);
-      const testo = String(x.t == null ? '' : x.t).slice(0, 200).trim();
-      if (!q || !testo) return null;
-      return { q: q, t: testo };
-    }).filter(Boolean).slice(0, 200);
-  }
-  return out;
-}
-
 /* I pasti della giornata, nell'ordine in cui capitano. Uguali tutti i giorni:
    si prendono dalla routine standard, che li ha tutti. */
 const PASTI = ROUTINE_GIORNO.concat(SERA_STD).filter(t => t.pasto);
@@ -1588,7 +1534,6 @@ tstore.workout = validWorkout(tstore.workout);
 tstore.dieta   = validDieta(tstore.dieta);
 tstore.limiti  = validLimiti(tstore.limiti);
 tstore.schede  = validSchede(tstore.schede);
-tstore.routine = validRoutine(tstore.routine);
 
 /* Le info erano un elenco a parte, con la loro finestra. Ora sono una scheda
    come gli integratori. Quello che c'era nell'elenco passa nella scheda la
@@ -1649,7 +1594,6 @@ function ripescaLocale() {
   tstore.dieta   = validDieta(tstore.dieta);
   tstore.limiti  = validLimiti(tstore.limiti);
   tstore.schede  = validSchede(tstore.schede);
-  tstore.routine = validRoutine(tstore.routine);
   return true;
 }
 
@@ -1701,7 +1645,13 @@ function tidyTasks() {
       return false;
     }
     if (x.giorno < t0) {
-      /* il giorno la ricorda com'era, non fatta: il conteggio di ieri non cambia */
+      /* Finche' il giorno e' ancora dentro la finestra non si taglia niente: la
+         task resta sul suo giorno, viva e spuntabile, e intanto si rivede nel
+         serbatoio (restaIndietro). Cosi' la mattina dopo si puo' ancora chiudere
+         ieri, oppure rimettere la task su oggi. */
+      if (win.indexOf(x.giorno) >= 0) return true;
+      /* Uscito dalla finestra il giorno si congela: resta la riga grigia, non
+         spuntabile, e la task torna nel serbatoio senza giorno. */
       if (!mancate[x.giorno]) mancate[x.giorno] = [];
       mancate[x.giorno].push({ nome: x.nome, rank: x.rank, gws: x.gws });
       x.giorno = null; x.gws = null; changed = true;
@@ -1761,13 +1711,6 @@ const modifica = () => wTab === 'w' ? mostra.mw : mostra.md;
 const CALENDAR_KEY = 'gwork-calendar-v1';
 let calendar = (() => {
   try { return localStorage.getItem(CALENDAR_KEY) === '1'; } catch (e) { return false; }
-})();
-
-/* L'interruttore delle schedulate: spento si vede solo il serbatoio, acceso
-   anche quello che e' gia' su un giorno. Resta com'e' stato lasciato. */
-const SCHED_KEY = 'gwork-sched-v1';
-let vedeSchedulate = (() => {
-  try { return localStorage.getItem(SCHED_KEY) === '1'; } catch (e) { return false; }
 })();
 
 function openMenu(on) {
@@ -1931,9 +1874,12 @@ function paintLista(box, opt) {
      un cliente. Nel menu' invece restano come prima, sotto il filtro
      Calendar. */
   const evSched = opt.calSched ? eventiFinestra() : [];
-  const sched = chiudiSched ? tstore.tasks.filter(x => !x.evento && x.giorno).concat(evSched) : [];
+  /* Una task rimasta indietro non e' "gia' collocata": il suo giorno e' passato.
+     Sta fuori dalla tendina SCHEDULED e torna giu' nel serbatoio, col bordino
+     verde e la scritta del giorno, che dicono dov'e' ancora spuntabile. */
+  const sched = chiudiSched ? tstore.tasks.filter(x => !x.evento && x.giorno && !restaIndietro(x)).concat(evSched) : [];
   const inSched = new Set(sched.map(x => x.id));
-  const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno) && !inSched.has(x.id));
+  const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno || restaIndietro(x)) && !inSched.has(x.id));
   const eventi = opt.calSched ? [] : tstore.tasks.filter(x => x.evento);
   const evs  = vedeCal ? eventi : [];
   const tutto = list.concat(evs);
@@ -2024,10 +1970,9 @@ function paintLista(box, opt) {
 }
 
 function paintDrawer() {
-  /* Nel menu' le task gia' messe su un giorno non hanno una tendina loro: le
-     comanda l'interruttore Scheduled, come prima. Le due tendine dei clienti
-     stanno su una riga sola, come nel pescone. */
-  paintLista($('drawerList'), { pick: false, tutte: vedeSchedulate, chiudiSched: false,
+  /* Le task messe su un giorno stanno nella loro tendina SCHEDULED, e le due
+     tendine dei clienti su una riga sola, come nel pescone. */
+  paintLista($('drawerList'), { pick: false, tutte: true, chiudiSched: true,
                                 cal: calendar, riga: true });
   paintSync();
 }
@@ -2416,14 +2361,6 @@ function campiScheda(nome, sc, tab, senzaRec, voci) {
     sel.dataset.sel = i;
     sel.setAttribute('aria-label', 'Pick this exercise');
     row.appendChild(sel);
-    /* il bottone della descrizione: acceso quando la descrizione c'e' gia'.
-       Sta dal lato della spunta e non in fondo: dall'altra parte era attaccato
-       alla croce che toglie la riga, e si sbagliava bottone. */
-    const dsc = el('button', 'schbtn schdesc' + (sc.es[i][3] ? ' piena' : ''), '\u25be');
-    dsc.type = 'button';
-    dsc.dataset.desmod = nome + '|' + i;
-    dsc.setAttribute('aria-label', 'Description of this exercise');
-    row.appendChild(dsc);
     for (const j of [0, 1]) {
       const inp = el('input', 'wcampo');
       inp.type = 'text';
@@ -2435,6 +2372,12 @@ function campiScheda(nome, sc, tab, senzaRec, voci) {
       inp.placeholder = j === 0 ? voci.es : voci.qta;
       row.appendChild(inp);
     }
+    /* il bottone della descrizione: acceso quando la descrizione c'e' gia' */
+    const dsc = el('button', 'schbtn schdesc' + (sc.es[i][3] ? ' piena' : ''), '\u25be');
+    dsc.type = 'button';
+    dsc.dataset.desmod = nome + '|' + i;
+    dsc.setAttribute('aria-label', 'Description of this exercise');
+    row.appendChild(dsc);
     const x = el('button', 'schx', '\u00d7');
     x.type = 'button';
     x.dataset.togli = nome;
@@ -3291,12 +3234,6 @@ $('chiudiW').addEventListener('click', () => openW(false));
 $('menuBtn').addEventListener('click', () => openMenu(true));
 $('chiudiMenu').addEventListener('click', () => openMenu(false));
 $('velo').addEventListener('click', () => { openMenu(false); openW(false); });
-$('tutte').checked = vedeSchedulate;
-$('tutte').addEventListener('change', e => {
-  vedeSchedulate = e.target.checked;
-  try { localStorage.setItem(SCHED_KEY, vedeSchedulate ? '1' : '0'); } catch (e2) {}
-  paintDrawer();
-});
 $('calendar').checked = calendar;
 $('calendar').addEventListener('change', e => {
   calendar = e.target.checked;
@@ -3845,8 +3782,6 @@ async function provaToken() {
 /* -------------------------------------------------------------- sync ----- */
 
 let salvando = false, salvaErr = '';
-/* l'invio in coda: c'e' un numero mentre si aspettano i quattro secondi */
-let attesaSalva = null;
 let syncMsg = '', syncErr = false;
 
 function ghHeaders() {
@@ -3938,40 +3873,12 @@ function rememberSha(sha) {
 
 /* Due bottoni, uno stato: in alto nella pagina e in testa al menu'. */
 function paintSalva() {
-  const inCorso = salvando || attesaSalva !== null;
   for (const b of [$('salva'), $('salvaMenu')]) {
     b.hidden = !tstore.dirty;
-    b.disabled = inCorso;
+    b.disabled = salvando;
     b.classList.toggle('err', !!salvaErr);
-    b.textContent = inCorso ? 'Saving…' : salvaErr ? 'Save — ' + salvaErr : 'Save';
+    b.textContent = salvando ? 'Saving…' : salvaErr ? 'Save — ' + salvaErr : 'Save';
   }
-}
-
-/* ---------------------------------------------- un commit solo, non dieci ---
-
-   Ogni salvataggio e' un commit su GitHub. Premuto Salva, si aspettano quattro
-   secondi prima di mandare: quello che si tocca in quel momento entra nello
-   stesso invio, e ne esce un commit solo invece di una fila.
-
-   Chi chiede di salvare mentre l'attesa e' gia' in corso non ne apre un'altra:
-   si accoda a quella, e quando parte porta su lo stato di allora, non quello di
-   quando ha premuto. Chiudendo l'app il salvagente non aspetta: parte subito. */
-const ATTESA_COMMIT = 4000;
-
-function chiediSalva(opts) {
-  if (!tstore.dirty || salvando) return;
-  if (attesaSalva !== null) return;        /* c'e' gia' un invio in coda */
-  attesaSalva = setTimeout(() => {
-    attesaSalva = null;
-    pushTasks(opts || {});
-  }, ATTESA_COMMIT);
-  paintSalva();
-}
-
-/* L'attesa salta: si manda adesso. Serve quando l'app sta per chiudersi. */
-function salvaSubito(opts) {
-  if (attesaSalva !== null) { clearTimeout(attesaSalva); attesaSalva = null; }
-  pushTasks(opts || {});
 }
 
 function paintSync(msg, err) {
@@ -4021,7 +3928,6 @@ async function pullTasks() {
   const dieta  = validDieta(data.dieta);
   const limiti = validLimiti(data.limiti);
   const schede = validSchede(data.schede);
-  const rout   = validRoutine(data.routine);
 
   if (tstore.dirty) {
     /* e' la nostra stessa versione, salvata dal salvagente senza risposta? */
@@ -4039,7 +3945,6 @@ async function pullTasks() {
   tstore.dieta = dieta;
   tstore.limiti = limiti;
   tstore.schede = schede;
-  tstore.routine = rout;
   migraInfo();                    /* un file di prima: le info passano nella scheda */
   rememberSha(j.sha);
   tstore.dirty = false;
@@ -4064,7 +3969,7 @@ async function pushTasks(opts) {
   /* con la chiave impostata il file parte chiuso; senza, in chiaro come prima */
   const testo = JSON.stringify({ tasks: tstore.tasks, workout: tstore.workout,
                                  dieta: tstore.dieta, limiti: tstore.limiti,
-                                 schede: tstore.schede, routine: tstore.routine }, null, 2) + '\n';
+                                 schede: tstore.schede }, null, 2) + '\n';
   let corpo;
   try {
     corpo = await cifra(testo);
@@ -4148,7 +4053,7 @@ async function pushTasks(opts) {
    per questo la copia locale resta comunque, e Salva ricompare alla riapertura. */
 function salvagente() {
   if (!tstore.dirty || !token || salvando) return;
-  salvaSubito({ keepalive: true });
+  pushTasks({ keepalive: true });
 }
 
 /* Un salvataggio caduto per la rete, o per un 5xx di GitHub, si riprova da
@@ -4161,11 +4066,11 @@ function riprovaSalva() {
   /* prima si guarda se nel telefono c'e' qualcosa di piu' fresco: non si manda
      su una copia vecchia rimasta in memoria */
   sincronizzaLocale();
-  if (tstore.dirty && !salvando) chiediSalva();
+  if (tstore.dirty && !salvando) pushTasks();
 }
 
-$('salva').addEventListener('click', () => chiediSalva());
-$('salvaMenu').addEventListener('click', () => chiediSalva());
+$('salva').addEventListener('click', () => pushTasks());
+$('salvaMenu').addEventListener('click', () => pushTasks());
 
 /* ---------------------------------------------------------- avviamento --- */
 
