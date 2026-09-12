@@ -48,8 +48,10 @@
       "desc": "Quando sarà il momento di vendere usa la piattaforma bisq, chiederà una fee ma meglio delle tasse. Io mando I btc e un \"random dude\" mi farà un bonifico",
       "rank": "C",
       "cliente": null,
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-09-12",
+      "gws": [
+        0
+      ],
       "creata": "2026-09-07T20:45:15.368Z"
     },
     {
