@@ -270,8 +270,10 @@
       "desc": "- nelle impsitazuoni mamuale d'uso\n- cone vengono scritti I verbali\n- fare parte pagamento nelle ompostaizomo con i pacchetti iniziali",
       "rank": "A",
       "cliente": null,
-      "giorno": null,
-      "gws": null
+      "giorno": "2026-09-12",
+      "gws": [
+        4
+      ]
     }
   ],
   "workout": {
