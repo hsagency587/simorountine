@@ -157,21 +157,6 @@
       "creata": "2026-09-08T20:21:51.433Z"
     },
     {
-      "id": "tmtt79lhrd6aq",
-      "nome": "Google ads",
-      "desc": "",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-11",
-      "gws": [
-        0,
-        1,
-        2,
-        3
-      ],
-      "creata": "2026-09-08T21:47:02.031Z"
-    },
-    {
       "id": "tmtu5tza8dvx4",
       "nome": "Indexing lovo new pages",
       "desc": "Manually index all the new location pages and fix the link attached to the principal one",
@@ -200,18 +185,6 @@
       "cliente": null,
       "giorno": null,
       "gws": null
-    },
-    {
-      "id": "tmtv3757c5r3j",
-      "creata": "2026-09-10T05:28:41.496Z",
-      "nome": "Toothpaste and toothbrush",
-      "desc": "",
-      "rank": "B",
-      "cliente": "longkai",
-      "giorno": "2026-09-11",
-      "gws": [
-        0
-      ]
     },
     {
       "id": "tmtv7ai8g8poo",
