@@ -13,20 +13,6 @@
       "ora": "09:40–14:45"
     },
     {
-      "id": "tmtrpfj08igi2",
-      "nome": "ADS su Google entro lunedi 14",
-      "desc": "Target: albergatori\nOffert: Google ADS + GBP\nBudget: 1k/month",
-      "rank": "B",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-12",
-      "gws": [
-        1,
-        2,
-        3
-      ],
-      "creata": "2026-09-07T20:39:59.480Z"
-    },
-    {
       "id": "tmtrphxs3bsxi",
       "nome": "3 conti in 3 paesi + 5 crypto wallet",
       "desc": "-Trovare il modo di aprire 3 conti bancari, 1/2 EXTRA UE , 1/2 UE\n-avere 5 crypto wallet e distribuire I propri soldi",
@@ -243,10 +229,8 @@
       "desc": "- nelle impsitazuoni mamuale d'uso\n- cone vengono scritti I verbali\n- fare parte pagamento nelle ompostaizomo con i pacchetti iniziali",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-12",
-      "gws": [
-        4
-      ]
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
