@@ -46,8 +46,10 @@
       "desc": "Aggiustare il sito esattamente come lo vorrei io, Paolo, poi creare una versione SEO corretta ",
       "rank": "A",
       "cliente": "fisio-leone",
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-09-15",
+      "gws": [
+        1
+      ],
       "creata": "2026-09-07T21:05:30.877Z"
     },
     {
