@@ -1,0 +1,49 @@
+{
+  "generatedAt": "2026-09-16T00:00:50+02:00",
+  "scartati": {
+    "cancellati": 0,
+    "senzaTitolo": 0
+  },
+  "days": {
+    "2026-09-15": [
+      {
+        "id": "cgo34or2cksj8bb275hjib9k75hm2bb26sr30b9j6co3ep1mckq3ip356s@google.com",
+        "title": "Prep cena, chek da sifu",
+        "start": "2026-09-15T17:30:00+02:00",
+        "end": "2026-09-15T20:30:00+02:00",
+        "description": ""
+      },
+      {
+        "id": "68rj0dpi6crmcbb56tj30b9k6pj66bb274r3ebb6c9j3gc3174q3edhlcg@google.com::2026-09-15T22:00:00",
+        "title": "Butta immondizia",
+        "start": "2026-09-15T22:00:00+02:00",
+        "end": "2026-09-15T22:15:00+02:00",
+        "description": "Butta immondizia indifferenziata"
+      }
+    ],
+    "2026-09-16": [
+      {
+        "id": "tilmrl3uaer89dem5kn031co3c@google.com",
+        "title": "Incontro avvocato",
+        "start": "2026-09-16T15:30:00+02:00",
+        "end": "2026-09-16T17:00:00+02:00",
+        "description": "Incontro con l'avvocato per l'agenzia."
+      }
+    ],
+    "2026-09-17": [],
+    "2026-09-18": [],
+    "2026-09-19": [],
+    "2026-09-20": [],
+    "2026-09-21": [],
+    "2026-09-22": [
+      {
+        "id": "68rj0dpi6crmcbb56tj30b9k6pj66bb274r3ebb6c9j3gc3174q3edhlcg@google.com::2026-09-22T22:00:00",
+        "title": "Butta immondizia",
+        "start": "2026-09-22T22:00:00+02:00",
+        "end": "2026-09-22T22:15:00+02:00",
+        "description": "Butta immondizia indifferenziata"
+      }
+    ],
+    "2026-09-23": []
+  }
+}
