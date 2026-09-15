@@ -1,18 +1,6 @@
 {
   "tasks": [
     {
-      "id": "ev:6co62e1kclijib9lcgqm2b9k75imcb9p60r3ab9ic4pjgc1n64rmae9m6g@google.com",
-      "nome": "Sifu - Evento Volantini",
-      "desc": "",
-      "rank": "A",
-      "cliente": "longkai",
-      "giorno": "2026-09-13",
-      "gws": null,
-      "creata": "2026-09-07T20:18:43.382Z",
-      "evento": "6co62e1kclijib9lcgqm2b9k75imcb9p60r3ab9ic4pjgc1n64rmae9m6g@google.com",
-      "ora": "09:40–14:45"
-    },
-    {
       "id": "tmtrphxs3bsxi",
       "nome": "3 conti in 3 paesi + 5 crypto wallet",
       "desc": "-Trovare il modo di aprire 3 conti bancari, 1/2 EXTRA UE , 1/2 UE\n-avere 5 crypto wallet e distribuire I propri soldi",
@@ -231,6 +219,18 @@
       "cliente": null,
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmu2aequsimge",
+      "creata": "2026-09-15T06:24:56.692Z",
+      "nome": "Commissioni",
+      "desc": "",
+      "rank": "B",
+      "cliente": null,
+      "giorno": "2026-09-15",
+      "gws": [
+        0
+      ]
     }
   ],
   "workout": {
