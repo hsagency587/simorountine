@@ -916,7 +916,21 @@
     }
   },
   "routine": {
-    "tappe": {},
-    "log": []
+    "tappe": {
+      "pranzo": {
+        "sub": [
+          {
+            "id": "pranzo-movimento",
+            "t": "10’ OF MOVEMENT"
+          }
+        ]
+      }
+    },
+    "log": [
+      {
+        "q": "2026-09-15T11:45:35.934Z",
+        "t": "LUNCH + ROUTINE: removed \"SHOWER\""
+      }
+    ]
   }
 }
