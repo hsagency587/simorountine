@@ -943,6 +943,10 @@
       {
         "q": "2026-09-15T11:45:35.934Z",
         "t": "LUNCH + ROUTINE: removed \"SHOWER\""
+      },
+      {
+        "q": "2026-09-16T19:47:17.000Z",
+        "t": "RECOVERY: restored tasks/schede/routine lost in the 13:56 save"
       }
     ]
   }
