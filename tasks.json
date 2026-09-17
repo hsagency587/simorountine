@@ -186,8 +186,11 @@
       "desc": "Modifica sito come ha chiesto la Dinucci. ",
       "rank": "A",
       "cliente": "di-nucci",
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-09-17",
+      "gws": [
+        0,
+        1
+      ],
       "creata": "2026-09-10T07:25:18.253Z"
     },
     {
@@ -222,6 +225,31 @@
         1
       ],
       "creata": "2026-09-16T07:18:07.746Z"
+    },
+    {
+      "id": "tmu56l2bqsywr",
+      "creata": "2026-09-17T07:01:11.558Z",
+      "nome": "Call manuela",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-17",
+      "gws": [
+        2
+      ]
+    },
+    {
+      "id": "tmu56m08lhx8z",
+      "creata": "2026-09-17T07:01:55.509Z",
+      "nome": "Completamento interfaccia app cantieri",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-17",
+      "gws": [
+        2,
+        3
+      ]
     }
   ],
   "workout": {
