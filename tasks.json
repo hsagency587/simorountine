@@ -188,8 +188,10 @@
       "cliente": "di-nucci",
       "giorno": "2026-09-17",
       "gws": [
-        0,
-        1
+        1,
+        2,
+        3,
+        4
       ],
       "creata": "2026-09-10T07:25:18.253Z"
     },
@@ -232,10 +234,11 @@
       "nome": "Call manuela",
       "desc": "",
       "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-17",
+      "cliente": "manuela-lovo",
+      "giorno": "2026-09-18",
       "gws": [
-        2
+        0,
+        1
       ]
     },
     {
@@ -255,6 +258,18 @@
       "id": "tmu56mrv71mye",
       "creata": "2026-09-17T07:02:31.315Z",
       "nome": "Indexing manuela lovo website",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-17",
+      "gws": [
+        2
+      ]
+    },
+    {
+      "id": "tmu5wezha3cs1",
+      "creata": "2026-09-17T19:04:17.950Z",
+      "nome": "GBP/ADS acc. X AlbergADV",
       "desc": "",
       "rank": "A",
       "cliente": null,
