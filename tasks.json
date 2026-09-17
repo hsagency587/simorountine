@@ -41,18 +41,6 @@
       "creata": "2026-09-07T20:46:17.082Z"
     },
     {
-      "id": "tmtrqccn12xlp",
-      "nome": "Fix sito",
-      "desc": "Aggiustare il sito esattamente come lo vorrei io, Paolo, poi creare una versione SEO corretta ",
-      "rank": "A",
-      "cliente": "fisio-leone",
-      "giorno": "2026-09-15",
-      "gws": [
-        1
-      ],
-      "creata": "2026-09-07T21:05:30.877Z"
-    },
-    {
       "id": "tmtrqdmez9du8",
       "nome": "Check citazioni Omnia",
       "desc": "Controllare se ci sono errori nelle citazioni attuali e aggiungere quelli mancati. ",
@@ -154,89 +142,76 @@
     },
     {
       "id": "tmtumjvvfaygl",
-      "creata": "2026-09-09T21:42:42.459Z",
       "nome": "Fix app",
       "desc": "1. Nel menu Task c'è ancora la toggle Scheduled e il bottone non funziona.\n2. Vorrei che la percentuale della giornata non si completasse se io non completo delle sottotask.\nAdesso la task principale comanda, ma io vorrei che fosse distribuita in base al numero di task secondarie, si divide la percentuale restante.\n3 Nel menù Allenamento la freccetta, ora dove c'è una descrizione, quella della toggle, è brutta e piccola. Si vede poco. Vorrei leggermente più enfasi, soprattutto nel menù, soprattutto a tabella, e nell'editor mettila più lontano dal tasto X perché continuo a sbagliare.\n4 raggruppa commit, prima di committare aspetta 4 secondi e raggruppa tutto in 1 commit \n5. Come avviene per i workout, la dieta e la routine giornaliera, anch'essa deve essere modificabile come tutti gli elementi all'interno delle varie routine o pranzi e cene, con un editor simile a quello della tabella allenamento. Questo editor deve essere separato da tutto il resto del sistema perché intacca proprio la routine giornaliera stessa. Questo serve perché spesso mi si sfancula totalmente e voglio tenerne traccia. ",
       "rank": "B",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-09T21:42:42.459Z"
     },
     {
       "id": "tmtv7ai8g8poo",
-      "creata": "2026-09-10T07:23:16.816Z",
       "nome": "Tech problem",
       "desc": "Vuole ricevere mail su info@... dal GBP",
       "rank": "A",
       "cliente": "manuela-lovo",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-10T07:23:16.816Z"
     },
     {
       "id": "tmtv7apo8fdqr",
-      "creata": "2026-09-10T07:23:26.456Z",
       "nome": "Citazioni",
       "desc": "",
       "rank": "A",
       "cliente": "manuela-lovo",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-10T07:23:26.456Z"
     },
     {
       "id": "tmtv7bk90a3i8",
-      "creata": "2026-09-10T07:24:06.084Z",
       "nome": "Last touch SEO",
       "desc": "",
       "rank": "C",
       "cliente": "manuela-lovo",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-10T07:24:06.084Z"
     },
     {
       "id": "tmtv7d3xph5ul",
-      "creata": "2026-09-10T07:25:18.253Z",
       "nome": "Sito",
       "desc": "Modifica sito come ha chiesto la Dinucci. ",
       "rank": "A",
       "cliente": "di-nucci",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-10T07:25:18.253Z"
     },
     {
       "id": "tmtvrok4iw2ho",
-      "creata": "2026-09-10T16:54:04.770Z",
       "nome": "Fix app Papa.",
       "desc": "Modifiche App\n\nUna volta applicate tutte le modifiche funzionali descritte e richieste da mio padre, dovremo capire come venderla. Quindi, una volta terminate le modifiche, prepara un piano contenente:\n- come proteggerla e avere una cyber security ottima\n- come garantirsi che funzioni sempre, soprattutto visto che usiamo fornitori terzi\n- come avere la possibilità di offrire più memoria utilizzando un cloud esterno\n- l'infrastruttura necessaria a reggere diversi clienti che lavorano ognuno sulla propria App in modo che l'installazione sia facile, senza la richiesta di codici o, meglio, senza che il cliente debba inserire i codici\n- come gestire i pagamenti mensili in maniera sicura\n- mettere tutto a norma di legge\nE di fisco, per non avere problemi \n\nInsomma una volta approvata una versione, dovremo capire da zero come renderlo un prodotto vero e proprio, vendibile, che faccia delivery correttamente, che non si rompa, che abbia molta memoria e che sia da me totalmente gestibile e modulabile. L'account di ogni persona ",
       "rank": "B",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-10T16:54:04.770Z"
     },
     {
       "id": "tmtxfgq18qyc7",
-      "creata": "2026-09-11T20:47:36.140Z",
       "nome": "Modifiche app papa",
       "desc": "- nelle impsitazuoni mamuale d'uso\n- cone vengono scritti I verbali\n- fare parte pagamento nelle ompostaizomo con i pacchetti iniziali",
       "rank": "A",
       "cliente": null,
       "giorno": null,
-      "gws": null
-    },
-    {
-      "id": "tmu2aequsimge",
-      "creata": "2026-09-15T06:24:56.692Z",
-      "nome": "Commissioni",
-      "desc": "",
-      "rank": "B",
-      "cliente": null,
-      "giorno": "2026-09-15",
-      "gws": [
-        0
-      ]
+      "gws": null,
+      "creata": "2026-09-11T20:47:36.140Z"
     },
     {
       "id": "tmu3rqzr6w0l7",
-      "creata": "2026-09-16T07:18:07.746Z",
       "nome": "Finire piano applicazione",
       "desc": "",
       "rank": "A",
@@ -245,7 +220,8 @@
       "gws": [
         0,
         1
-      ]
+      ],
+      "creata": "2026-09-16T07:18:07.746Z"
     }
   ],
   "workout": {
