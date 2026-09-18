@@ -106,8 +106,10 @@
       "desc": "Prepara un po' di versioni per il biglietto di visita della Manuela Lobo e sistema quelle esistenti. ",
       "rank": "A",
       "cliente": "manuela-lovo",
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-09-18",
+      "gws": [
+        1
+      ],
       "creata": "2026-09-08T06:45:27.594Z"
     },
     {
@@ -156,8 +158,10 @@
       "desc": "Vuole ricevere mail su info@... dal GBP",
       "rank": "A",
       "cliente": "manuela-lovo",
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-09-18",
+      "gws": [
+        1
+      ],
       "creata": "2026-09-10T07:23:16.816Z"
     },
     {
@@ -166,8 +170,10 @@
       "desc": "",
       "rank": "A",
       "cliente": "manuela-lovo",
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-09-18",
+      "gws": [
+        1
+      ],
       "creata": "2026-09-10T07:23:26.456Z"
     },
     {
@@ -216,19 +222,6 @@
       "creata": "2026-09-11T20:47:36.140Z"
     },
     {
-      "id": "tmu3rqzr6w0l7",
-      "nome": "Finire piano applicazione",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-16",
-      "gws": [
-        0,
-        1
-      ],
-      "creata": "2026-09-16T07:18:07.746Z"
-    },
-    {
       "id": "tmu56l2bqsywr",
       "creata": "2026-09-17T07:01:11.558Z",
       "nome": "Call manuela",
@@ -237,8 +230,7 @@
       "cliente": "manuela-lovo",
       "giorno": "2026-09-18",
       "gws": [
-        0,
-        1
+        0
       ]
     },
     {
@@ -276,6 +268,42 @@
       "giorno": "2026-09-17",
       "gws": [
         2
+      ]
+    },
+    {
+      "id": "tmu6pqs787hl0",
+      "creata": "2026-09-18T08:45:17.252Z",
+      "nome": "Organizzazione video",
+      "desc": "Organizzazione e scrittura dei video per le meta di esse ",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-21",
+      "gws": [
+        0
+      ]
+    },
+    {
+      "id": "tmu6prtodvdv0",
+      "creata": "2026-09-18T08:46:05.821Z",
+      "nome": "Scrittura video AlbergADV",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-21",
+      "gws": [
+        1
+      ]
+    },
+    {
+      "id": "tmu6psmzhbolh",
+      "creata": "2026-09-18T08:46:43.805Z",
+      "nome": "Sito di nucci",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-18",
+      "gws": [
+        0
       ]
     }
   ],
