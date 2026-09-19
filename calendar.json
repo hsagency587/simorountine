@@ -1,0 +1,34 @@
+{
+  "generatedAt": "2026-09-19T08:14:20+02:00",
+  "scartati": {
+    "cancellati": 0,
+    "senzaTitolo": 0
+  },
+  "days": {
+    "2026-09-18": [],
+    "2026-09-19": [],
+    "2026-09-20": [],
+    "2026-09-21": [
+      {
+        "id": "ccqj2db6ccqj6b9mc8s38b9kc8o6cbb271i6cb9l69imce35c4r6ac36c4@google.com",
+        "title": "Stacca abbonamento di nucci",
+        "start": "2026-09-21T07:30:00+02:00",
+        "end": "2026-09-21T08:30:00+02:00",
+        "description": ""
+      }
+    ],
+    "2026-09-22": [
+      {
+        "id": "68rj0dpi6crmcbb56tj30b9k6pj66bb274r3ebb6c9j3gc3174q3edhlcg@google.com::2026-09-22T22:00:00",
+        "title": "Butta immondizia",
+        "start": "2026-09-22T22:00:00+02:00",
+        "end": "2026-09-22T22:15:00+02:00",
+        "description": "Butta immondizia indifferenziata"
+      }
+    ],
+    "2026-09-23": [],
+    "2026-09-24": [],
+    "2026-09-25": [],
+    "2026-09-26": []
+  }
+}
