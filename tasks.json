@@ -260,6 +260,54 @@
       "gws": [
         2
       ]
+    },
+    {
+      "id": "tmu9v7yf721ex",
+      "creata": "2026-09-20T13:41:55.075Z",
+      "nome": "Set up and launch",
+      "desc": "",
+      "rank": "B",
+      "cliente": null,
+      "giorno": "2026-09-20",
+      "gws": [
+        2
+      ]
+    },
+    {
+      "id": "tmu9v99547013",
+      "creata": "2026-09-20T13:42:55.624Z",
+      "nome": "Aggistare video meta",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-20",
+      "gws": [
+        2
+      ]
+    },
+    {
+      "id": "tmu9v9pf0tvl1",
+      "creata": "2026-09-20T13:43:16.716Z",
+      "nome": "Dettagliare registrazione meta ads",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-20",
+      "gws": [
+        3
+      ]
+    },
+    {
+      "id": "tmu9vb7lw95r2",
+      "creata": "2026-09-20T13:44:26.948Z",
+      "nome": "Ordina lampadine",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-20",
+      "gws": [
+        4
+      ]
     }
   ],
   "workout": {
