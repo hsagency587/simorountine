@@ -101,18 +101,6 @@
       "creata": "2026-09-08T05:55:01.767Z"
     },
     {
-      "id": "tmtsb25yin49k",
-      "nome": "Biglietto da visita",
-      "desc": "Prepara un po' di versioni per il biglietto di visita della Manuela Lobo e sistema quelle esistenti. ",
-      "rank": "A",
-      "cliente": "manuela-lovo",
-      "giorno": "2026-09-18",
-      "gws": [
-        1
-      ],
-      "creata": "2026-09-08T06:45:27.594Z"
-    },
-    {
       "id": "tmtt4824pobh9",
       "nome": "Scheda sifu e zia",
       "desc": "Crea la scheda al sifo e alla zia. ",
@@ -153,27 +141,13 @@
       "creata": "2026-09-09T21:42:42.459Z"
     },
     {
-      "id": "tmtv7ai8g8poo",
-      "nome": "Tech problem",
-      "desc": "Vuole ricevere mail su info@... dal GBP",
-      "rank": "A",
-      "cliente": "manuela-lovo",
-      "giorno": "2026-09-18",
-      "gws": [
-        1
-      ],
-      "creata": "2026-09-10T07:23:16.816Z"
-    },
-    {
       "id": "tmtv7apo8fdqr",
       "nome": "Citazioni",
       "desc": "",
       "rank": "A",
       "cliente": "manuela-lovo",
-      "giorno": "2026-09-18",
-      "gws": [
-        1
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-09-10T07:23:26.456Z"
     },
     {
@@ -192,13 +166,8 @@
       "desc": "Modifica sito come ha chiesto la Dinucci. ",
       "rank": "A",
       "cliente": "di-nucci",
-      "giorno": "2026-09-17",
-      "gws": [
-        1,
-        2,
-        3,
-        4
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-09-10T07:25:18.253Z"
     },
     {
@@ -222,53 +191,14 @@
       "creata": "2026-09-11T20:47:36.140Z"
     },
     {
-      "id": "tmu56l2bqsywr",
-      "creata": "2026-09-17T07:01:11.558Z",
-      "nome": "Call manuela",
-      "desc": "",
-      "rank": "A",
-      "cliente": "manuela-lovo",
-      "giorno": "2026-09-18",
-      "gws": [
-        0
-      ]
-    },
-    {
-      "id": "tmu56m08lhx8z",
-      "creata": "2026-09-17T07:01:55.509Z",
-      "nome": "Completamento interfaccia app cantieri",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-17",
-      "gws": [
-        2,
-        3
-      ]
-    },
-    {
       "id": "tmu56mrv71mye",
       "creata": "2026-09-17T07:02:31.315Z",
       "nome": "Indexing manuela lovo website",
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-17",
-      "gws": [
-        2
-      ]
-    },
-    {
-      "id": "tmu5wezha3cs1",
-      "creata": "2026-09-17T19:04:17.950Z",
-      "nome": "GBP/ADS acc. X AlbergADV",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-17",
-      "gws": [
-        2
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmu6pqs787hl0",
@@ -295,15 +225,40 @@
       ]
     },
     {
-      "id": "tmu6psmzhbolh",
-      "creata": "2026-09-18T08:46:43.805Z",
-      "nome": "Sito di nucci",
+      "id": "tmu9v5hden46h",
+      "creata": "2026-09-20T13:39:59.666Z",
+      "nome": "Sleep & recovery",
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-18",
+      "giorno": "2026-09-20",
       "gws": [
-        0
+        0,
+        1
+      ]
+    },
+    {
+      "id": "tmu9v5qbjess1",
+      "creata": "2026-09-20T13:40:11.263Z",
+      "nome": "Cleaning",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-20",
+      "gws": [
+        1
+      ]
+    },
+    {
+      "id": "tmu9v6lrz2iv3",
+      "creata": "2026-09-20T13:40:52.031Z",
+      "nome": "Organizzazione settimana",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-20",
+      "gws": [
+        2
       ]
     }
   ],
