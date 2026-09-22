@@ -207,10 +207,8 @@
       "desc": "Organizzazione e scrittura dei video per le meta di esse ",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-21",
-      "gws": [
-        0
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmu6prtodvdv0",
@@ -219,35 +217,8 @@
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-21",
-      "gws": [
-        1
-      ]
-    },
-    {
-      "id": "tmu9v5hden46h",
-      "creata": "2026-09-20T13:39:59.666Z",
-      "nome": "Sleep & recovery",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-20",
-      "gws": [
-        0,
-        1
-      ]
-    },
-    {
-      "id": "tmu9v5qbjess1",
-      "creata": "2026-09-20T13:40:11.263Z",
-      "nome": "Cleaning",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-20",
-      "gws": [
-        1
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmu9v6lrz2iv3",
@@ -256,10 +227,8 @@
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-20",
-      "gws": [
-        2
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmu9v7yf721ex",
@@ -268,10 +237,8 @@
       "desc": "",
       "rank": "B",
       "cliente": null,
-      "giorno": "2026-09-20",
-      "gws": [
-        2
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmu9v99547013",
@@ -280,10 +247,8 @@
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-20",
-      "gws": [
-        2
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmu9v9pf0tvl1",
@@ -292,10 +257,8 @@
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-20",
-      "gws": [
-        3
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmu9vb7lw95r2",
@@ -304,10 +267,8 @@
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-20",
-      "gws": [
-        4
-      ]
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
