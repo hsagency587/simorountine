@@ -78,6 +78,7 @@
       </div>
     </details>
     <button type="button" class="link" id="routineBtn" hidden>Routine</button>
+    <button type="button" class="link" id="clientiBtn" hidden>Clients</button>
     <button type="button" class="link" id="impostazioniBtn">Settings</button>
   </div>
 </footer>
@@ -324,6 +325,23 @@
   </div>
 </dialog>
 
+<!-- L'editor dei clienti e delle mie attivita': a tutto schermo, come quello
+     della routine. Lo riempie clienti-editor.js; senza quel file il bottone
+     resta nascosto. -->
+<dialog class="descbox" id="clientiEd" tabindex="-1" aria-labelledby="clTit">
+  <div class="descbox-in">
+    <h2 class="desctit" id="clTit">Clients / My companies</h2>
+    <div class="rtscroll">
+      <p class="nota">Name and tag of each one. Deleting one keeps its tasks:
+        they stay, without a client.</p>
+      <div id="clLista"></div>
+    </div>
+    <div class="chiusura-btn">
+      <button type="button" class="btn btn-ok" id="clChiudi">Close</button>
+    </div>
+  </div>
+</dialog>
+
 <!-- La tendina dei tre puntini: piccola, appesa al bottone che l'ha aperta.
      Non e' una finestra in mezzo allo schermo: le due voci stanno sotto il
      dito che ha appena toccato i puntini. -->
@@ -334,5 +352,6 @@
 <script src="app.js"></script>
 <!-- l'editor della routine: dopo app.js, perche' si appoggia a quello -->
 <script src="routine-editor.js"></script>
+<script src="clienti-editor.js"></script>
 </body>
 </html>

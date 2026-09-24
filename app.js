@@ -29,8 +29,10 @@ const RANKS        = ['A', 'B', 'C'];
 
 /* I clienti su cui possono stare le task. L'id e' quello che resta scritto
    dentro le task gia' fatte: non si cambia mai. Il nome invece si corregge
-   quando si vuole. Per aggiungere un cliente si aggiunge una riga qui. */
-const CLIENTI = [
+   quando si vuole. Questi sono quelli di fabbrica: l'elenco vero si scrive
+   nell'editor dei clienti, sta in tstore.clienti e viaggia nel file delle
+   task. Finche' non si e' toccato niente, vale questo. */
+const CLIENTI_BASE = [
   { id: 'hs-agency',    nome: 'HS Agency',              mia: true },
   { id: 'longkai',      nome: 'Lòngkai — Sifu Diego' },
   { id: 'di-nucci',     nome: 'Gioielleria Di Nucci',   tag: 'Top3' },
@@ -41,6 +43,30 @@ const CLIENTI = [
   { id: 'fisio-leone',  nome: 'Fisio Leone',            tag: 'Top3' },
   { id: 'osteria-anna', nome: 'Osteria Da Anna',        tag: 'Top3 + ADS' }
 ];
+
+/* L'elenco in uso. E' sempre lo stesso array, che si svuota e si riempie:
+   chi lo legge lo trova aggiornato senza doverlo richiedere. */
+const CLIENTI = CLIENTI_BASE.slice();
+
+/* Un elenco arrivato dal file si prende con le pinze: un id e un nome, senno'
+   la riga non c'e'. Non un elenco, null: vale quello di fabbrica. */
+function validClienti(v) {
+  if (!Array.isArray(v)) return null;
+  const visti = new Set();
+  return v.filter(c => c && typeof c.id === 'string' && c.id && !visti.has(c.id)
+                       && typeof c.nome === 'string' && c.nome.trim() && visti.add(c.id))
+          .map(c => {
+            const o = { id: c.id, nome: c.nome.trim().slice(0, 60) };
+            if (typeof c.tag === 'string' && c.tag.trim()) o.tag = c.tag.trim().slice(0, 30);
+            if (c.mia) o.mia = true;
+            return o;
+          });
+}
+
+function applicaClienti(v) {
+  CLIENTI.length = 0;
+  for (const c of (v || CLIENTI_BASE)) CLIENTI.push(c);
+}
 const clienteNome = id => {
   const c = CLIENTI.find(x => x.id === id);
   return c ? c.nome : '';
@@ -1595,6 +1621,8 @@ tstore.dieta   = validDieta(tstore.dieta);
 tstore.limiti  = validLimiti(tstore.limiti);
 tstore.schede  = validSchede(tstore.schede);
 tstore.routine = validRoutine(tstore.routine);
+tstore.clienti = validClienti(tstore.clienti);
+applicaClienti(tstore.clienti);
 
 /* Le info erano un elenco a parte, con la loro finestra. Ora sono una scheda
    come gli integratori. Quello che c'era nell'elenco passa nella scheda la
@@ -1656,6 +1684,8 @@ function ripescaLocale() {
   tstore.limiti  = validLimiti(tstore.limiti);
   tstore.schede  = validSchede(tstore.schede);
   tstore.routine = validRoutine(tstore.routine);
+  tstore.clienti = validClienti(tstore.clienti);
+  applicaClienti(tstore.clienti);
   return true;
 }
 
@@ -1926,6 +1956,13 @@ function eventiFinestra() {
   return out;
 }
 
+/* Una cosa gia' messa su un giorno e' fatta se nel suo giorno e' spuntata: la
+   task in tutte le sue sessioni, l'evento in tutte le tappe che attraversa. */
+function schedFatta(x) {
+  const c = dayChecks(x.giorno);
+  return x.evento ? chiaviEvento(x).every(k => c[k]) : taskFatta(x, c);
+}
+
 function paintLista(box, opt) {
   const pick = !!opt.pick;
   const vedeSched = !!opt.tutte;
@@ -1934,25 +1971,25 @@ function paintLista(box, opt) {
   /* le task del serbatoio, o anche le schedulate. Nei blocchi RANK qui sotto
      gli eventi del calendario entrano solo col filtro Calendar; dentro un
      cliente ci sono sempre, come le schedulate. */
-  /* Nel pescone quello che e' gia' su un giorno si chiude in una tendina sua,
-     sotto le altre due: grigia, che non e' un cliente. Sotto restano solo le
-     task ancora libere. */
-  const chiudiSched = !!opt.chiudiSched;
-  /* Nel pescone gli eventi del calendario stanno solo dentro la tendina delle
-     schedulate: sono gia' collocati, di li' non si pesca niente. Ci sono
-     quelli di oggi e dei sette giorni dopo, non solo quelli a cui si e' dato
-     un cliente. Nel menu' invece restano come prima, sotto il filtro
-     Calendar. */
+  /* Nel pescone quello che e' gia' su un giorno e non e' ancora spuntato sta in
+     cima, sotto le tendine dei clienti, senza tendina sua: il bordino colorato
+     basta a riconoscerlo. Quello gia' spuntato torna nei blocchi per rank. */
+  const schedPrima = !!opt.schedPrima;
+  /* Nel pescone ci sono anche gli eventi del calendario di oggi e dei sette
+     giorni dopo, non solo quelli a cui si e' dato un cliente: sono gia'
+     collocati, di li' non si pesca niente. Nel menu' invece restano come
+     prima, sotto il filtro Calendar. */
   const evSched = opt.calSched ? eventiFinestra() : [];
   /* Una task rimasta indietro non e' "gia' collocata": il suo giorno e' passato.
-     Sta fuori dalla tendina SCHEDULED e torna giu' nel serbatoio, col bordino
-     verde e la scritta del giorno, che dicono dov'e' ancora spuntabile. */
-  const sched = chiudiSched ? tstore.tasks.filter(x => !x.evento && x.giorno && !restaIndietro(x)).concat(evSched) : [];
-  const inSched = new Set(sched.map(x => x.id));
-  const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno || restaIndietro(x)) && !inSched.has(x.id));
+     Resta nel serbatoio, col bordino verde e la scritta del giorno, che dicono
+     dov'e' ancora spuntabile. */
+  const sched = schedPrima ? tstore.tasks.filter(x => !x.evento && x.giorno && !restaIndietro(x)).concat(evSched) : [];
+  const prima = sched.filter(x => !schedFatta(x));
+  const inPrima = new Set(prima.map(x => x.id));
+  const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno || restaIndietro(x)) && !inPrima.has(x.id));
   const eventi = opt.calSched ? [] : tstore.tasks.filter(x => x.evento);
   const evs  = vedeCal ? eventi : [];
-  const tutto = list.concat(evs);
+  const tutto = list.concat(evs, sched.filter(x => x.evento && !inPrima.has(x.id)));
   /* Dentro un cliente si vede sempre tutto: il serbatoio e anche quello che e'
      gia' su un giorno, che si riconosce dal bordino verde. L'interruttore delle
      schedulate vale per i blocchi RANK qui sotto, non per i clienti: aprire un
@@ -2003,20 +2040,13 @@ function paintLista(box, opt) {
     }
   }
 
-  /* La tendina delle schedulate, sotto le altre due. Non c'e' se non c'e'
-     niente di gia' collocato. */
-  if (chiudiSched) {
-    const l = sched.filter(x => !gia.has(x.id)).sort(byMenu);
+  /* Nel pescone, subito sotto le tendine dei clienti: quello che e' gia' su un
+     giorno e non e' ancora spuntato, dal piu' vicino. */
+  if (schedPrima) {
+    const l = prima.filter(x => !gia.has(x.id)).sort(byMenu);
     if (l.length) {
-      const aperta = rootAperte.has('sched');
-      const r = el('button', 'grp grpcli grproot' + (aperta ? ' open' : ''));
-      r.type = 'button';
-      r.dataset.root = 'sched';
-      r.setAttribute('aria-expanded', aperta ? 'true' : 'false');
-      r.appendChild(el('span', 'grpfrec', aperta ? '\u25be' : '\u25b8'));
-      r.appendChild(el('span', 'grpnome', 'SCHEDULED'));
-      box.appendChild(r);
-      if (aperta) bloccoPerCliente(box, l, pick);
+      if (box.childNodes.length) box.appendChild(el('div', 'rankgap'));
+      bloccoPerCliente(box, l, pick);
     }
   }
 
@@ -2034,16 +2064,17 @@ function paintLista(box, opt) {
     bloccoPerCliente(box, l, pick);
   }
 
+
   /* la scritta di vuoto vale per quello che si vede: con la tendina delle
      schedulate piena, vuoto non lo e' */
-  if (!tutto.length && !sched.length) box.appendChild(el('p', 'vuoto', vedeSched ? 'No tasks' : 'Pool empty'));
+  if (!tutto.length && !prima.length) box.appendChild(el('p', 'vuoto', vedeSched ? 'No tasks' : 'Pool empty'));
 }
 
 function paintDrawer() {
   /* Nel menu' non c'e' nessuna tendina SCHEDULED: le task gia' messe su un
      giorno le comanda la spunta "Scheduled", e basta quella. Le due tendine
      dei clienti restano su una riga sola, come nel pescone. */
-  paintLista($('drawerList'), { pick: false, tutte: vedeSchedulate, chiudiSched: false,
+  paintLista($('drawerList'), { pick: false, tutte: vedeSchedulate,
                                 cal: calendar, riga: true });
   paintSync();
 }
@@ -3756,7 +3787,7 @@ let pescaGws = null;
    bordino verde, e gli eventi del calendario col bordino blu. Cosi' si sa cosa
    c'e' gia' in giro prima di aggiungere. */
 function paintPesca() {
-  paintLista($('pescaList'), { pick: true, tutte: true, cal: true, riga: true, chiudiSched: true, calSched: true });
+  paintLista($('pescaList'), { pick: true, tutte: true, cal: true, riga: true, schedPrima: true, calSched: true });
 }
 
 function openPesca(g) {
@@ -4000,6 +4031,10 @@ async function pullTasks() {
     chiaveKo = true;
     return;
   }
+  /* i clienti prima delle task: una task tiene il suo cliente solo se il
+     cliente esiste. Con modifiche non salvate comanda l'elenco del telefono. */
+  const clienti = validClienti(data.clienti);
+  if (!tstore.dirty) applicaClienti(clienti);
   const remote = Array.isArray(data.tasks) ? data.tasks.map(validTask).filter(Boolean) : [];
   const piano  = validWorkout(data.workout);
   const dieta  = validDieta(data.dieta);
@@ -4024,6 +4059,7 @@ async function pullTasks() {
   tstore.limiti = limiti;
   tstore.schede = schede;
   tstore.routine = rout;
+  tstore.clienti = clienti;
   migraInfo();                    /* un file di prima: le info passano nella scheda */
   rememberSha(j.sha);
   tstore.dirty = false;
@@ -4049,7 +4085,8 @@ async function pushTasks(opts) {
   const testo = JSON.stringify({ tasks: tstore.tasks, workout: tstore.workout,
                                  dieta: tstore.dieta, limiti: tstore.limiti,
                                  schede: tstore.schede,
-                                 routine: tstore.routine }, null, 2) + '\n';
+                                 routine: tstore.routine,
+                                 clienti: tstore.clienti || undefined }, null, 2) + '\n';
   let corpo;
   try {
     corpo = await cifra(testo);
