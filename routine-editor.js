@@ -8,8 +8,9 @@
    stesso e la giornata resta quella scritta nel codice.
 
    Si sceglie prima il giorno, in cima:
-   - un giorno della settimana: la modifica si ripete ogni settimana, viaggia
-     nel file delle task col tasto Salva e lascia una riga nel registro;
+   - uno o piu' giorni della settimana: la modifica si scrive su tutti quelli
+     scelti, si ripete ogni settimana, viaggia nel file delle task col tasto
+     Salva e lascia una riga nel registro;
    - una data: la modifica vale solo quel giorno, vince sul giorno della
      settimana e resta solo in questo telefono. E' temporanea: non va nel file
      e non va nel registro.
@@ -27,17 +28,29 @@
 const NOMI_G = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const CORTI_G = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-/* Il giorno scelto: { g: 0..6 } oppure { d: 'YYYY-MM-DD' }. Si parte da oggi. */
-let rtSel = { g: today().getDay() };
+/* L'ordine dei giorni nella riga in cima: la settimana comincia di lunedi'. */
+const ORDINE_G = [1, 2, 3, 4, 5, 6, 0];
 
-/* La data su cui si guarda la routine. Per un giorno della settimana, il
-   primo da oggi in avanti che cade quel giorno. */
-function rtK() {
-  if (rtSel.d) return rtSel.d;
+/* Cosa e' scelto: uno o piu' giorni della settimana, { gg: [2, 4] }, oppure
+   una data sola, { d: 'YYYY-MM-DD' }. Si parte da oggi. Con piu' giorni ogni
+   modifica si scrive su tutti. */
+let rtSel = { gg: [today().getDay()] };
+
+/* Dove si scrive: un bersaglio per ogni giorno scelto, o la data. */
+const rtBersagli = () => rtSel.d ? [{ d: rtSel.d }] : rtSel.gg.map(g => ({ g }));
+
+/* La data su cui si guarda la routine di un bersaglio. Per un giorno della
+   settimana, il primo da oggi in avanti che cade quel giorno. */
+function rtKB(b) {
+  if (b.d) return b.d;
   let d = today();
-  for (let n = 0; n < 7 && d.getDay() !== rtSel.g; n++) d = shift(today(), n + 1);
+  for (let n = 0; n < 7 && d.getDay() !== b.g; n++) d = shift(today(), n + 1);
   return dayKey(d);
 }
+
+/* Si guarda il primo giorno scelto: con piu' giorni, gli altri ricevono le
+   stesse modifiche. */
+const rtK = () => rtKB(rtBersagli()[0]);
 
 /* Il testo di una tappa e' "orario | NOME". */
 function rtNomeDi(t) {
@@ -47,42 +60,54 @@ function rtNomeDi(t) {
 
 const rtHHMM = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
 
-/* Com'e' la routine adesso, quel giorno, e com'era sotto il livello che si
-   sta toccando: per un giorno della settimana la fabbrica, per una data la
-   fabbrica col giorno della settimana sopra. Serve a capire quando una
-   modifica torna uguale a quello che c'era e puo' sparire. */
+/* Com'e' la routine adesso, e com'era sotto il livello che si sta toccando:
+   per un giorno della settimana la fabbrica, per una data la fabbrica col
+   giorno della settimana sopra. Serve a capire quando una modifica torna
+   uguale a quello che c'era e puo' sparire. */
 const rtAdesso = () => routineFor(rtK());
-function rtSotto() {
-  const k = rtK();
-  return rtSel.d ? applicaRoutine(fabbricaFor(k), routineOv(k, true)) : fabbricaFor(k);
+function rtSottoB(b) {
+  const k = rtKB(b);
+  return b.d ? applicaRoutine(fabbricaFor(k), routineOv(k, true)) : fabbricaFor(k);
 }
 const rtTrova = (l, id) => l.find(t => t.id === id) || null;
 
-/* Il posto dove sta scritto il livello scelto. */
+/* Il posto dove sta scritto un livello. */
 function rtStore() {
   if (!tstore.routine || typeof tstore.routine !== 'object') tstore.routine = { giorni: {}, log: [] };
   if (!tstore.routine.giorni || typeof tstore.routine.giorni !== 'object') tstore.routine.giorni = {};
   if (!Array.isArray(tstore.routine.log)) tstore.routine.log = [];
   return tstore.routine;
 }
-function rtLivello() {
-  if (rtSel.d) return routineDate[rtSel.d] || {};
-  return rtStore().giorni[rtSel.g] || {};
+function rtLivB(b) {
+  if (b.d) return routineDate[b.d] || {};
+  return rtStore().giorni[b.g] || {};
 }
-function rtSetLivello(v) {
+function rtSetLivB(b, v) {
   const vuoto = !Object.keys(v).length;
-  if (rtSel.d) {
-    if (vuoto) delete routineDate[rtSel.d]; else routineDate[rtSel.d] = v;
+  if (b.d) {
+    if (vuoto) delete routineDate[b.d]; else routineDate[b.d] = v;
   } else {
     const s = rtStore();
-    if (vuoto) delete s.giorni[rtSel.g]; else s.giorni[rtSel.g] = v;
+    if (vuoto) delete s.giorni[b.g]; else s.giorni[b.g] = v;
   }
 }
 
-/* Come si chiama il giorno scelto, nel registro e nella nota */
+/* una tappa toccata in almeno uno dei giorni scelti */
+const rtModificata = id => rtBersagli().some(b => rtLivB(b)[id]);
+
+/* I giorni scelti non sono tutti uguali: la routine che si vede e' quella del
+   primo, e lo si dice. */
+function rtDiversi() {
+  if (rtSel.d || rtSel.gg.length < 2) return false;
+  const foto = g => JSON.stringify(routineFor(rtKB({ g })).map(t => [t.t, t.sub || null]));
+  const a = foto(rtSel.gg[0]);
+  return rtSel.gg.some(g => foto(g) !== a);
+}
+
+/* Come si chiama quello che e' scelto, nel registro e nella nota */
 function rtEtichetta() {
-  if (!rtSel.d) return NOMI_G[rtSel.g];
-  return fmtDate.format(new Date(rtSel.d + 'T00:00:00'));
+  if (rtSel.d) return fmtDate.format(new Date(rtSel.d + 'T00:00:00'));
+  return rtSel.gg.map(g => NOMI_G[g]).join(', ');
 }
 
 /* Una riga nel registro: quando, e cosa. Le ultime stanno in cima. Solo per i
@@ -94,14 +119,29 @@ function rtLog(testo) {
   s.log = s.log.slice(0, 200);
 }
 
-/* Si scrive la modifica di una tappa nel livello scelto. Un campo a undefined
-   sparisce: torna a valere quello di sotto. */
-function rtScrivi(id, patch, testoLog) {
-  const liv = Object.assign({}, rtLivello());
-  const o = Object.assign({}, liv[id] || {}, patch);
-  for (const f of Object.keys(o)) if (o[f] === undefined) delete o[f];
-  if (Object.keys(o).length) liv[id] = o; else delete liv[id];
-  rtSetLivello(liv);
+/* Si scrive la modifica di una tappa su ognuno dei giorni scelti. La patch e'
+   una funzione che riceve la tappa com'era sotto quel giorno: cosi' ogni
+   giorno decide per conto suo se la modifica torna uguale all'originale. Un
+   campo a undefined sparisce: torna a valere quello di sotto. */
+function rtScrivi(id, patchDi, testoLog) {
+  for (const b of rtBersagli()) {
+    const patch = patchDi(rtTrova(rtSottoB(b), id));
+    const liv = Object.assign({}, rtLivB(b));
+    const o = Object.assign({}, liv[id] || {}, patch);
+    for (const f of Object.keys(o)) if (o[f] === undefined) delete o[f];
+    if (Object.keys(o).length) liv[id] = o; else delete liv[id];
+    rtSetLivB(b, liv);
+  }
+  rtSalva(testoLog);
+}
+
+/* la tappa, o il giorno intero, torna com'era sotto: su tutti i giorni scelti */
+function rtTogli(id, testoLog) {
+  for (const b of rtBersagli()) {
+    const liv = Object.assign({}, rtLivB(b));
+    if (id) delete liv[id]; else for (const k of Object.keys(liv)) delete liv[k];
+    rtSetLivB(b, liv);
+  }
   rtSalva(testoLog);
 }
 
@@ -131,8 +171,8 @@ const rtData = q => {
 function rtDisegnaGiorni() {
   const box = document.getElementById('rtGiorni');
   box.textContent = '';
-  for (const g of [1, 2, 3, 4, 5, 6, 0]) {
-    const c = el('button', 'chip' + (!rtSel.d && rtSel.g === g ? ' sel' : ''), CORTI_G[g]);
+  for (const g of ORDINE_G) {
+    const c = el('button', 'chip' + (!rtSel.d && rtSel.gg.indexOf(g) >= 0 ? ' sel' : ''), CORTI_G[g]);
     c.type = 'button';
     c.dataset.rtg = g;
     c.setAttribute('aria-label', NOMI_G[g]);
@@ -150,8 +190,12 @@ function rtDisegnaGiorni() {
 
   document.getElementById('rtNota').textContent = rtSel.d
     ? 'Only ' + rtEtichetta() + '. Temporary: it stays on this phone and is not saved to GitHub.'
-    : 'Every ' + NOMI_G[rtSel.g] + '. Repeats every week and goes to GitHub with Save.';
-  document.getElementById('rtTutto').textContent = 'Restore this day';
+    : 'Every ' + rtEtichetta() + '. Repeats every week and goes to GitHub with Save.'
+      + (rtSel.gg.length > 1 ? '' : ' Tap more days to change them together.')
+      + (rtDiversi() ? ' These days are not the same: you see ' + NOMI_G[rtSel.gg[0]]
+                       + ', and what you change is written on all of them.' : '');
+  document.getElementById('rtTutto').textContent = rtSel.gg && rtSel.gg.length > 1
+    ? 'Restore these days' : 'Restore this day';
 }
 
 function rtDisegna() {
@@ -159,7 +203,6 @@ function rtDisegna() {
   if (!box) return;
   rtDisegnaGiorni();
   box.textContent = '';
-  const liv = rtLivello();
 
   for (const t of rtAdesso()) {
     const cassa = el('div', 'schapri rtblocco');
@@ -173,7 +216,7 @@ function rtDisegna() {
     ora.value = rtHHMM(t.da);
     ora.setAttribute('aria-label', 'Start time');
     capo.appendChild(ora);
-    if (liv[t.id]) {
+    if (rtModificata(t.id)) {
       const cb = el('div', 'tabc tabbtn');
       const b = el('button', 'schbtn', 'restore');
       b.type = 'button';
@@ -256,15 +299,26 @@ function rtDisegnaLog() {
 /* Le sottotappe nuove di una tappa. Tornate uguali a quelle di sotto, la
    modifica sparisce invece di restare scritta uguale. */
 function rtSetSub(id, lista, testoLog) {
-  const sotto = rtTrova(rtSotto(), id);
-  const base = JSON.stringify(((sotto && sotto.sub) || []).map(x => ({ id: x.id, t: x.t })));
   const nuova = lista.map(x => ({ id: x.id, t: x.t }));
-  rtScrivi(id, { sub: JSON.stringify(nuova) === base ? undefined : nuova }, testoLog);
+  rtScrivi(id, sotto => {
+    const base = JSON.stringify(((sotto && sotto.sub) || []).map(x => ({ id: x.id, t: x.t })));
+    return { sub: JSON.stringify(nuova) === base ? undefined : nuova };
+  }, testoLog);
 }
 
+/* Un giorno della settimana si accende e si spegne: se ne possono scegliere
+   quanti si vuole, ma almeno uno resta. Da una data si torna a un giorno solo. */
 document.getElementById('rtGiorni').addEventListener('click', ev => {
   const g = ev.target.closest('button[data-rtg]');
-  if (g) { rtSel = { g: +g.dataset.rtg }; rtDisegna(); return; }
+  if (g) {
+    const n = +g.dataset.rtg;
+    if (rtSel.d) rtSel = { gg: [n] };
+    else if (rtSel.gg.indexOf(n) < 0) rtSel.gg.push(n);
+    else if (rtSel.gg.length > 1) rtSel.gg = rtSel.gg.filter(x => x !== n);
+    rtSel.gg.sort((a, b) => ORDINE_G.indexOf(a) - ORDINE_G.indexOf(b));
+    rtDisegna();
+    return;
+  }
   const d = ev.target.closest('button[data-rtd]');
   if (d) {
     if (!rtSel.d) rtSel = { d: dayKey(today()) };
@@ -292,8 +346,7 @@ document.getElementById('rtLista').addEventListener('change', ev => {
     if (!t || !m) { if (t) i.value = rtHHMM(t.da); return; }
     const da = +m[1] * 60 + +m[2];
     if (da === t.da) return;
-    const sotto = rtTrova(rtSotto(), id);
-    rtScrivi(id, { da: sotto && sotto.da === da ? undefined : da },
+    rtScrivi(id, sotto => ({ da: sotto && sotto.da === da ? undefined : da }),
              rtNomeDi(t) + ' now at ' + rtHHMM(da));
     return;
   }
@@ -306,8 +359,7 @@ document.getElementById('rtLista').addEventListener('change', ev => {
     const prima = rtNomeDi(t);
     if (!v) { i.value = prima; return; }        /* senza nome non si resta */
     if (v === prima) return;
-    const sotto = rtTrova(rtSotto(), id);
-    rtScrivi(id, { nome: sotto && rtNomeDi(sotto) === v ? undefined : v },
+    rtScrivi(id, sotto => ({ nome: sotto && rtNomeDi(sotto) === v ? undefined : v }),
              'renamed "' + prima + '" to "' + v + '"');
     return;
   }
@@ -376,10 +428,7 @@ document.getElementById('rtLista').addEventListener('click', ev => {
     if (r.textContent !== 'Sure?') { r.textContent = 'Sure?'; return; }
     const id = r.dataset.rtreset;
     const t = rtTrova(rtAdesso(), id);
-    const liv = Object.assign({}, rtLivello());
-    delete liv[id];
-    rtSetLivello(liv);
-    rtSalva((t ? rtNomeDi(t) : id) + ': back to the original');
+    rtTogli(id, (t ? rtNomeDi(t) : id) + ': back to the original');
   }
 });
 
@@ -388,7 +437,7 @@ document.getElementById('rtLista').addEventListener('click', ev => {
 const rtDlg = document.getElementById('routineEd');
 
 function rtApri() {
-  rtSel = { g: today().getDay() };
+  rtSel = { gg: [today().getDay()] };
   rtDisegna();
   rtDlg.showModal();
 }
@@ -401,10 +450,8 @@ document.getElementById('rtChiudi').addEventListener('click', () => rtDlg.close(
 document.getElementById('rtTutto').addEventListener('click', ev => {
   const b = ev.currentTarget;
   if (b.textContent !== 'Sure?') { b.textContent = 'Sure?'; return; }
-  b.textContent = 'Restore this day';
-  if (!Object.keys(rtLivello()).length) return;
-  rtSetLivello({});
-  rtSalva('the whole day went back to the original');
+  if (!rtBersagli().some(x => Object.keys(rtLivB(x)).length)) { rtDisegna(); return; }
+  rtTogli(null, 'the whole day went back to the original');
 });
 
 /* il bottone esiste solo se questo file c'e': senza, resta nascosto e non c'e'
