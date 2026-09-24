@@ -3629,6 +3629,8 @@ function apriPicker(titolo, items, sel, cb) {
   const ul = $('pickList');
   ul.textContent = '';
   for (const it of items) {
+    /* un'intestazione: divide le voci, non si sceglie */
+    if (it.tit) { ul.appendChild(el('li', 'pickhead', it.tit)); continue; }
     const li = el('li', 'pickrow' + (it.k === sel ? ' sel' : ''), it.lab);
     li.dataset.v = it.k;
     ul.appendChild(li);
@@ -3657,8 +3659,18 @@ dlgPick.addEventListener('cancel', () => { pickCb = null; });
 
 /* Le voci delle due scelte, in un posto solo: le usa il pannello e le usa
    l'etichetta del campo, cosi' non possono dire cose diverse. */
-const vociCliente = () => [{ k: '', lab: 'None' }]
-  .concat(CLIENTI.map(c => ({ k: c.id, lab: c.nome })));
+/* I clienti divisi come nel menu': prima le mie attivita', poi i clienti, ognuno
+   sotto la sua intestazione. Una parte vuota non ha intestazione. */
+const vociCliente = () => {
+  const out = [{ k: '', lab: 'None' }];
+  for (const rad of RADICI) {
+    const l = CLIENTI.filter(c => !!c.mia === rad.mie);
+    if (!l.length) continue;
+    out.push({ tit: rad.nome });
+    for (const c of l) out.push({ k: c.id, lab: c.nome });
+  }
+  return out;
+};
 
 const etichetta = (items, k) => (items.find(o => o.k === k) || items[0]).lab;
 
