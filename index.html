@@ -308,18 +308,19 @@
 <!-- L'editor della routine giornaliera: a tutto schermo, come la descrizione
      di un esercizio. Lo riempie routine-editor.js, che sta in un file suo.
      Senza quel file il bottone resta nascosto e questa finestra non si apre. -->
-<dialog class="descbox" id="routineEd" aria-labelledby="rtTit">
+<dialog class="descbox" id="routineEd" tabindex="-1" aria-labelledby="rtTit">
   <div class="descbox-in">
     <h2 class="desctit" id="rtTit">Daily routine</h2>
     <div class="rtscroll">
-      <p class="nota">Names and lines of every step. The times stay as they are:
-        they change from one day to the next.</p>
+      <div class="chips rtgiorni" id="rtGiorni"></div>
+      <input class="campo rtdata" id="rtData" type="date" aria-label="Date" hidden>
+      <p class="nota" id="rtNota"></p>
       <div id="rtLista"></div>
       <h3 class="rtsez">Change log</h3>
       <div id="rtLog"></div>
     </div>
     <div class="chiusura-btn">
-      <button type="button" class="btn btn-del" id="rtTutto">Restore everything</button>
+      <button type="button" class="btn btn-del" id="rtTutto">Restore this day</button>
       <button type="button" class="btn btn-ok" id="rtChiudi">Close</button>
     </div>
   </div>

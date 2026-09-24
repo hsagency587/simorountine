@@ -1092,11 +1092,17 @@ button.tendina:active{background-color:var(--line)}
    riga */
 .rtblocco .tabr.capo{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
 .rtblocco .tabr.capo .tabc{border:0}
-/* l'orario nella banda del nome: si legge e basta, non si scrive */
+/* l'orario nella banda del nome: si cambia, con l'orologio del telefono */
 .rtora{
-  color:var(--muted);font-variant-numeric:tabular-nums;
+  flex:0 0 96px;min-height:30px;margin:4px 0;
+  color:var(--accent);font-variant-numeric:tabular-nums;
   font-weight:600;letter-spacing:.04em;
 }
+/* i giorni in cima all'editor: sette pastiglie e la data */
+.rtgiorni{flex-wrap:nowrap;padding:0 var(--s4) var(--s2);gap:4px}
+.rtgiorni .chip{flex:1 1 0;min-width:0;min-height:32px;padding:0 2px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rtgiorni .chip[data-rtd]{flex-grow:2.2}
+.rtdata{margin:0 var(--s4) var(--s2);width:calc(100% - 2 * var(--s4))}
 .rtnome{font-weight:600;color:var(--accent)}
 /* le due frecce dell'ordine, strette perche' la riga ha gia' il campo */
 .rtfrec{min-width:28px;margin-left:0}

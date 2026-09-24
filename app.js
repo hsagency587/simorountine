@@ -155,9 +155,22 @@ const PROTETTE_SAB = [[0, 450], [765, 840], [1140, 1245], [1320, 1440]];
    la routine serale, alle 22:30. Cena e ultima sessione restano scoperte, come
    negli altri giorni. */
 const PROTETTE_MAR = [[0, 450], [750, 840], [1095, 1290], [1350, 1440]];
-const protetteOf = k => isSabato(k)  ? PROTETTE_SAB
-                      : isMartedi(k) ? PROTETTE_MAR
-                      : isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
+const protetteFabbrica = k => isSabato(k)  ? PROTETTE_SAB
+                             : isMartedi(k) ? PROTETTE_MAR
+                             : isWingChun(k) ? PROTETTE_WC : PROTETTE_STD;
+
+/* Ogni bordo di una finestra protetta e' l'orario di una tappa di fabbrica.
+   Spostata la tappa nell'editor della routine, il bordo la segue: se il
+   workout si anticipa, la finestra si anticipa con lui. */
+function protetteOf(k) {
+  const fab = fabbricaFor(k);
+  const ora = new Map(routineFor(k).map(t => [t.id, t.da]));
+  const bordo = b => {
+    const t = fab.find(v => v.da === b);
+    return t && ora.has(t.id) ? ora.get(t.id) : b;
+  };
+  return protetteFabbrica(k).map(w => [bordo(w[0]), bordo(w[1])]).filter(w => w[1] > w[0]);
+}
 
 /* La routine fissa, giorno per giorno. Il totale del giorno si calcola da qui,
    non e' una costante. La parte fino alle 17:15 e' uguale per tutti i giorni;
@@ -245,43 +258,60 @@ const isMartedi = k => new Date(k + 'T00:00:00').getDay() === 2;
 
 /* Quello che si e' riscritto a mano nell'editor della routine. Sta in
    tstore.routine, che nasce dopo questa riga: finche' non c'e', la routine e'
-   quella di fabbrica e basta. */
-function routineOv() {
-  try { return (tstore.routine && tstore.routine.tappe) || {}; }
-  catch (e) { return {}; }
+   quella di fabbrica e basta. Due livelli: il giorno della settimana, che si
+   ripete ogni settimana e sta nel file, e la data singola, che vale solo quel
+   giorno, vince sul giorno della settimana e sta solo nel telefono
+   (routineDate). Con soloGiorno si guarda il primo livello e basta: e' quello
+   che sta sotto una data. */
+function routineOv(k, soloGiorno) {
+  try {
+    const r = tstore.routine || {};
+    const g = (r.giorni || {})[new Date(k + 'T00:00:00').getDay()] || {};
+    const d = (!soloGiorno && routineDate[k]) || {};
+    /* campo per campo: la data cambia solo quello che ha scritto lei */
+    const out = {};
+    for (const id of Object.keys(g)) out[id] = Object.assign({}, g[id]);
+    for (const id of Object.keys(d)) out[id] = Object.assign(out[id] || {}, d[id]);
+    return out;
+  } catch (e) { return {}; }
 }
 
-/* La routine di fabbrica con sopra le riscritture dell'editor: il nome della
-   tappa e le sue sottotappe. L'orario no — quello cambia da un giorno
-   all'altro e resta deciso qui sopra, quindi si tiene il pezzo prima della
-   barra e si riscrive solo quello dopo. */
-function applicaRoutine(l) {
-  const ov = routineOv();
+/* i minuti dalla mezzanotte, scritti come negli orari della routine: 7:30 */
+const oraDa = m => Math.floor(m / 60) + ':' + pad(m % 60);
+
+/* La routine di fabbrica di quel giorno: la sera giusta, e la toppa del
+   sabato o del martedi'. */
+function fabbricaFor(k) {
+  const base = ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD);
+  /* sabato e martedi' non capitano mai insieme: una toppa sola per giorno */
+  const toppa = isSabato(k) ? SABATO : isMartedi(k) ? MARTEDI : null;
+  return toppa ? base.map(t => toppa[t.id] ? Object.assign({}, t, toppa[t.id]) : t) : base;
+}
+
+/* Sopra la fabbrica, quello che si e' scritto a mano: l'orario, il nome della
+   tappa e le sottotappe. Cambiato un orario, le tappe si rimettono in ordine. */
+function applicaRoutine(l, ov) {
   if (!Object.keys(ov).length) return l;
-  return l.map(t => {
+  let spostata = false;
+  const out = l.map(t => {
     const o = ov[t.id];
     if (!o) return t;
     const c = Object.assign({}, t);
-    if (o.nome) {
-      const i = t.t.indexOf('|');
-      c.t = i >= 0 ? t.t.slice(0, i + 1) + ' ' + o.nome : o.nome;
-    }
+    const i = t.t.indexOf('|');
+    let ora = i >= 0 ? t.t.slice(0, i).trim() : '';
+    let nome = i >= 0 ? t.t.slice(i + 1).trim() : t.t.trim();
+    if (Number.isInteger(o.da)) { c.da = o.da; ora = oraDa(o.da); spostata = true; }
+    if (o.nome) nome = o.nome;
+    c.t = ora ? ora + ' | ' + nome : nome;
     if (Array.isArray(o.sub)) {
       c.sub = o.sub.length ? o.sub.map(v => ({ id: v.id, t: v.t })) : null;
     }
     return c;
   });
+  return spostata ? out.sort((a, b) => a.da - b.da) : out;
 }
 
-const routineFor = k => {
-  const base = ROUTINE_GIORNO.concat(isWingChun(k) ? SERA_WC : SERA_STD);
-  /* sabato e martedi' non capitano mai insieme: una toppa sola per giorno */
-  const toppa = isSabato(k) ? SABATO : isMartedi(k) ? MARTEDI : null;
-  /* prima la toppa del giorno, che sistema gli orari, poi quello che si e'
-     scritto a mano, che sistema i nomi: cosi' l'una non copre l'altra */
-  const con = toppa ? base.map(t => toppa[t.id] ? Object.assign({}, t, toppa[t.id]) : t) : base;
-  return applicaRoutine(con);
-};
+const routineFor = k => applicaRoutine(fabbricaFor(k), routineOv(k));
 
 /* L'elenco di tutti gli id esistenti, per le ricerche che non dipendono dal
    giorno. Le due sere condividono gli id: cambia solo il testo. */
@@ -1584,17 +1614,17 @@ function validSchede(w) {
    si prendono dalla routine standard, che li ha tutti. */
 const PASTI = ROUTINE_GIORNO.concat(SERA_STD).filter(t => t.pasto);
 
-/* La routine riscritta a mano: per ogni tappa il nome nuovo e le sottotappe
-   nuove, piu' il registro di cosa e' stato cambiato. Quello che arriva mal
-   fatto si butta: una routine rotta spegnerebbe la giornata intera. */
-function validRoutine(r) {
-  const out = { tappe: {}, log: [] };
-  if (!r || typeof r !== 'object') return out;
-  const t = (r.tappe && typeof r.tappe === 'object') ? r.tappe : {};
+/* Le modifiche della routine per un giorno: per ogni tappa l'orario, il nome
+   nuovo e le sottotappe nuove. Quello che arriva mal fatto si butta: una
+   routine rotta spegnerebbe la giornata intera. */
+function validTappeRt(t) {
+  const res = {};
+  if (!t || typeof t !== 'object') return res;
   for (const k of Object.keys(t)) {
     const o = t[k];
     if (!o || typeof o !== 'object') continue;
     const v = {};
+    if (Number.isInteger(o.da) && o.da >= 0 && o.da < 1440) v.da = o.da;
     if (typeof o.nome === 'string' && o.nome.trim()) v.nome = o.nome.trim().slice(0, 80);
     if (Array.isArray(o.sub)) {
       v.sub = o.sub
@@ -1602,7 +1632,29 @@ function validRoutine(r) {
         .map(x => ({ id: String(x.id || ('rt' + Math.random().toString(36).slice(2, 8))),
                      t: x.t.trim().slice(0, 80) }));
     }
-    if (v.nome || v.sub) out.tappe[k] = v;
+    if (v.da != null || v.nome || v.sub) res[k] = v;
+  }
+  return res;
+}
+
+/* La routine riscritta a mano per giorno della settimana, piu' il registro di
+   cosa e' stato cambiato. Viaggia nel file delle task. */
+function validRoutine(r) {
+  const out = { giorni: {}, log: [] };
+  if (!r || typeof r !== 'object') return out;
+  const g = (r.giorni && typeof r.giorni === 'object') ? r.giorni : {};
+  for (let n = 0; n <= 6; n++) {
+    const v = validTappeRt(g[n]);
+    if (Object.keys(v).length) out.giorni[n] = v;
+  }
+  /* La prima versione aveva un livello solo, per tutti i giorni. Quello che
+     c'era scritto passa in ognuno dei sette giorni: da li' in poi ogni giorno
+     va per conto suo. */
+  if (!r.giorni && r.tappe) {
+    const v = validTappeRt(r.tappe);
+    if (Object.keys(v).length) {
+      for (let n = 0; n <= 6; n++) out.giorni[n] = JSON.parse(JSON.stringify(v));
+    }
   }
   if (Array.isArray(r.log)) {
     out.log = r.log.filter(v => v && typeof v.t === 'string')
@@ -1610,6 +1662,27 @@ function validRoutine(r) {
                    .slice(0, 200);
   }
   return out;
+}
+
+/* Le modifiche di una data singola sono temporanee: stanno solo in questo
+   telefono e non vanno nel file. Restano finche' servono allo storico di quel
+   giorno, sessanta giorni, poi se ne vanno da sole. */
+const RDATE_KEY = 'gwork-routinedate-v1';
+let routineDate = (() => {
+  const out = {};
+  try {
+    const v = JSON.parse(localStorage.getItem(RDATE_KEY) || '{}') || {};
+    const limite = dayKey(shift(today(), -60));
+    for (const k of Object.keys(v)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || k < limite) continue;
+      const t = validTappeRt(v[k]);
+      if (Object.keys(t).length) out[k] = t;
+    }
+  } catch (e) { /* nessuna data cambiata */ }
+  return out;
+})();
+function salvaRoutineDate() {
+  try { localStorage.setItem(RDATE_KEY, JSON.stringify(routineDate)); } catch (e) {}
 }
 
 /* Anche quello che sta gia' nel telefono passa dal controllo, non solo quello
