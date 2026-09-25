@@ -61,6 +61,16 @@
       "creata": "2026-09-07T21:06:58.394Z"
     },
     {
+      "id": "tmtrqetwxdpyv",
+      "nome": "Completamento GBP",
+      "desc": "Completa al 100% il profilo Google Business. ",
+      "rank": "A",
+      "cliente": "osteria-anna",
+      "giorno": null,
+      "gws": null,
+      "creata": "2026-09-07T21:07:26.577Z"
+    },
+    {
       "id": "tmtrqg9xeb077",
       "nome": "Fix sito web + check citaizoni",
       "desc": "Aggiusta le pagine rank 2. E controlla le citazioni che sono in giro. ",
@@ -121,6 +131,16 @@
       "creata": "2026-09-09T14:05:38.041Z"
     },
     {
+      "id": "tmtumjvvfaygl",
+      "nome": "Fix app",
+      "desc": "1. Nel menu Task c'è ancora la toggle Scheduled e il bottone non funziona.\n2. Vorrei che la percentuale della giornata non si completasse se io non completo delle sottotask.\nAdesso la task principale comanda, ma io vorrei che fosse distribuita in base al numero di task secondarie, si divide la percentuale restante.\n3 Nel menù Allenamento la freccetta, ora dove c'è una descrizione, quella della toggle, è brutta e piccola. Si vede poco. Vorrei leggermente più enfasi, soprattutto nel menù, soprattutto a tabella, e nell'editor mettila più lontano dal tasto X perché continuo a sbagliare.\n4 raggruppa commit, prima di committare aspetta 4 secondi e raggruppa tutto in 1 commit \n5. Come avviene per i workout, la dieta e la routine giornaliera, anch'essa deve essere modificabile come tutti gli elementi all'interno delle varie routine o pranzi e cene, con un editor simile a quello della tabella allenamento. Questo editor deve essere separato da tutto il resto del sistema perché intacca proprio la routine giornaliera stessa. Questo serve perché spesso mi si sfancula totalmente e voglio tenerne traccia. ",
+      "rank": "B",
+      "cliente": null,
+      "giorno": null,
+      "gws": null,
+      "creata": "2026-09-09T21:42:42.459Z"
+    },
+    {
       "id": "tmtv7apo8fdqr",
       "nome": "Citazioni",
       "desc": "",
@@ -141,187 +161,104 @@
       "creata": "2026-09-10T07:24:06.084Z"
     },
     {
+      "id": "tmtv7d3xph5ul",
+      "nome": "Sito",
+      "desc": "Modifica sito come ha chiesto la Dinucci. ",
+      "rank": "A",
+      "cliente": "di-nucci",
+      "giorno": null,
+      "gws": null,
+      "creata": "2026-09-10T07:25:18.253Z"
+    },
+    {
+      "id": "tmtvrok4iw2ho",
+      "nome": "Fix app Papa.",
+      "desc": "Modifiche App\n\nUna volta applicate tutte le modifiche funzionali descritte e richieste da mio padre, dovremo capire come venderla. Quindi, una volta terminate le modifiche, prepara un piano contenente:\n- come proteggerla e avere una cyber security ottima\n- come garantirsi che funzioni sempre, soprattutto visto che usiamo fornitori terzi\n- come avere la possibilità di offrire più memoria utilizzando un cloud esterno\n- l'infrastruttura necessaria a reggere diversi clienti che lavorano ognuno sulla propria App in modo che l'installazione sia facile, senza la richiesta di codici o, meglio, senza che il cliente debba inserire i codici\n- come gestire i pagamenti mensili in maniera sicura\n- mettere tutto a norma di legge\nE di fisco, per non avere problemi \n\nInsomma una volta approvata una versione, dovremo capire da zero come renderlo un prodotto vero e proprio, vendibile, che faccia delivery correttamente, che non si rompa, che abbia molta memoria e che sia da me totalmente gestibile e modulabile. L'account di ogni persona ",
+      "rank": "B",
+      "cliente": null,
+      "giorno": null,
+      "gws": null,
+      "creata": "2026-09-10T16:54:04.770Z"
+    },
+    {
       "id": "tmtxfgq18qyc7",
       "nome": "Modifiche app papa",
       "desc": "- nelle impsitazuoni mamuale d'uso\n- cone vengono scritti I verbali\n- fare parte pagamento nelle ompostaizomo con i pacchetti iniziali",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-24",
-      "gws": [
-        0
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-09-11T20:47:36.140Z"
     },
     {
       "id": "tmu56mrv71mye",
+      "creata": "2026-09-17T07:02:31.315Z",
       "nome": "Indexing manuela lovo website",
       "desc": "",
       "rank": "A",
       "cliente": null,
       "giorno": null,
-      "gws": null,
-      "creata": "2026-09-17T07:02:31.315Z"
+      "gws": null
     },
     {
       "id": "tmu6pqs787hl0",
+      "creata": "2026-09-18T08:45:17.252Z",
       "nome": "Organizzazione video",
       "desc": "Organizzazione e scrittura dei video per le meta di esse ",
       "rank": "A",
       "cliente": null,
       "giorno": null,
-      "gws": null,
-      "creata": "2026-09-18T08:45:17.252Z"
+      "gws": null
     },
     {
       "id": "tmu6prtodvdv0",
+      "creata": "2026-09-18T08:46:05.821Z",
       "nome": "Scrittura video AlbergADV",
       "desc": "",
       "rank": "A",
       "cliente": null,
       "giorno": null,
-      "gws": null,
-      "creata": "2026-09-18T08:46:05.821Z"
+      "gws": null
     },
     {
       "id": "tmu9v6lrz2iv3",
+      "creata": "2026-09-20T13:40:52.031Z",
       "nome": "Organizzazione settimana",
       "desc": "",
       "rank": "A",
       "cliente": null,
       "giorno": null,
-      "gws": null,
-      "creata": "2026-09-20T13:40:52.031Z"
+      "gws": null
     },
     {
-      "id": "tmu9v99547013",
-      "nome": "Fix winning video",
+      "id": "tmu9v7yf721ex",
+      "creata": "2026-09-20T13:41:55.075Z",
+      "nome": "Set up and launch",
       "desc": "",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-24",
-      "gws": [
-        2,
-        3
-      ],
-      "creata": "2026-09-20T13:42:55.624Z"
+      "rank": "B",
+      "cliente": null,
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmu9v9pf0tvl1",
+      "creata": "2026-09-20T13:43:16.716Z",
       "nome": "Dettagliare registrazione meta ads",
       "desc": "",
       "rank": "A",
       "cliente": null,
       "giorno": null,
-      "gws": null,
-      "creata": "2026-09-20T13:43:16.716Z"
+      "gws": null
     },
     {
       "id": "tmu9vb7lw95r2",
+      "creata": "2026-09-20T13:44:26.948Z",
       "nome": "Ordina lampadine",
       "desc": "",
       "rank": "A",
       "cliente": null,
       "giorno": null,
-      "gws": null,
-      "creata": "2026-09-20T13:44:26.948Z"
-    },
-    {
-      "id": "tmuegcz35dxow",
-      "creata": "2026-09-23T18:44:45.857Z",
-      "nome": "Client work",
-      "desc": "Periodical post",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-24",
-      "gws": [
-        0
-      ]
-    },
-    {
-      "id": "tmuegddgtl8ou",
-      "creata": "2026-09-23T18:45:04.493Z",
-      "nome": "F.U",
-      "desc": "Look on close",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-24",
-      "gws": [
-        1
-      ]
-    },
-    {
-      "id": "tmuf5p60gi8q2",
-      "creata": "2026-09-24T06:34:05.104Z",
-      "nome": "Total fix Google ADS",
-      "desc": "",
-      "rank": "A",
-      "cliente": "cmufl8jhvkkm",
-      "giorno": "2026-09-24",
-      "gws": [
-        1,
-        2
-      ]
-    },
-    {
-      "id": "tmufdrhwwv2a1",
-      "creata": "2026-09-24T10:19:50.770Z",
-      "nome": "Setup & Launch meta ads",
-      "desc": "",
-      "rank": "A",
-      "cliente": "manuela-lovo",
-      "giorno": "2026-09-24",
-      "gws": [
-        2
-      ]
-    },
-    {
-      "id": "tmugtc7wztw3f",
-      "creata": "2026-09-25T10:23:38.003Z",
-      "nome": "Fix manuela lovo ads",
-      "desc": "",
-      "rank": "A",
-      "cliente": "manuela-lovo",
-      "giorno": "2026-09-25",
-      "gws": [
-        0
-      ]
-    },
-    {
-      "id": "tmugtcm8up4j0",
-      "creata": "2026-09-25T10:23:56.574Z",
-      "nome": "Spesa",
-      "desc": "Spesa",
-      "rank": "C",
-      "cliente": null,
-      "giorno": "2026-09-25",
-      "gws": [
-        1
-      ]
-    },
-    {
-      "id": "tmugtd6gnix7b",
-      "creata": "2026-09-25T10:24:22.775Z",
-      "nome": "Programmazione modifiche sito",
-      "desc": "",
-      "rank": "A",
-      "cliente": "fisio-leone",
-      "giorno": "2026-09-25",
-      "gws": [
-        1
-      ]
-    },
-    {
-      "id": "tmugtnefwmz37",
-      "creata": "2026-09-25T10:32:19.676Z",
-      "nome": "Meta ads",
-      "desc": "Correzione video, vincenti, scrittura video sul sito web ",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-25",
-      "gws": [
-        2,
-        3
-      ]
+      "gws": null
     }
   ],
   "workout": {
@@ -355,7 +292,7 @@
     ]
   },
   "dieta": {
-    "snack-mattina": "60g goat/sheep cheese",
+    "snack-mattina": "100g goat/sheep cheese",
     "pranzo": "4 eggs + 100g carbs",
     "snack-pomeriggio": "Fruits",
     "cena": "Loads of meat"
@@ -856,13 +793,13 @@
       "es": [
         [
           "Creatina",
-          "7:30",
+          "7:00",
           [],
           ""
         ],
         [
           "Fireblood",
-          "10:00",
+          "7:30",
           [],
           ""
         ]
@@ -873,7 +810,7 @@
       "es": [
         [
           "Hyperarch cervical rotation",
-          "1'",
+          "2'",
           [],
           "Purpose:\nTo train controlled cervical rotation, upper-neck proprioception, and the muscles and fascia structures associated with the upper cervical region, primarily around C1 to C4.\n\nStarting position:\nSit or stand tall with your head centered, chin level, shoulders relaxed, and chest facing forward.\n\nInstructions:\n\n* Gently lengthen the back of your neck without forcing your chin downward.\n\n* Slowly rotate your head to one side while keeping your chin level.\n\n* Stop at a comfortable range before pain, dizziness, or compensation begins.\n\n* Slowly return your head to the center.\n\nRepeat on the opposite side.\n\nKeep your feet firmly pressed down and grip the ground.\n\nPrimary cue:\n* Keep the movement smooth and controlled.\n\nImagine rotating around a tall vertical axis.\n\nKeep both shoulders facing forward.\n\nDo not tilt, extend, or force the neck.\n\nFeel gentle activation at the base of the skull and along the side of the neck.\n\nMaintain relaxed breathing.\nUse only a pain-free range.\n\nDosage:\nPerform 1 - 2 min duration.\n\nImportant note:\nThis movement may engage muscles and sensory pathways associated with the upper cervical region.\n\nStop immediately if you experience:\nRadiating arm pain, numbness, tingling, weakness, significant dizziness, nausea, severe headache, or loss of balance."
         ],
@@ -903,7 +840,7 @@
         ],
         [
           "Relax. Rotation hop",
-          "1'",
+          "2'",
           [],
           "Hyperarch Relaxed Rotational Hyperarch Hop\n\nStarting position:\nStand tall with your feet about hip width apart. Keep your knees softly bent, trunk upright, and arms relaxed beside your body.\n\nInstructions:\n* Begin with small, light hops using both feet.\n\n* Allow your chest and pelvis to rotate gently from side to side.\n\n* Let your relaxed arms swing naturally with the rotation.\n\n* Land softly through the forefoot with the knees slightly bent.\n\n* Immediately rebound into the next hop without pausing.\n\n* Maintain a comfortable rhythm and relaxed breathing.\n\n* Continue for 1–4 minutes, depending on your conditioning and movement quality.\n\nPrimary cue:\nKeep the hops low and rhythmic.\nDo not force the trunk rotation.\n\nKeep the neck and shoulders relaxed.\nAvoid stiff or exaggerated arm movements.\nLand quietly and evenly on both feet.\n\nMake sure your ankle is stabilized so heels are not dropping.\n\nProgression:\nBegin with 20–30 seconds and gradually build toward 1–4 continuous minutes.\n\nStop the exercise if you experience:\nSharp pain, dizziness, numbness, unusual shortness of breath, chest discomfort, or loss of balance."
         ],
@@ -927,7 +864,7 @@
         ],
         [
           "Body patting",
-          "1'30\"",
+          "2'",
           [],
           "Gentle Body Patting Sequence\n\nPurpose:\nTo provide light sensory stimulation, promote relaxation, increase awareness of the body, and prepare the muscles for movement.\n\nStarting position:\nStand or sit comfortably. Keep your shoulders relaxed and breathe normally. Use an open, relaxed hand with the fingers together or slightly cupped.\n\n1. Inner elbow\n\n* Extend one arm comfortably without locking the elbow.\n\n* Using the opposite hand, gently pat the soft area around the inner elbow.\n\n* Keep the pressure light and rhythmic.\n\nContinue for 10–20 seconds, then switch arms.\n\n* Keep your toes spread out but evenly distribute your weight.\n\nCue:\n“Use a soft hand and light rhythm.”\n\nDo not strike directly over a painful vein, recent blood-draw site, swelling, bruising, or irritated skin.\n\n2. Armpit area\n\n* Raise one arm only as high as comfortable.\n\n* Use the opposite hand to lightly pat around the outer edge of the armpit and upper side of the rib cage.\n\n* Avoid forceful striking deep into the armpit.\n\nContinue for 10 to 15 seconds, then switch sides.\n\nCue:\n“Pat around the area, do not dig into it.”\n\nAvoid patting over enlarged or painful lymph nodes, unexplained lumps, recent surgery, infection, or a recent vaccination site.\n\n3. Inner thigh\n\n* Stand with the feet comfortably apart or sit with the leg supported.\n\n* Use a relaxed palm to gently pat the muscular portion of the inner thigh.\n\n* Begin above the knee and move gradually upward.\n\n* Stop before reaching the groin crease.\n\nContinue for 15 to 30 seconds per side.\n\nCue:\n“Stay on the muscle and keep the pressure gentle.”\n\nDo not pat directly over the groin, genitals, visible veins, painful swelling, or a suspected blood clot.\n\n4. Calves\n\n* Stand with support nearby or sit with the leg relaxed.\n\n* Gently pat the calf muscle from the lower portion upward toward the knee.\n\n* Pat the muscular areas rather than the shinbone or back of the knee.\n\nContinue for 15 to 30 seconds per calf.\n\nCue:\n“Light, springy contact is never pain"
         ]
@@ -1011,23 +948,9 @@
           "sub": [
             {
               "id": "pranzo-movimento",
-              "t": "10’ OF SUN"
+              "t": "10’ OF MOVEMENT"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
-        },
-        "sveglia": {
-          "da": 450
-        },
-        "gws1": {
-          "da": 480
-        },
-        "workout-1": {
-          "da": 765
-        },
-        "snack-pomeriggio": {
-          "nome": "SNACK"
+          ]
         }
       },
       "1": {
@@ -1035,23 +958,9 @@
           "sub": [
             {
               "id": "pranzo-movimento",
-              "t": "10’ OF SUN"
+              "t": "10’ OF MOVEMENT"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
-        },
-        "sveglia": {
-          "da": 450
-        },
-        "gws1": {
-          "da": 480
-        },
-        "workout-1": {
-          "da": 765
-        },
-        "snack-pomeriggio": {
-          "nome": "SNACK"
+          ]
         }
       },
       "2": {
@@ -1059,23 +968,9 @@
           "sub": [
             {
               "id": "pranzo-movimento",
-              "t": "10’ OF SUN"
+              "t": "10’ OF MOVEMENT"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
-        },
-        "sveglia": {
-          "da": 450
-        },
-        "gws1": {
-          "da": 480
-        },
-        "workout-1": {
-          "da": 765
-        },
-        "snack-pomeriggio": {
-          "nome": "SNACK"
+          ]
         }
       },
       "3": {
@@ -1083,23 +978,9 @@
           "sub": [
             {
               "id": "pranzo-movimento",
-              "t": "10’ OF SUN"
+              "t": "10’ OF MOVEMENT"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
-        },
-        "sveglia": {
-          "da": 450
-        },
-        "gws1": {
-          "da": 480
-        },
-        "workout-1": {
-          "da": 765
-        },
-        "snack-pomeriggio": {
-          "nome": "SNACK"
+          ]
         }
       },
       "4": {
@@ -1107,23 +988,9 @@
           "sub": [
             {
               "id": "pranzo-movimento",
-              "t": "10’ OF SUN"
+              "t": "10’ OF MOVEMENT"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
-        },
-        "sveglia": {
-          "da": 450
-        },
-        "gws1": {
-          "da": 480
-        },
-        "workout-1": {
-          "da": 765
-        },
-        "snack-pomeriggio": {
-          "nome": "SNACK"
+          ]
         }
       },
       "5": {
@@ -1131,23 +998,9 @@
           "sub": [
             {
               "id": "pranzo-movimento",
-              "t": "10’ OF SUN"
+              "t": "10’ OF MOVEMENT"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
-        },
-        "sveglia": {
-          "da": 450
-        },
-        "gws1": {
-          "da": 480
-        },
-        "workout-1": {
-          "da": 765
-        },
-        "snack-pomeriggio": {
-          "nome": "SNACK"
+          ]
         }
       },
       "6": {
@@ -1155,52 +1008,13 @@
           "sub": [
             {
               "id": "pranzo-movimento",
-              "t": "10’ OF SUN"
+              "t": "10’ OF MOVEMENT"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
-        },
-        "sveglia": {
-          "da": 450
-        },
-        "gws1": {
-          "da": 480
-        },
-        "snack-pomeriggio": {
-          "nome": "SNACK"
+          ]
         }
       }
     },
     "log": [
-      {
-        "q": "2026-09-25T19:53:20.067Z",
-        "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: renamed \"SNACK + REC\" to \"SNACK\""
-      },
-      {
-        "q": "2026-09-25T19:53:00.029Z",
-        "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: 1ST WORKOUT now at 12:45"
-      },
-      {
-        "q": "2026-09-25T19:52:48.665Z",
-        "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: LUNCH now at 13:15"
-      },
-      {
-        "q": "2026-09-25T19:52:24.334Z",
-        "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: renamed \"LUNCH + ROUTINE\" to \"LUNCH\""
-      },
-      {
-        "q": "2026-09-25T19:51:37.318Z",
-        "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: 1ST G WORK SESSION now at 08:00"
-      },
-      {
-        "q": "2026-09-25T19:51:31.143Z",
-        "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: WAKE UP + MORNING ROUTINE now at 07:30"
-      },
-      {
-        "q": "2026-09-24T12:41:27.736Z",
-        "t": "LUNCH + ROUTINE: \"10’ OF MOVEMENT\" is now \"10’ OF SUN\""
-      },
       {
         "q": "2026-09-15T11:45:35.934Z",
         "t": "LUNCH + ROUTINE: removed \"SHOWER\""
@@ -1210,65 +1024,5 @@
         "t": "RECOVERY: restored tasks/schede/routine lost in the 13:56 save"
       }
     ]
-  },
-  "clienti": [
-    {
-      "id": "hs-agency",
-      "nome": "HS Agency",
-      "tag": "Top 3 / ads",
-      "mia": true
-    },
-    {
-      "id": "longkai",
-      "nome": "Lòngkai — Sifu Diego",
-      "tag": "Free"
-    },
-    {
-      "id": "di-nucci",
-      "nome": "Gioielleria Di Nucci",
-      "tag": "Top3"
-    },
-    {
-      "id": "manuela-lovo",
-      "nome": "Manuela Lovo Fotografa",
-      "tag": "Top3"
-    },
-    {
-      "id": "arbogreen",
-      "nome": "Arbogreen Service",
-      "tag": "Sito"
-    },
-    {
-      "id": "omnia",
-      "nome": "Omnia Ristrutturazioni",
-      "tag": "Top3"
-    },
-    {
-      "id": "bergamaschi",
-      "nome": "Bergamaschi Giardini",
-      "tag": "Top3"
-    },
-    {
-      "id": "fisio-leone",
-      "nome": "Fisio Leone",
-      "tag": "Top3"
-    },
-    {
-      "id": "osteria-anna",
-      "nome": "Osteria Da Anna",
-      "tag": "Top3 + ADS"
-    },
-    {
-      "id": "cmufl8jhvkkm",
-      "nome": "AlbergADV",
-      "tag": "Ads x hotel",
-      "mia": true
-    },
-    {
-      "id": "cmufl8y32jd3",
-      "nome": "GFS",
-      "tag": "Real-estate Apps",
-      "mia": true
-    }
-  ]
+  }
 }
