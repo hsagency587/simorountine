@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-09-26T00:00:47+02:00",
+  "scartati": {
+    "cancellati": 0,
+    "senzaTitolo": 0
+  },
+  "days": {
+    "2026-09-25": [
+      {
+        "id": "go9ppfm66ejkbhln6qae60eplc@google.com",
+        "title": "Rex Tattoo — follow up",
+        "start": "2026-09-25T10:00:00+02:00",
+        "end": "2026-09-25T10:15:00+02:00",
+        "description": "Silvio"
+      }
+    ],
+    "2026-09-26": [],
+    "2026-09-27": [],
+    "2026-09-28": [
+      {
+        "id": "lv6hsfi6aae449bcjj558qq870@google.com",
+        "title": "Studio Gianni De Nito — follow up",
+        "start": "2026-09-28T10:00:00+02:00",
+        "end": "2026-09-28T10:15:00+02:00",
+        "description": ""
+      }
+    ],
+    "2026-09-29": [
+      {
+        "id": "68rj0dpi6crmcbb56tj30b9k6pj66bb274r3ebb6c9j3gc3174q3edhlcg@google.com::2026-09-29T22:00:00",
+        "title": "Butta immondizia",
+        "start": "2026-09-29T22:00:00+02:00",
+        "end": "2026-09-29T22:15:00+02:00",
+        "description": "Butta immondizia indifferenziata"
+      }
+    ],
+    "2026-09-30": [],
+    "2026-10-01": [
+      {
+        "id": "68s32p31cgp32bb361j36b9k71imcb9p6pgm2b9m6pijadj66kpm6cr56o@google.com",
+        "title": "Montagna",
+        "start": "2026-10-01T06:00:00+02:00",
+        "end": "2026-10-01T23:00:00+02:00",
+        "description": ""
+      }
+    ],
+    "2026-10-02": [
+      {
+        "id": "51moc9t6pfc8b93p69ro38mpk4@google.com",
+        "title": "GF3 Abano Terme — follow up",
+        "start": "2026-10-02T10:00:00+02:00",
+        "end": "2026-10-02T10:15:00+02:00",
+        "description": "Giovanni"
+      }
+    ],
+    "2026-10-03": []
+  }
+}
