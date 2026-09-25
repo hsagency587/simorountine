@@ -355,7 +355,7 @@
     ]
   },
   "dieta": {
-    "snack-mattina": "100g goat/sheep cheese",
+    "snack-mattina": "60g goat/sheep cheese",
     "pranzo": "4 eggs + 100g carbs",
     "snack-pomeriggio": "Fruits",
     "cena": "Loads of meat"
@@ -856,13 +856,13 @@
       "es": [
         [
           "Creatina",
-          "7:00",
+          "7:30",
           [],
           ""
         ],
         [
           "Fireblood",
-          "7:30",
+          "10:00",
           [],
           ""
         ]
