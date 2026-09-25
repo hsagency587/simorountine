@@ -100,10 +100,11 @@ const RUNS_URL = 'https://api.github.com/repos/hsagency587/simorountine/actions/
                + 'calendar.yml/runs?per_page=5&exclude_pull_requests=true';
 const BEAT_MS  = 2 * 60 * 1000;
 
-/* Le soglie del battito: fino a 10 minuti senza un giro riuscito e' normale,
-   oltre 10 il ponte accumula ritardo, oltre 30 e' fermo davvero. */
-const LATE_MS     = 10 * 60 * 1000;
-const DOWN_MS     = 30 * 60 * 1000;
+/* Le soglie del battito: la sveglia suona ogni due minuti, quindi oltre 4
+   minuti senza un giro riuscito il ponte e' in ritardo; oltre 10 (cinque giri
+   persi) e' fermo davvero. */
+const LATE_MS     =  4 * 60 * 1000;
+const DOWN_MS     = 10 * 60 * 1000;
 
 /* La giornata ha due forme. Da martedi' a venerdi' la sera e' occupata dal
    wing chun; lunedi', sabato e domenica hanno la sera piu' corta. Cambiano gli
