@@ -15,8 +15,8 @@
      settimana e resta solo in questo telefono. E' temporanea: non va nel file
      e non va nel registro.
 
-   Di ogni tappa si cambia l'orario, il nome e le sottotappe. Cambiato un
-   orario, le tappe si rimettono in ordine da sole.
+   Di ogni tappa si cambia l'orario, il nome e le sottotappe, o la si toglie
+   tutta. Cambiato un orario, le tappe si rimettono in ordine da sole.
 
    Quello che si scrive qui finisce in tstore.routine.giorni (il giorno della
    settimana) o in routineDate (la data), e si applica in routineFor(), che
@@ -64,7 +64,7 @@ const rtHHMM = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
    per un giorno della settimana la fabbrica, per una data la fabbrica col
    giorno della settimana sopra. Serve a capire quando una modifica torna
    uguale a quello che c'era e puo' sparire. */
-const rtAdesso = () => routineFor(rtK());
+const rtAdesso = () => routineTutta(rtK());
 function rtSottoB(b) {
   const k = rtKB(b);
   return b.d ? applicaRoutine(fabbricaFor(k), routineOv(k, true)) : fabbricaFor(k);
@@ -99,7 +99,7 @@ const rtModificata = id => rtBersagli().some(b => rtLivB(b)[id]);
    primo, e lo si dice. */
 function rtDiversi() {
   if (rtSel.d || rtSel.gg.length < 2) return false;
-  const foto = g => JSON.stringify(routineFor(rtKB({ g })).map(t => [t.t, t.sub || null]));
+  const foto = g => JSON.stringify(routineFor(rtKB({ g })).map(t => [t.t, t.sub || null, !!t.via]));
   const a = foto(rtSel.gg[0]);
   return rtSel.gg.some(g => foto(g) !== a);
 }
@@ -205,6 +205,24 @@ function rtDisegna() {
   box.textContent = '';
 
   for (const t of rtAdesso()) {
+    /* tolta: una riga spenta col nome, e il tasto per rimetterla */
+    if (t.via) {
+      const cassa = el('div', 'schapri rtblocco rtvia');
+      const tab = el('div', 'tab');
+      const capo = el('div', 'tabr capo');
+      capo.appendChild(el('span', 'rtvianome', rtHHMM(t.da) + '  ' + rtNomeDi(t)));
+      const cb = el('div', 'tabc tabbtn');
+      const b = el('button', 'schbtn', 'put back');
+      b.type = 'button';
+      b.dataset.rtrimetti = t.id;
+      cb.appendChild(b);
+      capo.appendChild(cb);
+      tab.appendChild(capo);
+      cassa.appendChild(tab);
+      box.appendChild(cassa);
+      continue;
+    }
+
     const cassa = el('div', 'schapri rtblocco');
 
     /* la testata: l'orario, che si cambia, e il ripristino */
@@ -216,14 +234,20 @@ function rtDisegna() {
     ora.value = rtHHMM(t.da);
     ora.setAttribute('aria-label', 'Start time');
     capo.appendChild(ora);
-    if (rtModificata(t.id)) {
-      const cb = el('div', 'tabc tabbtn');
+    const cb = el('div', 'tabc tabbtn');
+    /* una tappa aggiunta sul giorno della settimana non ha un "com'era" a cui
+       tornare: basta remove */
+    if (rtModificata(t.id) && !(t.nuova && !rtSel.d)) {
       const b = el('button', 'schbtn', 'restore');
       b.type = 'button';
       b.dataset.rtreset = t.id;
       cb.appendChild(b);
-      capo.appendChild(cb);
     }
+    const via = el('button', 'schbtn', 'remove');
+    via.type = 'button';
+    via.dataset.rtvia = t.id;
+    cb.appendChild(via);
+    capo.appendChild(cb);
     tab.appendChild(capo);
     cassa.appendChild(tab);
 
@@ -271,6 +295,27 @@ function rtDisegna() {
 
     box.appendChild(cassa);
   }
+
+  /* una tappa nuova: l'orario e il nome, e va da sola al suo posto */
+  const nuova = el('div', 'schapri rtblocco rtnuova');
+  const riga = el('div', 'wrow');
+  const ora = el('input', 'wcampo rtora');
+  ora.type = 'time';
+  ora.id = 'rtNuovaOra';
+  ora.setAttribute('aria-label', 'Start time of the new step');
+  riga.appendChild(ora);
+  const nome = el('input', 'wcampo rtnome');
+  nome.type = 'text';
+  nome.maxLength = 80;
+  nome.id = 'rtNuovaNome';
+  nome.placeholder = 'new step';
+  riga.appendChild(nome);
+  nuova.appendChild(riga);
+  const agg = el('button', 'lpiu', '+  Add a step');
+  agg.type = 'button';
+  agg.dataset.rtnuova = '1';
+  nuova.appendChild(agg);
+  box.appendChild(nuova);
 
   rtDisegnaLog();
 }
@@ -419,6 +464,41 @@ document.getElementById('rtLista').addEventListener('click', ev => {
     if (dove < 0 || dove >= l.length) return;
     const tmp = l[n]; l[n] = l[dove]; l[dove] = tmp;
     rtSetSub(t.id, l, rtNomeDi(t) + ': moved "' + tmp.t + '"');
+    return;
+  }
+
+  /* la tappa intera via, o di nuovo dentro. Toglierla chiede conferma. */
+  const tv = ev.target.closest('button[data-rtvia]');
+  if (tv) {
+    if (tv.textContent !== 'Sure?') { tv.textContent = 'Sure?'; return; }
+    const t = rtTrova(rtAdesso(), tv.dataset.rtvia);
+    if (!t) return;
+    /* una tappa che sotto non c'e' (aggiunta qui) se ne va del tutto */
+    rtScrivi(t.id, sotto => sotto
+      ? { via: sotto.via ? undefined : true }
+      : { nuova: undefined, da: undefined, nome: undefined, sub: undefined, via: undefined },
+      'removed "' + rtNomeDi(t) + '"');
+    return;
+  }
+
+  /* una tappa nuova: senza orario non si sa dove metterla */
+  if (ev.target.closest('button[data-rtnuova]')) {
+    const oi = document.getElementById('rtNuovaOra');
+    const ni = document.getElementById('rtNuovaNome');
+    const m = /^(\d{1,2}):(\d{2})$/.exec(oi.value);
+    if (!m) { oi.focus(); try { oi.showPicker(); } catch (e) {} return; }
+    const da = +m[1] * 60 + +m[2];
+    const nome = ni.value.slice(0, 80).trim().toUpperCase() || 'NEW STEP';
+    rtScrivi(rtNuovoId(), () => ({ nuova: true, da, nome }),
+             'added "' + nome + '" at ' + rtHHMM(da));
+    return;
+  }
+  const tr = ev.target.closest('button[data-rtrimetti]');
+  if (tr) {
+    const t = rtTrova(rtAdesso(), tr.dataset.rtrimetti);
+    if (!t) return;
+    rtScrivi(t.id, sotto => ({ via: sotto && sotto.via ? false : undefined }),
+             'put back "' + rtNomeDi(t) + '"');
     return;
   }
 

@@ -293,8 +293,13 @@ function fabbricaFor(k) {
    tappa e le sottotappe. Cambiato un orario, le tappe si rimettono in ordine. */
 function applicaRoutine(l, ov) {
   if (!Object.keys(ov).length) return l;
-  let spostata = false;
-  const out = l.map(t => {
+  /* le tappe aggiunte a mano: non stanno nella fabbrica, nascono da qui e
+     prendono il loro posto in ordine d'orario */
+  const nuove = Object.keys(ov)
+    .filter(id => ov[id].nuova && Number.isInteger(ov[id].da) && !l.some(t => t.id === id))
+    .map(id => ({ id, da: ov[id].da, t: ov[id].nome || 'NEW STEP', nuova: true }));
+  let spostata = nuove.length > 0;
+  const out = l.concat(nuove).map(t => {
     const o = ov[t.id];
     if (!o) return t;
     const c = Object.assign({}, t);
@@ -307,12 +312,18 @@ function applicaRoutine(l, ov) {
     if (Array.isArray(o.sub)) {
       c.sub = o.sub.length ? o.sub.map(v => ({ id: v.id, t: v.t })) : null;
     }
+    /* tolta: resta segnata qui, e la giornata la salta. Un false scritto da
+       una data la rimette, anche se il giorno della settimana l'ha tolta. */
+    if (o.via === true) c.via = true; else delete c.via;
     return c;
   });
   return spostata ? out.sort((a, b) => a.da - b.da) : out;
 }
 
-const routineFor = k => applicaRoutine(fabbricaFor(k), routineOv(k));
+/* Con le tappe tolte l'editor le vede ancora, per poterle rimettere: la
+   giornata no. */
+const routineTutta = k => applicaRoutine(fabbricaFor(k), routineOv(k));
+const routineFor   = k => routineTutta(k).filter(t => !t.via);
 
 /* L'elenco di tutti gli id esistenti, per le ricerche che non dipendono dal
    giorno. Le due sere condividono gli id: cambia solo il testo. */
@@ -540,6 +551,13 @@ const taskFatta = (x, c) => {
 const restaIndietro = x =>
   !x.evento && !!x.giorno && x.giorno < dayKey(today()) && !taskFatta(x, dayChecks(x.giorno));
 
+/* Una task del serbatoio spuntata dal menu' e' fatta: non entra nella
+   giornata, resta nel menu' spuntata per un'ora — il tempo di ripensarci — e
+   poi va in archivio sul giorno in cui e' stata spuntata. */
+const FATTA_MS = 60 * 60 * 1000;
+const fattaMenu = x => !x.giorno && !x.evento && !!x.fatta && !isNaN(Date.parse(x.fatta));
+const fattaDaPoco = x => fattaMenu(x) && Date.now() - Date.parse(x.fatta) < FATTA_MS;
+
 function dayTasks(k) {
   const out = routineFor(k).map(() => []);
   const posto = postoDellaSessione(k);
@@ -669,7 +687,8 @@ function storicoMonths() {
    file, se il giorno e' in finestra e la spunta c'e'. */
 function doneTasks(k) {
   const c = dayChecks(k);
-  const vive = tstore.tasks.filter(x => x.giorno === k && taskFatta(x, c))
+  const vive = tstore.tasks.filter(x => x.giorno === k ? taskFatta(x, c)
+                                        : fattaMenu(x) && dayKey(new Date(x.fatta)) === k)
                            .map(x => ({ nome: x.nome, rank: x.rank, gws: x.gws }));
   return (archivio[k] || []).concat(vive).sort(byRank);
 }
@@ -1304,7 +1323,7 @@ function togliDaSessione(id, g) {
   setCheck(x.giorno, chiaveTask(x, g), false);
   const resto = gwsDi(x.gws).filter(s => s !== g);
   if (resto.length) x.gws = resto;
-  else { x.giorno = null; x.gws = null; }   /* nessuna sessione: torna nel serbatoio */
+  else { x.giorno = null; x.gws = null; delete x.fatta; }   /* nessuna sessione: torna nel serbatoio */
   touch(); render(); paintDrawer();
 }
 
@@ -1526,6 +1545,8 @@ function validTask(x) {
     creata: typeof x.creata === 'string' ? x.creata : ''
   };
   if (evento) { out.evento = evento; out.ora = typeof x.ora === 'string' ? x.ora : ''; }
+  /* spuntata dal menu' senza giorno: quando, per sapere quando sparisce */
+  if (!giorno && !evento && typeof x.fatta === 'string' && !isNaN(Date.parse(x.fatta))) out.fatta = x.fatta;
   return out;
 }
 
@@ -1802,6 +1823,14 @@ function tidyTasks() {
       }
       return true;
     }
+    if (fattaMenu(x)) {
+      if (fattaDaPoco(x)) return true;
+      const k = dayKey(new Date(x.fatta));
+      if (!archivio[k]) archivio[k] = [];
+      archivio[k].push({ nome: x.nome, rank: x.rank, gws: null });
+      changed = true;
+      return false;
+    }
     if (!x.giorno) return true;
     if (taskFatta(x, dayChecks(x.giorno))) {
       if (win.indexOf(x.giorno) >= 0) return true;
@@ -1820,7 +1849,7 @@ function tidyTasks() {
          spuntabile, e la task torna nel serbatoio senza giorno. */
       if (!mancate[x.giorno]) mancate[x.giorno] = [];
       mancate[x.giorno].push({ nome: x.nome, rank: x.rank, gws: x.gws });
-      x.giorno = null; x.gws = null; changed = true;
+      x.giorno = null; x.gws = null; delete x.fatta; changed = true;
     }
     return true;
   });
@@ -1924,7 +1953,7 @@ function trowNode(x, pick) {
     const i = el('input', 'tcheck');
     i.type = 'checkbox';
     i.dataset.tcheck = x.id;
-    i.checked = !!(x.giorno && (x.evento ? chiaviEvento(x).every(kk => dayChecks(x.giorno)[kk])
+    i.checked = fattaMenu(x) || !!(x.giorno && (x.evento ? chiaviEvento(x).every(kk => dayChecks(x.giorno)[kk])
                                          : taskFatta(x, dayChecks(x.giorno))));
     i.disabled = !!(x.giorno && !isEditable(x.giorno));
     i.setAttribute('aria-label', 'Mark done');
@@ -2060,15 +2089,28 @@ function paintLista(box, opt) {
   const sched = schedPrima ? tstore.tasks.filter(x => !x.evento && x.giorno && !restaIndietro(x)).concat(evSched) : [];
   const prima = sched.filter(x => !schedFatta(x));
   const inPrima = new Set(prima.map(x => x.id));
-  const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno || restaIndietro(x)) && !inPrima.has(x.id));
+  /* Nel menu' quello che e' fatto se ne va: la task spuntata dal menu' resta
+     un'ora, quella messa su un giorno e l'evento spariscono appena spuntati.
+     Nel pescone una task gia' fatta dal menu' non si pesca. */
+  const vivo = x => fattaMenu(x) ? !pick && fattaDaPoco(x)
+                                 : pick || !x.giorno || !schedFatta(x);
+  const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno || restaIndietro(x)) && !inPrima.has(x.id) && vivo(x));
   const eventi = opt.calSched ? [] : tstore.tasks.filter(x => x.evento);
-  const evs  = vedeCal ? eventi : [];
+  /* Col filtro Calendar nel menu' si vedono gli eventi da oggi a fra sette
+     giorni, anche quelli senza cliente, piu' quelli col cliente che stanno
+     fuori da quella finestra. */
+  let evs = [];
+  if (vedeCal) {
+    evs = eventiFinestra();
+    const visti = new Set(evs.map(x => x.id));
+    evs = evs.concat(eventi.filter(x => !visti.has(x.id))).filter(vivo);
+  }
   const tutto = list.concat(evs, sched.filter(x => x.evento && !inPrima.has(x.id)));
   /* Dentro un cliente si vede sempre tutto: il serbatoio e anche quello che e'
      gia' su un giorno, che si riconosce dal bordino verde. L'interruttore delle
      schedulate vale per i blocchi RANK qui sotto, non per i clienti: aprire un
      cliente e' gia' chiedere di vedere le sue cose. */
-  const perCli = tstore.tasks.filter(x => !x.evento).concat(eventi);
+  const perCli = tstore.tasks.filter(x => !x.evento).concat(eventi).filter(vivo);
   /* Quello che si e' gia' letto dentro un cliente aperto non si ripete nei
      blocchi RANK: aprire un cliente e' gia' averlo guardato. Chiuso il cliente,
      le sue task tornano sotto. */
@@ -3426,19 +3468,19 @@ $('nuova').addEventListener('click', () => openEditor(null));
 $('impostazioniBtn').addEventListener('click', openImpostazioni);
 
 /* tutta la riga apre l'editor: i tre puntini sono il segnale, non l'unico posto */
+/* Una riga del menu': la task nel file, o un evento dei prossimi sette giorni
+   che un cliente non ce l'ha ancora e quindi nel file non c'e'. */
+const rigaMenu = id => findTask(id)
+  || (String(id).startsWith('ev:') && eventiFinestra().find(e => e.id === id)) || null;
+
 /* Spuntare una task dal menu'. Se e' gia' su un giorno, e' come spuntarla nella
-   giornata. Se sta nel serbatoio non ha un giorno dove segnare la spunta:
-   spuntandola qui va su oggi, prima sessione, e da li' segue la strada di
-   sempre — a mezzanotte finisce in archivio. */
+   giornata. Se sta nel serbatoio e' fatta e basta: nella giornata non entra,
+   resta nel menu' spuntata per un'ora e poi va in archivio (fattaDaPoco). */
 function spuntaDalMenu(id, on) {
-  const x = findTask(id);
+  const x = rigaMenu(id);
   if (!x) return;
   if (!x.giorno) {
-    if (!on) return;
-    x.giorno = dayKey(today());
-    x.gws = [0];
-    riapriSessione(x);
-    setCheck(x.giorno, chiaveTask(x, 0), true);
+    if (on) x.fatta = new Date().toISOString(); else delete x.fatta;
     touch();
   } else {
     if (!isEditable(x.giorno)) return;
@@ -3489,7 +3531,7 @@ $('drawerList').addEventListener('click', ev => {
 /* I tre puntini nel menu': modificare, oppure mandare la task dritta in una
    sessione senza passare dall'editor. */
 function menuDalMenu(id, bottone) {
-  const x = findTask(id);
+  const x = rigaMenu(id);
   if (!x) return;
   if (x.evento) { openEditor(id); return; }   /* un evento ha solo il cliente */
   apriTendina(bottone, [
@@ -3510,7 +3552,7 @@ function apriSessioni(id, bottone) {
       /* una task senza giorno va sul giorno che si sta guardando, o su oggi se
          quello e' passato; una che ce l'ha gia' resta sul suo */
       if (!x.giorno || !canSchedule(x.giorno)) {
-        x.giorno = canSchedule(viewKey) ? viewKey : dayKey(today());
+        x.giorno = canSchedule(viewKey) ? viewKey : dayKey(today()); delete x.fatta;
       }
       x.gws = [+v];
       riapriSessione(x);
@@ -3701,7 +3743,7 @@ function paintEditor() {
 }
 
 function openEditor(id, preset) {
-  const x = id ? findTask(id) : null;
+  const x = id ? rigaMenu(id) : null;
   if (x && x.evento) {
     ed = { id: x.id, evento: x.evento, giorno: x.giorno, nome: titoloEvento(x),
            ora: (eventoDi(x) || x).txt || x.ora, cliente: x.cliente };
@@ -3838,6 +3880,7 @@ $('editorForm').addEventListener('submit', ev => {
   x.rank = ed.rank;
   x.cliente = ed.cliente;
   x.giorno = ed.giorno;
+  if (x.giorno) delete x.fatta;     /* messa su un giorno, non e' piu' "fatta dal menu'" */
   x.gws = ed.giorno ? ed.gws.slice() : null;
   /* solo una task nuova o spostata riapre la sessione: un ritocco al nome no */
   if (mossa) riapriSessione(x);
@@ -3907,7 +3950,7 @@ $('pescaList').addEventListener('click', ev => {
      calendario, non si sposta dentro una sessione */
   if (x.evento) return;
   /* se nel frattempo il giorno mostrato e' diventato ieri, la task va su oggi */
-  x.giorno = canSchedule(viewKey) ? viewKey : dayKey(today());
+  x.giorno = canSchedule(viewKey) ? viewKey : dayKey(today()); delete x.fatta;
   x.gws = [pescaGws];
   riapriSessione(x);
   dlgPesca.close();
@@ -4318,7 +4361,11 @@ loadCalendar();
 loadBeat();                       /* subito, all'apertura */
 pullTasks();                      /* il serbatoio, subito */
 
-setInterval(() => { checkDay(); paintFresh(); }, 30000);   /* invecchia la riga, e vede la mezzanotte */
+setInterval(() => {
+  checkDay(); paintFresh();       /* invecchia la riga, e vede la mezzanotte */
+  /* passata l'ora, la task spuntata dal menu' se ne va in archivio */
+  if (tstore.tasks.some(x => fattaMenu(x) && !fattaDaPoco(x))) { tidyTasks(); render(); paintDrawer(); }
+}, 30000);
 setInterval(loadCalendar, 30000);
 setInterval(() => { loadBeat(); riprovaSalva(); }, BEAT_MS);   /* solo mentre l'app resta aperta */
 
