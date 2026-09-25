@@ -157,7 +157,7 @@
       "nome": "Scrittura video AlbergADV",
       "desc": "",
       "rank": "A",
-      "cliente": null,
+      "cliente": "cmufl8jhvkkm",
       "giorno": null,
       "gws": null,
       "creata": "2026-09-18T08:46:05.821Z"
@@ -280,6 +280,28 @@
       "desc": "",
       "rank": "A",
       "cliente": "hs-agency",
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmuhfm3rh0idb",
+      "creata": "2026-09-25T20:47:10.733Z",
+      "nome": "Info pagamento + luoghi palestre",
+      "desc": "1. Sistemare pagina, luogo e orari palestre. Aggiungere link maps.\n2. Crea pagina con info di pagamento.\n ",
+      "rank": "B",
+      "cliente": "longkai",
+      "giorno": "2026-09-27",
+      "gws": [
+        4
+      ]
+    },
+    {
+      "id": "tmuhfnobqlxh6",
+      "creata": "2026-09-25T20:48:24.038Z",
+      "nome": "Inizia protezione app",
+      "desc": "",
+      "rank": "A",
+      "cliente": "cmufl8y32jd3",
       "giorno": null,
       "gws": null
     }
