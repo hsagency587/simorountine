@@ -1840,13 +1840,9 @@ function tidyTasks() {
       return false;
     }
     if (x.giorno < t0) {
-      /* Finche' il giorno e' ancora dentro la finestra non si taglia niente: la
-         task resta sul suo giorno, viva e spuntabile, e intanto si rivede nel
-         serbatoio (restaIndietro). Cosi' la mattina dopo si puo' ancora chiudere
-         ieri, oppure rimettere la task su oggi. */
-      if (win.indexOf(x.giorno) >= 0) return true;
-      /* Uscito dalla finestra il giorno si congela: resta la riga grigia, non
-         spuntabile, e la task torna nel serbatoio senza giorno. */
+      /* Finito il giorno, una task non spuntata torna nel serbatoio senza
+         giorno e senza sessione: la si rimette in calendario a mano, se serve.
+         Il giorno passato la ricorda con la riga grigia, non spuntabile. */
       if (!mancate[x.giorno]) mancate[x.giorno] = [];
       mancate[x.giorno].push({ nome: x.nome, rank: x.rank, gws: x.gws });
       x.giorno = null; x.gws = null; delete x.fatta; changed = true;
