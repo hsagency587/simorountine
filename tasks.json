@@ -230,6 +230,19 @@
       "cliente": "cmufl8y32jd3",
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmuifcqu49m4u",
+      "creata": "2026-09-26T13:27:40.252Z",
+      "nome": "Scrivere video sito",
+      "desc": "",
+      "rank": "A",
+      "cliente": "hs-agency",
+      "giorno": "2026-09-26",
+      "gws": [
+        0,
+        1
+      ]
     }
   ],
   "workout": {
