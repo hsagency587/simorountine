@@ -234,19 +234,6 @@
       "gws": null
     },
     {
-      "id": "tmuifcqu49m4u",
-      "creata": "2026-09-26T13:27:40.252Z",
-      "nome": "Scrivere video sito",
-      "desc": "",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-26",
-      "gws": [
-        0,
-        1
-      ]
-    },
-    {
       "id": "tmuife89erm0o",
       "creata": "2026-09-26T13:28:49.490Z",
       "nome": "Prato nonna",
@@ -280,6 +267,31 @@
       "giorno": "2026-09-26",
       "gws": [
         3
+      ]
+    },
+    {
+      "id": "tmuiopla2a4bs",
+      "creata": "2026-09-26T17:49:36.122Z",
+      "nome": "Scrivere video meta ads",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-27",
+      "gws": [
+        1
+      ]
+    },
+    {
+      "id": "tmuioqfs4i0oz",
+      "creata": "2026-09-26T17:50:15.652Z",
+      "nome": "Scrivere vIdeo META ADS",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-27",
+      "gws": [
+        0,
+        1
       ]
     }
   ],
