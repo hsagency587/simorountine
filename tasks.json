@@ -1320,10 +1320,6 @@
         "snack-mattina": {
           "sub": [
             {
-              "id": "snack-sole",
-              "t": "10’ OF SUN"
-            },
-            {
               "id": "rtmuivt1o8ml6",
               "t": "FIREBLOOD"
             }
@@ -1332,6 +1328,10 @@
       }
     },
     "log": [
+      {
+        "q": "2026-09-26T21:12:18.728Z",
+        "t": "Saturday: SNACK + REC: removed \"10’ OF SUN\""
+      },
       {
         "q": "2026-09-26T21:08:22.658Z",
         "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: SNACK + REC: \"NEW LINE\" is now \"FIREBLOOD\""
