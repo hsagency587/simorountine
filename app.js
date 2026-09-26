@@ -2076,7 +2076,7 @@ function paintLista(box, opt) {
      cliente ci sono sempre, come le schedulate. */
   /* Nel pescone quello che e' gia' su un giorno e non e' ancora spuntato sta in
      cima, sotto le tendine dei clienti, senza tendina sua: il bordino colorato
-     basta a riconoscerlo. Quello gia' spuntato torna nei blocchi per rank. */
+     basta a riconoscerlo. Quello gia' spuntato non c'e', come nel menu'. */
   const schedPrima = !!opt.schedPrima;
   /* Nel pescone ci sono anche gli eventi del calendario di oggi e dei sette
      giorni dopo, non solo quelli a cui si e' dato un cliente: sono gia'
@@ -2089,23 +2089,25 @@ function paintLista(box, opt) {
   const sched = schedPrima ? tstore.tasks.filter(x => !x.evento && x.giorno && !restaIndietro(x)).concat(evSched) : [];
   const prima = sched.filter(x => !schedFatta(x));
   const inPrima = new Set(prima.map(x => x.id));
-  /* Nel menu' quello che e' fatto se ne va: la task spuntata dal menu' resta
-     un'ora, quella messa su un giorno e l'evento spariscono appena spuntati.
-     Nel pescone una task gia' fatta dal menu' non si pesca. */
+  /* Quello che e' fatto se ne va: la task spuntata dal menu' resta un'ora nel
+     menu', quella messa su un giorno e l'evento spariscono appena spuntati.
+     Nel pescone vale lo stesso, e una task gia' fatta dal menu' non si pesca. */
   const vivo = x => fattaMenu(x) ? !pick && fattaDaPoco(x)
-                                 : pick || !x.giorno || !schedFatta(x);
+                                 : !x.giorno || !schedFatta(x);
   const list = tstore.tasks.filter(x => !x.evento && (vedeSched || !x.giorno || restaIndietro(x)) && !inPrima.has(x.id) && vivo(x));
   const eventi = opt.calSched ? [] : tstore.tasks.filter(x => x.evento);
   /* Col filtro Calendar nel menu' si vedono gli eventi da oggi a fra sette
      giorni, anche quelli senza cliente, piu' quelli col cliente che stanno
      fuori da quella finestra. */
+  /* Nel pescone gli eventi ci sono gia', fra le cose gia' collocate in cima:
+     il filtro qui li metterebbe una seconda volta. */
   let evs = [];
-  if (vedeCal) {
+  if (vedeCal && !opt.calSched) {
     evs = eventiFinestra();
     const visti = new Set(evs.map(x => x.id));
     evs = evs.concat(eventi.filter(x => !visti.has(x.id))).filter(vivo);
   }
-  const tutto = list.concat(evs, sched.filter(x => x.evento && !inPrima.has(x.id)));
+  const tutto = list.concat(evs);
   /* Dentro un cliente si vede sempre tutto: il serbatoio e anche quello che e'
      gia' su un giorno, che si riconosce dal bordino verde. L'interruttore delle
      schedulate vale per i blocchi RANK qui sotto, non per i clienti: aprire un
