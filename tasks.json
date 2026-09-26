@@ -220,7 +220,7 @@
       "cliente": "longkai",
       "giorno": "2026-09-27",
       "gws": [
-        4
+        3
       ]
     },
     {
@@ -997,6 +997,14 @@
         },
         "snack-pomeriggio": {
           "nome": "SNACK"
+        },
+        "gws5": {
+          "sub": [
+            {
+              "id": "rtmuiv8f1xr99",
+              "t": "WEEKLY PLANNING"
+            }
+          ]
         }
       },
       "1": {
@@ -1142,6 +1150,14 @@
       }
     },
     "log": [
+      {
+        "q": "2026-09-26T20:52:29.589Z",
+        "t": "Sunday: 5TH G WORK SESSION: \"NEW LINE\" is now \"WEEKLY PLANNING\""
+      },
+      {
+        "q": "2026-09-26T20:52:12.214Z",
+        "t": "Sunday: 5TH G WORK SESSION: added a line"
+      },
       {
         "q": "2026-09-25T19:53:20.067Z",
         "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: renamed \"SNACK + REC\" to \"SNACK\""
