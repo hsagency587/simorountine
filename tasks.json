@@ -131,18 +131,6 @@
       "creata": "2026-09-10T07:24:06.084Z"
     },
     {
-      "id": "tmtxfgq18qyc7",
-      "nome": "Modifiche app papa",
-      "desc": "- nelle impsitazuoni mamuale d'uso\n- cone vengono scritti I verbali\n- fare parte pagamento nelle ompostaizomo con i pacchetti iniziali",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-24",
-      "gws": [
-        0
-      ],
-      "creata": "2026-09-11T20:47:36.140Z"
-    },
-    {
       "id": "tmu56mrv71mye",
       "nome": "Indexing manuela lovo website",
       "desc": "",
@@ -161,68 +149,6 @@
       "giorno": null,
       "gws": null,
       "creata": "2026-09-18T08:46:05.821Z"
-    },
-    {
-      "id": "tmu9v99547013",
-      "nome": "Fix winning video",
-      "desc": "",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-24",
-      "gws": [
-        2,
-        3
-      ],
-      "creata": "2026-09-20T13:42:55.624Z"
-    },
-    {
-      "id": "tmuegcz35dxow",
-      "creata": "2026-09-23T18:44:45.857Z",
-      "nome": "Client work",
-      "desc": "Periodical post",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-24",
-      "gws": [
-        0
-      ]
-    },
-    {
-      "id": "tmuegddgtl8ou",
-      "creata": "2026-09-23T18:45:04.493Z",
-      "nome": "F.U",
-      "desc": "Look on close",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-24",
-      "gws": [
-        1
-      ]
-    },
-    {
-      "id": "tmuf5p60gi8q2",
-      "creata": "2026-09-24T06:34:05.104Z",
-      "nome": "Total fix Google ADS",
-      "desc": "",
-      "rank": "A",
-      "cliente": "cmufl8jhvkkm",
-      "giorno": "2026-09-24",
-      "gws": [
-        1,
-        2
-      ]
-    },
-    {
-      "id": "tmufdrhwwv2a1",
-      "creata": "2026-09-24T10:19:50.770Z",
-      "nome": "Setup & Launch meta ads",
-      "desc": "",
-      "rank": "A",
-      "cliente": "manuela-lovo",
-      "giorno": "2026-09-24",
-      "gws": [
-        2
-      ]
     },
     {
       "id": "tmugtc7wztw3f",
@@ -990,14 +916,14 @@
     "giorni": {
       "0": {
         "pranzo": {
+          "da": 795,
+          "nome": "LUNCH",
           "sub": [
             {
               "id": "pranzo-movimento",
               "t": "10’ OF SUN"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
+          ]
         },
         "sveglia": {
           "da": 450
@@ -1014,14 +940,14 @@
       },
       "1": {
         "pranzo": {
+          "da": 795,
+          "nome": "LUNCH",
           "sub": [
             {
               "id": "pranzo-movimento",
               "t": "10’ OF SUN"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
+          ]
         },
         "sveglia": {
           "da": 450
@@ -1038,14 +964,14 @@
       },
       "2": {
         "pranzo": {
+          "da": 795,
+          "nome": "LUNCH",
           "sub": [
             {
               "id": "pranzo-movimento",
               "t": "10’ OF SUN"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
+          ]
         },
         "sveglia": {
           "da": 450
@@ -1062,14 +988,14 @@
       },
       "3": {
         "pranzo": {
+          "da": 795,
+          "nome": "LUNCH",
           "sub": [
             {
               "id": "pranzo-movimento",
               "t": "10’ OF SUN"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
+          ]
         },
         "sveglia": {
           "da": 450
@@ -1086,14 +1012,14 @@
       },
       "4": {
         "pranzo": {
+          "da": 795,
+          "nome": "LUNCH",
           "sub": [
             {
               "id": "pranzo-movimento",
               "t": "10’ OF SUN"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
+          ]
         },
         "sveglia": {
           "da": 450
@@ -1110,14 +1036,14 @@
       },
       "5": {
         "pranzo": {
+          "da": 795,
+          "nome": "LUNCH",
           "sub": [
             {
               "id": "pranzo-movimento",
               "t": "10’ OF SUN"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
+          ]
         },
         "sveglia": {
           "da": 450
@@ -1134,14 +1060,14 @@
       },
       "6": {
         "pranzo": {
+          "da": 795,
+          "nome": "LUNCH",
           "sub": [
             {
               "id": "pranzo-movimento",
               "t": "10’ OF SUN"
             }
-          ],
-          "nome": "LUNCH",
-          "da": 795
+          ]
         },
         "sveglia": {
           "da": 450
