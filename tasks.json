@@ -987,7 +987,21 @@
           ]
         },
         "sveglia": {
-          "da": 450
+          "da": 450,
+          "sub": [
+            {
+              "id": "sveglia-finestra",
+              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
+            },
+            {
+              "id": "sveglia-acqua",
+              "t": "WATER + TEETH"
+            },
+            {
+              "id": "sveglia-walk",
+              "t": "MORNING ACTIVITY"
+            }
+          ]
         },
         "gws1": {
           "da": 480
@@ -1005,6 +1019,18 @@
               "t": "WEEKLY PLANNING"
             }
           ]
+        },
+        "snack-mattina": {
+          "sub": [
+            {
+              "id": "snack-sole",
+              "t": "10’ OF SUN"
+            },
+            {
+              "id": "rtmuivt1o8ml6",
+              "t": "FIREBLOOD"
+            }
+          ]
         }
       },
       "1": {
@@ -1019,7 +1045,21 @@
           ]
         },
         "sveglia": {
-          "da": 450
+          "da": 450,
+          "sub": [
+            {
+              "id": "sveglia-finestra",
+              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
+            },
+            {
+              "id": "sveglia-acqua",
+              "t": "WATER + TEETH"
+            },
+            {
+              "id": "sveglia-walk",
+              "t": "MORNING ACTIVITY"
+            }
+          ]
         },
         "gws1": {
           "da": 480
@@ -1029,6 +1069,18 @@
         },
         "snack-pomeriggio": {
           "nome": "SNACK"
+        },
+        "snack-mattina": {
+          "sub": [
+            {
+              "id": "snack-sole",
+              "t": "10’ OF SUN"
+            },
+            {
+              "id": "rtmuivt1o8ml6",
+              "t": "FIREBLOOD"
+            }
+          ]
         }
       },
       "2": {
@@ -1043,7 +1095,21 @@
           ]
         },
         "sveglia": {
-          "da": 450
+          "da": 450,
+          "sub": [
+            {
+              "id": "sveglia-finestra",
+              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
+            },
+            {
+              "id": "sveglia-acqua",
+              "t": "WATER + TEETH"
+            },
+            {
+              "id": "sveglia-walk",
+              "t": "MORNING ACTIVITY"
+            }
+          ]
         },
         "gws1": {
           "da": 480
@@ -1053,6 +1119,18 @@
         },
         "snack-pomeriggio": {
           "nome": "SNACK"
+        },
+        "snack-mattina": {
+          "sub": [
+            {
+              "id": "snack-sole",
+              "t": "10’ OF SUN"
+            },
+            {
+              "id": "rtmuivt1o8ml6",
+              "t": "FIREBLOOD"
+            }
+          ]
         }
       },
       "3": {
@@ -1067,7 +1145,21 @@
           ]
         },
         "sveglia": {
-          "da": 450
+          "da": 450,
+          "sub": [
+            {
+              "id": "sveglia-finestra",
+              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
+            },
+            {
+              "id": "sveglia-acqua",
+              "t": "WATER + TEETH"
+            },
+            {
+              "id": "sveglia-walk",
+              "t": "MORNING ACTIVITY"
+            }
+          ]
         },
         "gws1": {
           "da": 480
@@ -1077,6 +1169,18 @@
         },
         "snack-pomeriggio": {
           "nome": "SNACK"
+        },
+        "snack-mattina": {
+          "sub": [
+            {
+              "id": "snack-sole",
+              "t": "10’ OF SUN"
+            },
+            {
+              "id": "rtmuivt1o8ml6",
+              "t": "FIREBLOOD"
+            }
+          ]
         }
       },
       "4": {
@@ -1091,7 +1195,21 @@
           ]
         },
         "sveglia": {
-          "da": 450
+          "da": 450,
+          "sub": [
+            {
+              "id": "sveglia-finestra",
+              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
+            },
+            {
+              "id": "sveglia-acqua",
+              "t": "WATER + TEETH"
+            },
+            {
+              "id": "sveglia-walk",
+              "t": "MORNING ACTIVITY"
+            }
+          ]
         },
         "gws1": {
           "da": 480
@@ -1101,6 +1219,18 @@
         },
         "snack-pomeriggio": {
           "nome": "SNACK"
+        },
+        "snack-mattina": {
+          "sub": [
+            {
+              "id": "snack-sole",
+              "t": "10’ OF SUN"
+            },
+            {
+              "id": "rtmuivt1o8ml6",
+              "t": "FIREBLOOD"
+            }
+          ]
         }
       },
       "5": {
@@ -1115,7 +1245,21 @@
           ]
         },
         "sveglia": {
-          "da": 450
+          "da": 450,
+          "sub": [
+            {
+              "id": "sveglia-finestra",
+              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
+            },
+            {
+              "id": "sveglia-acqua",
+              "t": "WATER + TEETH"
+            },
+            {
+              "id": "sveglia-walk",
+              "t": "MORNING ACTIVITY"
+            }
+          ]
         },
         "gws1": {
           "da": 480
@@ -1125,6 +1269,18 @@
         },
         "snack-pomeriggio": {
           "nome": "SNACK"
+        },
+        "snack-mattina": {
+          "sub": [
+            {
+              "id": "snack-sole",
+              "t": "10’ OF SUN"
+            },
+            {
+              "id": "rtmuivt1o8ml6",
+              "t": "FIREBLOOD"
+            }
+          ]
         }
       },
       "6": {
@@ -1139,17 +1295,55 @@
           ]
         },
         "sveglia": {
-          "da": 450
+          "da": 450,
+          "sub": [
+            {
+              "id": "sveglia-finestra",
+              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
+            },
+            {
+              "id": "sveglia-acqua",
+              "t": "WATER + TEETH"
+            },
+            {
+              "id": "sveglia-walk",
+              "t": "MORNING ACTIVITY"
+            }
+          ]
         },
         "gws1": {
           "da": 480
         },
         "snack-pomeriggio": {
           "nome": "SNACK"
+        },
+        "snack-mattina": {
+          "sub": [
+            {
+              "id": "snack-sole",
+              "t": "10’ OF SUN"
+            },
+            {
+              "id": "rtmuivt1o8ml6",
+              "t": "FIREBLOOD"
+            }
+          ]
         }
       }
     },
     "log": [
+      {
+        "q": "2026-09-26T21:08:22.658Z",
+        "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: SNACK + REC: \"NEW LINE\" is now \"FIREBLOOD\""
+      },
+      {
+        "q": "2026-09-26T21:08:14.648Z",
+        "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: SNACK + REC: added a line"
+      },
+      {
+        "q": "2026-09-26T21:08:13.282Z",
+        "t": "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday: WAKE UP + MORNING ROUTINE: \"WATER + FIREBLOOD + TEETH\" is now \"WATER + TEETH\""
+      },
       {
         "q": "2026-09-26T20:52:29.589Z",
         "t": "Sunday: 5TH G WORK SESSION: \"NEW LINE\" is now \"WEEKLY PLANNING\""
