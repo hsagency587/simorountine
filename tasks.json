@@ -61,16 +61,6 @@
       "creata": "2026-09-07T21:08:33.986Z"
     },
     {
-      "id": "tmtrqlcrnt0fb",
-      "nome": "Creative for meta ads",
-      "desc": "Registrare altri sei creativi da sostituire a quelli eliminati nelle pubblicità Meta. ",
-      "rank": "B",
-      "cliente": "hs-agency",
-      "giorno": null,
-      "gws": null,
-      "creata": "2026-09-07T21:12:30.947Z"
-    },
-    {
       "id": "tmts99b7r2qx6",
       "nome": "Salva & Organizza numeri di telefono",
       "desc": "Salva il numero di telefono delle persone arrivate dalle ADS e spostali sul profilo hsagency.seo. ",
@@ -151,16 +141,6 @@
       "creata": "2026-09-18T08:46:05.821Z"
     },
     {
-      "id": "tmuhfgcjcvuuv",
-      "creata": "2026-09-25T20:42:42.168Z",
-      "nome": "Scrittura nuovi video ads",
-      "desc": "",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": null,
-      "gws": null
-    },
-    {
       "id": "tmuhfnobqlxh6",
       "creata": "2026-09-25T20:48:24.038Z",
       "nome": "Inizia protezione app",
@@ -207,22 +187,12 @@
       ]
     },
     {
-      "id": "tmuiopla2a4bs",
-      "creata": "2026-09-26T17:49:36.122Z",
-      "nome": "Scrivere video meta ads",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": null,
-      "gws": null
-    },
-    {
       "id": "tmuioqfs4i0oz",
       "creata": "2026-09-26T17:50:15.652Z",
       "nome": "Scrivere vIdeo meta ADS",
       "desc": "",
       "rank": "A",
-      "cliente": null,
+      "cliente": "hs-agency",
       "giorno": "2026-09-27",
       "gws": [
         0,
@@ -251,6 +221,36 @@
       "rank": "A",
       "cliente": "cmufl8jhvkkm",
       "giorno": "2026-09-28",
+      "gws": null
+    },
+    {
+      "id": "tmujnfiph63k6",
+      "creata": "2026-09-27T10:01:32.789Z",
+      "nome": "SOP x creative",
+      "desc": "",
+      "rank": "B",
+      "cliente": null,
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmujnhj70bmql",
+      "creata": "2026-09-27T10:03:06.732Z",
+      "nome": "Train Claude x Creative",
+      "desc": "Dopo aver scritto il SOP x I creative e tutte le caratteristiche che una meta ads deve avere usare I video gia scritti e tutto quello che ho scritto io per addestrare una chat di claude a scrivere come me I creative",
+      "rank": "B",
+      "cliente": null,
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmujnibd2raf5",
+      "creata": "2026-09-27T10:03:43.238Z",
+      "nome": "Caratt. Need x Creative",
+      "desc": "Che caratteristiche deve avere un creative di meta",
+      "rank": "B",
+      "cliente": null,
+      "giorno": null,
       "gws": null
     }
   ],
