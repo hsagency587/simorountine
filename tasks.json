@@ -230,8 +230,11 @@
       "desc": "",
       "rank": "B",
       "cliente": null,
-      "giorno": null,
-      "gws": null
+      "giorno": "2026-09-27",
+      "gws": [
+        3,
+        4
+      ]
     },
     {
       "id": "tmujnhj70bmql",
@@ -250,8 +253,11 @@
       "desc": "Che caratteristiche deve avere un creative di meta",
       "rank": "B",
       "cliente": null,
-      "giorno": null,
-      "gws": null
+      "giorno": "2026-09-27",
+      "gws": [
+        3,
+        4
+      ]
     }
   ],
   "workout": {
