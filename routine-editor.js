@@ -64,7 +64,12 @@ const rtHHMM = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
    per un giorno della settimana la fabbrica, per una data la fabbrica col
    giorno della settimana sopra. Serve a capire quando una modifica torna
    uguale a quello che c'era e puo' sparire. */
-const rtAdesso = () => routineTutta(rtK());
+/* Scelto un giorno della settimana si vede e si cambia l'impostazione di quel
+   giorno, e basta. Una data singola cambiata nel telefono vince solo sulla
+   giornata di quella data, non su quello che si vede qui: prima la data
+   copriva l'impostazione, e un orario messo sul giorno sembrava non prendere. */
+const rtAdesso = () => rtSel.d ? routineTutta(rtK())
+                               : applicaRoutine(fabbricaFor(rtK()), routineOv(rtK(), true));
 function rtSottoB(b) {
   const k = rtKB(b);
   return b.d ? applicaRoutine(fabbricaFor(k), routineOv(k, true)) : fabbricaFor(k);
@@ -99,7 +104,9 @@ const rtModificata = id => rtBersagli().some(b => rtLivB(b)[id]);
    primo, e lo si dice. */
 function rtDiversi() {
   if (rtSel.d || rtSel.gg.length < 2) return false;
-  const foto = g => JSON.stringify(routineFor(rtKB({ g })).map(t => [t.t, t.sub || null, !!t.via]));
+  const foto = g => { const k = rtKB({ g });
+    return JSON.stringify(applicaRoutine(fabbricaFor(k), routineOv(k, true))
+      .map(t => [t.t, t.sub || null, !!t.via])); };
   const a = foto(rtSel.gg[0]);
   return rtSel.gg.some(g => foto(g) !== a);
 }
