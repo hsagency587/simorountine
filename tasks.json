@@ -51,16 +51,6 @@
       "creata": "2026-09-07T21:06:30.204Z"
     },
     {
-      "id": "tmtrqg9xeb077",
-      "nome": "Fix sito web + check citaizoni",
-      "desc": "Aggiusta le pagine rank 2. E controlla le citazioni che sono in giro. ",
-      "rank": "C",
-      "cliente": "longkai",
-      "giorno": null,
-      "gws": null,
-      "creata": "2026-09-07T21:08:33.986Z"
-    },
-    {
       "id": "tmts99b7r2qx6",
       "nome": "Salva & Organizza numeri di telefono",
       "desc": "Salva il numero di telefono delle persone arrivate dalle ADS e spostali sul profilo hsagency.seo. ",
@@ -355,6 +345,16 @@
       "gws": [
         2
       ]
+    },
+    {
+      "id": "tmulbg1ymph0b",
+      "creata": "2026-09-28T14:01:34.702Z",
+      "nome": "Fix sito + plan package",
+      "desc": "",
+      "rank": "C",
+      "cliente": "hs-agency",
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
