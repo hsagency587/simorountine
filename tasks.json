@@ -1128,23 +1128,6 @@
             }
           ]
         },
-        "sveglia": {
-          "da": 450,
-          "sub": [
-            {
-              "id": "sveglia-finestra",
-              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
-            },
-            {
-              "id": "sveglia-acqua",
-              "t": "WATER + TEETH"
-            },
-            {
-              "id": "sveglia-walk",
-              "t": "MORNING ACTIVITY"
-            }
-          ]
-        },
         "gws1": {
           "da": 480
         },
@@ -1165,6 +1148,23 @@
               "t": "FIREBLOOD"
             }
           ]
+        },
+        "sveglia": {
+          "sub": [
+            {
+              "id": "sveglia-finestra",
+              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
+            },
+            {
+              "id": "sveglia-acqua",
+              "t": "WATER + TEETH"
+            },
+            {
+              "id": "sveglia-walk",
+              "t": "MORNING ACTIVITY"
+            }
+          ],
+          "da": 450
         }
       },
       "3": {
@@ -1362,6 +1362,34 @@
       }
     },
     "log": [
+      {
+        "q": "2026-09-28T10:12:01.064Z",
+        "t": "Tuesday: WAKE UP + MORNING ROUTINE now at 07:30"
+      },
+      {
+        "q": "2026-09-28T10:11:57.987Z",
+        "t": "Tuesday: WAKE UP + MORNING ROUTINE: \"WATER + FIREBLOOD + TEETH\" is now \"WATER + TEETH\""
+      },
+      {
+        "q": "2026-09-28T10:11:51.915Z",
+        "t": "Tuesday: WAKE UP + MORNING ROUTINE: back to the original"
+      },
+      {
+        "q": "2026-09-28T10:11:48.865Z",
+        "t": "Tuesday: WAKE UP + MORNING ROUTINE now at 07:30"
+      },
+      {
+        "q": "2026-09-28T10:11:33.250Z",
+        "t": "Tuesday: WAKE UP + MORNING ROUTINE now at 07:30"
+      },
+      {
+        "q": "2026-09-28T10:11:26.743Z",
+        "t": "Tuesday: WAKE UP + MORNING ROUTINE now at 07:30"
+      },
+      {
+        "q": "2026-09-28T10:11:21.745Z",
+        "t": "Tuesday: WAKE UP + MORNING ROUTINE now at 07:30"
+      },
       {
         "q": "2026-09-26T21:12:18.728Z",
         "t": "Saturday: SNACK + REC: removed \"10’ OF SUN\""
