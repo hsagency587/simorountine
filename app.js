@@ -1550,7 +1550,17 @@ function validTask(x) {
   return out;
 }
 
-const sameTasks = (a, b) => JSON.stringify((a || []).map(validTask)) === JSON.stringify((b || []).map(validTask));
+/* Tutto quello che viaggia nel file, in una riga sola: task, piano, dieta,
+   limiti, schede, routine e clienti. Due copie sono la stessa solo se e'
+   uguale tutto. Prima si guardavano solo le task: una modifica alla routine,
+   con le task ferme, passava per "gia' salvata" e non partiva mai. */
+function fotoDati(x) {
+  x = x || {};
+  return JSON.stringify([(x.tasks || []).map(validTask), validWorkout(x.workout),
+                         validDieta(x.dieta), validLimiti(x.limiti), validSchede(x.schede),
+                         validRoutine(x.routine), validClienti(x.clienti)]);
+}
+const sameDati = (a, b) => fotoDati(a) === fotoDati(b);
 
 /* Il piano che arriva dal file: solo i sette giorni, due caselle, testo corto.
    Le caselle vuote non si scrivono, cosi' un piano vuoto e' un oggetto vuoto. */
@@ -1654,7 +1664,12 @@ function validTappeRt(t) {
         .map(x => ({ id: String(x.id || ('rt' + Math.random().toString(36).slice(2, 8))),
                      t: x.t.trim().slice(0, 80) }));
     }
-    if (v.da != null || v.nome || v.sub) res[k] = v;
+    /* la tappa tolta (via) e quella aggiunta a mano (nuova) devono passare:
+       prima si buttavano, e alla riapertura la tolta tornava e l'aggiunta
+       spariva. Una tappa nuova senza orario non saprebbe dove stare. */
+    if (typeof o.via === 'boolean') v.via = o.via;
+    if (o.nuova === true && v.da != null) v.nuova = true;
+    if (v.da != null || v.nome || v.sub || v.via != null || v.nuova) res[k] = v;
   }
   return res;
 }
@@ -4170,8 +4185,10 @@ async function pullTasks() {
   const rout   = validRoutine(data.routine);
 
   if (tstore.dirty) {
-    /* e' la nostra stessa versione, salvata dal salvagente senza risposta? */
-    if (sameTasks(remote, tstore.tasks)) {
+    /* e' la nostra stessa versione, salvata dal salvagente senza risposta?
+       Si guarda tutto il file, non solo le task: senno' una routine cambiata
+       si spegneva qui senza partire. */
+    if (sameDati(data, tstore)) {
       rememberSha(j.sha); tstore.dirty = false; saveLocal(); paintSalva();
       fine('in sync');
     } else {
@@ -4206,7 +4223,7 @@ async function pushTasks(opts) {
 
   /* la fotografia di cio' che parte: se nel frattempo si tocca qualcosa,
      dirty deve restare acceso anche a salvataggio riuscito */
-  const sent = JSON.stringify(tstore.tasks);
+  const sent = fotoDati(tstore);
   const n = tstore.tasks.filter(x => !x.giorno).length;
   /* con la chiave impostata il file parte chiuso; senza, in chiaro come prima */
   const testo = JSON.stringify({ tasks: tstore.tasks, workout: tstore.workout,
@@ -4231,7 +4248,7 @@ async function pushTasks(opts) {
   const body = JSON.stringify(payload);
 
   const salvato = () => {
-    if (JSON.stringify(tstore.tasks) === sent) tstore.dirty = false;
+    if (fotoDati(tstore) === sent) tstore.dirty = false;
     saveLocal(); paintSalva();
     paintSync('saved at ' + fmtTime.format(new Date()));
   };
@@ -4268,7 +4285,7 @@ async function pushTasks(opts) {
         rememberSha(j.sha);
         let data = null;
         try { data = JSON.parse(await decifra(b64dec(j.content))); } catch (e) { /* si riprova comunque */ }
-        if (data && sameTasks(data.tasks, tstore.tasks)) { salvato(); return; }
+        if (data && sameDati(data, tstore)) { salvato(); return; }
         return pushTasks(Object.assign({}, opts, { retry: true }));
       }
     } catch (e) { /* si cade nell'errore qui sotto */ }
