@@ -108,8 +108,10 @@
       "desc": "- chiedi accesso alla mail\n",
       "rank": "A",
       "cliente": "manuela-lovo",
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-09-29",
+      "gws": [
+        2
+      ],
       "creata": "2026-09-10T07:23:26.456Z"
     },
     {
@@ -198,8 +200,10 @@
       "desc": "",
       "rank": "B",
       "cliente": null,
-      "giorno": null,
-      "gws": null
+      "giorno": "2026-09-29",
+      "gws": [
+        3
+      ]
     },
     {
       "id": "tmujnhj70bmql",
@@ -218,8 +222,10 @@
       "desc": "Che caratteristiche deve avere un creative di meta",
       "rank": "B",
       "cliente": null,
-      "giorno": null,
-      "gws": null
+      "giorno": "2026-09-29",
+      "gws": [
+        3
+      ]
     },
     {
       "id": "tmujo8w29ped1",
@@ -336,6 +342,42 @@
       "giorno": "2026-09-29",
       "gws": [
         1
+      ]
+    },
+    {
+      "id": "tmul3zr9hzsd5",
+      "creata": "2026-09-28T10:32:57.029Z",
+      "nome": "Fix citazioni + check SEO",
+      "desc": "",
+      "rank": "A",
+      "cliente": "omnia",
+      "giorno": "2026-09-28",
+      "gws": [
+        2
+      ]
+    },
+    {
+      "id": "tmul41sav97lb",
+      "creata": "2026-09-28T10:34:31.687Z",
+      "nome": "Fux tag sito + sostituzione",
+      "desc": "",
+      "rank": "B",
+      "cliente": "fisio-leone",
+      "giorno": "2026-09-28",
+      "gws": [
+        2
+      ]
+    },
+    {
+      "id": "tmul42tnwnab5",
+      "creata": "2026-09-28T10:35:20.109Z",
+      "nome": "Richieste sito",
+      "desc": "- preventivi gratuiti\n- vari pacchetti bella realizzazione ",
+      "rank": "A",
+      "cliente": "bergamaschi",
+      "giorno": "2026-09-28",
+      "gws": [
+        2
       ]
     }
   ],
