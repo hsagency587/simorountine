@@ -259,7 +259,7 @@
       "nome": "Meet Paolo x sito web",
       "desc": "",
       "rank": "B",
-      "cliente": null,
+      "cliente": "fisio-leone",
       "giorno": "2026-09-28",
       "gws": [
         1
@@ -275,6 +275,42 @@
       "giorno": "2026-09-28",
       "gws": [
         0
+      ]
+    },
+    {
+      "id": "tmukwn3pzgb98",
+      "creata": "2026-09-28T07:07:09.335Z",
+      "nome": "Organizzazione cretive",
+      "desc": "",
+      "rank": "A",
+      "cliente": "hs-agency",
+      "giorno": "2026-09-28",
+      "gws": [
+        1
+      ]
+    },
+    {
+      "id": "tmukwnor6p5qv",
+      "creata": "2026-09-28T07:07:36.594Z",
+      "nome": "Cerca voltimetro",
+      "desc": "",
+      "rank": "C",
+      "cliente": null,
+      "giorno": "2026-09-28",
+      "gws": [
+        1
+      ]
+    },
+    {
+      "id": "tmukwol79ih58",
+      "creata": "2026-09-28T07:08:18.645Z",
+      "nome": "Nuovo numero di telefono",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-28",
+      "gws": [
+        2
       ]
     }
   ],
