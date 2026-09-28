@@ -138,10 +138,9 @@
       "desc": "",
       "rank": "A",
       "cliente": "cmufl8jhvkkm",
-      "giorno": "2026-09-28",
+      "giorno": "2026-09-29",
       "gws": [
-        0,
-        1
+        0
       ],
       "creata": "2026-09-18T08:46:05.821Z"
     },
@@ -286,7 +285,7 @@
       "desc": "",
       "rank": "A",
       "cliente": "hs-agency",
-      "giorno": "2026-09-28",
+      "giorno": "2026-09-29",
       "gws": [
         1
       ]
@@ -313,6 +312,18 @@
       "giorno": "2026-09-28",
       "gws": [
         2
+      ]
+    },
+    {
+      "id": "tmul3646pqib2",
+      "creata": "2026-09-28T10:09:54.097Z",
+      "nome": "Comprare numeri",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-29",
+      "gws": [
+        1
       ]
     }
   ],
