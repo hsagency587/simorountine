@@ -325,6 +325,18 @@
       "gws": [
         1
       ]
+    },
+    {
+      "id": "tmul3hyyqo41t",
+      "creata": "2026-09-28T10:19:07.202Z",
+      "nome": "Depositare",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-29",
+      "gws": [
+        1
+      ]
     }
   ],
   "workout": {
@@ -1150,6 +1162,7 @@
           ]
         },
         "sveglia": {
+          "da": 450,
           "sub": [
             {
               "id": "sveglia-finestra",
@@ -1163,8 +1176,7 @@
               "id": "sveglia-walk",
               "t": "MORNING ACTIVITY"
             }
-          ],
-          "da": 450
+          ]
         }
       },
       "3": {
