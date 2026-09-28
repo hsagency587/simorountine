@@ -241,16 +241,40 @@
       "gws": null
     },
     {
-      "id": "tmukunr25tgwq",
-      "creata": "2026-09-28T06:11:40.349Z",
-      "nome": "Organizzare creative",
+      "id": "tmukv4qx5cono",
+      "creata": "2026-09-28T06:24:53.321Z",
+      "nome": "Finire video scheda sifu",
       "desc": "",
-      "rank": "A",
-      "cliente": "hs-agency",
+      "rank": "C",
+      "cliente": null,
       "giorno": "2026-09-28",
       "gws": [
         0,
         1
+      ]
+    },
+    {
+      "id": "tmukv52qxwwh0",
+      "creata": "2026-09-28T06:25:08.649Z",
+      "nome": "Meet Paolo x sito web",
+      "desc": "",
+      "rank": "B",
+      "cliente": null,
+      "giorno": "2026-09-28",
+      "gws": [
+        1
+      ]
+    },
+    {
+      "id": "tmukv5tmwmoiw",
+      "creata": "2026-09-28T06:25:43.496Z",
+      "nome": "Bean counting",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-28",
+      "gws": [
+        0
       ]
     }
   ],
