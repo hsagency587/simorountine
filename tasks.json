@@ -136,9 +136,10 @@
       "desc": "",
       "rank": "A",
       "cliente": "cmufl8jhvkkm",
-      "giorno": "2026-09-27",
+      "giorno": "2026-09-28",
       "gws": [
-        0
+        0,
+        1
       ],
       "creata": "2026-09-18T08:46:05.821Z"
     },
@@ -151,42 +152,6 @@
       "cliente": "cmufl8y32jd3",
       "giorno": null,
       "gws": null
-    },
-    {
-      "id": "tmuife89erm0o",
-      "creata": "2026-09-26T13:28:49.490Z",
-      "nome": "Prato nonna",
-      "desc": "",
-      "rank": "C",
-      "cliente": null,
-      "giorno": "2026-09-26",
-      "gws": [
-        2
-      ]
-    },
-    {
-      "id": "tmuifeub86174",
-      "creata": "2026-09-26T13:29:18.068Z",
-      "nome": "Fix sito",
-      "desc": "",
-      "rank": "A",
-      "cliente": "fisio-leone",
-      "giorno": "2026-09-26",
-      "gws": [
-        2
-      ]
-    },
-    {
-      "id": "tmuiff6gh5pc0",
-      "creata": "2026-09-26T13:29:33.809Z",
-      "nome": "Pulizia casa",
-      "desc": "",
-      "rank": "B",
-      "cliente": null,
-      "giorno": "2026-09-26",
-      "gws": [
-        3
-      ]
     },
     {
       "id": "tmuioqfs4i0oz",
@@ -232,10 +197,8 @@
       "desc": "",
       "rank": "B",
       "cliente": null,
-      "giorno": "2026-09-27",
-      "gws": [
-        4
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmujnhj70bmql",
@@ -254,10 +217,8 @@
       "desc": "Che caratteristiche deve avere un creative di meta",
       "rank": "B",
       "cliente": null,
-      "giorno": "2026-09-27",
-      "gws": [
-        4
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmujo8w29ped1",
@@ -266,10 +227,8 @@
       "desc": "",
       "rank": "C",
       "cliente": null,
-      "giorno": "2026-09-27",
-      "gws": [
-        4
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmuka6oush096",
@@ -280,6 +239,19 @@
       "cliente": "hs-agency",
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmukunr25tgwq",
+      "creata": "2026-09-28T06:11:40.349Z",
+      "nome": "Organizzare creative",
+      "desc": "",
+      "rank": "A",
+      "cliente": "hs-agency",
+      "giorno": "2026-09-28",
+      "gws": [
+        0,
+        1
+      ]
     }
   ],
   "workout": {
