@@ -337,6 +337,18 @@
       "cliente": "hs-agency",
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmumiu9j6d6eo",
+      "creata": "2026-09-29T10:16:21.186Z",
+      "nome": "Posta",
+      "desc": "",
+      "rank": "C",
+      "cliente": null,
+      "giorno": "2026-09-29",
+      "gws": [
+        1
+      ]
     }
   ],
   "workout": {
