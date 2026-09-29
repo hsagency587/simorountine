@@ -66,8 +66,10 @@
       "desc": "Carica video e aggiungi descrizioni\n+ scheda zia",
       "rank": "A",
       "cliente": null,
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-09-29",
+      "gws": [
+        4
+      ],
       "creata": "2026-09-08T20:21:51.433Z"
     },
     {
@@ -139,16 +141,6 @@
       "desc": "",
       "rank": "A",
       "cliente": "cmufl8y32jd3",
-      "giorno": null,
-      "gws": null
-    },
-    {
-      "id": "tmujnhj70bmql",
-      "creata": "2026-09-27T10:03:06.732Z",
-      "nome": "Train Claude x Creative",
-      "desc": "Dopo aver scritto il SOP x I creative e tutte le caratteristiche che una meta ads deve avere usare I video gia scritti e tutto quello che ho scritto io per addestrare una chat di claude a scrivere come me I creative",
-      "rank": "B",
-      "cliente": null,
       "giorno": null,
       "gws": null
     },
@@ -327,6 +319,16 @@
       "gws": [
         3
       ]
+    },
+    {
+      "id": "tmumtis03rlno",
+      "creata": "2026-09-29T15:15:21.027Z",
+      "nome": "Train Claude",
+      "desc": "- Progetto per:  target market analysis, gestione, impostazione dei sistemi di tracking. Tutto quello che riguarda il creare meta tags, Google tags, anche con il winner writing process preso dal target market analysis\nsaper collegare bene un bel winner writing process, una target market analysis e sapere come costruire delle landing page\n(per farlo gli darò molto materiale, tra cui walkthrough) \n\n- Progetto per completare il lavoro della top 3 interamente \n\n- Progetto per sviluppare applicazioni: tutto ciò che riguarda: come farlo, come gestire i dati, come mettersi in regola, come proteggerlo, tutto quello che riguarda il creare un'applicazione e metterla in vendita\n ",
+      "rank": "B",
+      "cliente": null,
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
