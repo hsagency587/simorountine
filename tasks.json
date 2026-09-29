@@ -143,18 +143,6 @@
       "gws": null
     },
     {
-      "id": "tmujnfiph63k6",
-      "creata": "2026-09-27T10:01:32.789Z",
-      "nome": "SOP x creative",
-      "desc": "",
-      "rank": "B",
-      "cliente": null,
-      "giorno": "2026-09-29",
-      "gws": [
-        3
-      ]
-    },
-    {
       "id": "tmujnhj70bmql",
       "creata": "2026-09-27T10:03:06.732Z",
       "nome": "Train Claude x Creative",
@@ -163,18 +151,6 @@
       "cliente": null,
       "giorno": null,
       "gws": null
-    },
-    {
-      "id": "tmujnibd2raf5",
-      "creata": "2026-09-27T10:03:43.238Z",
-      "nome": "Caratt. Need x Creative",
-      "desc": "Che caratteristiche deve avere un creative di meta",
-      "rank": "B",
-      "cliente": null,
-      "giorno": "2026-09-29",
-      "gws": [
-        3
-      ]
     },
     {
       "id": "tmujo8w29ped1",
@@ -264,19 +240,9 @@
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": null,
-      "gws": null
-    },
-    {
-      "id": "tmul3646pqib2",
-      "creata": "2026-09-28T10:09:54.097Z",
-      "nome": "Comprare numeri",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
       "giorno": "2026-09-29",
       "gws": [
-        1
+        2
       ]
     },
     {
@@ -348,6 +314,18 @@
       "giorno": "2026-09-29",
       "gws": [
         1
+      ]
+    },
+    {
+      "id": "tmumtdyfx24d2",
+      "creata": "2026-09-29T15:11:36.093Z",
+      "nome": "Fix sito",
+      "desc": "",
+      "rank": "A",
+      "cliente": "fisio-leone",
+      "giorno": "2026-09-29",
+      "gws": [
+        3
       ]
     }
   ],
