@@ -41,17 +41,6 @@
       "creata": "2026-09-07T20:46:17.082Z"
     },
     {
-      "id": "tmtrqdmez9du8",
-      "nome": "Check citazioni Omnia",
-      "desc": "Controllare se ci sono errori nelle citazioni attuali e aggiungere quelli mancati. ",
-      "rank": "B",
-      "cliente": "omnia",
-      "giorno": null,
-      "gws": null,
-      "creata": "2026-09-07T21:06:30.204Z",
-      "fatta": "2026-09-30T06:17:12.270Z"
-    },
-    {
       "id": "tmts99b7r2qx6",
       "nome": "Salva & Organizza numeri di telefono",
       "desc": "Salva il numero di telefono delle persone arrivate dalle ADS e spostali sul profilo hsagency.seo. ",
@@ -102,17 +91,6 @@
         1
       ],
       "creata": "2026-09-10T07:23:26.456Z"
-    },
-    {
-      "id": "tmtv7bk90a3i8",
-      "nome": "Last touch SEO",
-      "desc": "",
-      "rank": "C",
-      "cliente": "manuela-lovo",
-      "giorno": null,
-      "gws": null,
-      "creata": "2026-09-10T07:24:06.084Z",
-      "fatta": "2026-09-30T06:26:34.803Z"
     },
     {
       "id": "tmu6prtodvdv0",
