@@ -88,7 +88,8 @@
       "cliente": "manuela-lovo",
       "giorno": "2026-09-30",
       "gws": [
-        1
+        1,
+        2
       ],
       "creata": "2026-09-10T07:23:26.456Z"
     },
@@ -255,8 +256,8 @@
       "nome": "Recupera foto",
       "desc": "Contatta I vari fornitori per le foto della gioielleria di nucci",
       "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-30",
+      "cliente": "di-nucci",
+      "giorno": "2026-10-02",
       "gws": [
         2
       ]
