@@ -48,7 +48,8 @@
       "cliente": "omnia",
       "giorno": null,
       "gws": null,
-      "creata": "2026-09-07T21:06:30.204Z"
+      "creata": "2026-09-07T21:06:30.204Z",
+      "fatta": "2026-09-30T06:17:12.270Z"
     },
     {
       "id": "tmts99b7r2qx6",
@@ -66,10 +67,8 @@
       "desc": "Carica video e aggiungi descrizioni\n+ scheda zia",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-09-29",
-      "gws": [
-        4
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-09-08T20:21:51.433Z"
     },
     {
@@ -98,10 +97,8 @@
       "desc": "- Apri chat, prendi zip e riprendi a lavorare. \n",
       "rank": "B",
       "cliente": "manuela-lovo",
-      "giorno": "2026-09-29",
-      "gws": [
-        2
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-09-10T07:23:26.456Z"
     },
     {
@@ -165,43 +162,6 @@
       "gws": null
     },
     {
-      "id": "tmukv4qx5cono",
-      "creata": "2026-09-28T06:24:53.321Z",
-      "nome": "Finire video scheda sifu",
-      "desc": "",
-      "rank": "C",
-      "cliente": null,
-      "giorno": "2026-09-28",
-      "gws": [
-        0,
-        1
-      ]
-    },
-    {
-      "id": "tmukv52qxwwh0",
-      "creata": "2026-09-28T06:25:08.649Z",
-      "nome": "Meet Paolo x sito web",
-      "desc": "",
-      "rank": "B",
-      "cliente": "fisio-leone",
-      "giorno": "2026-09-28",
-      "gws": [
-        1
-      ]
-    },
-    {
-      "id": "tmukv5tmwmoiw",
-      "creata": "2026-09-28T06:25:43.496Z",
-      "nome": "Bean counting",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-28",
-      "gws": [
-        0
-      ]
-    },
-    {
       "id": "tmukwn3pzgb98",
       "creata": "2026-09-28T07:07:09.335Z",
       "nome": "Organizzazione cretive",
@@ -211,18 +171,6 @@
       "giorno": "2026-09-29",
       "gws": [
         2
-      ]
-    },
-    {
-      "id": "tmukwnor6p5qv",
-      "creata": "2026-09-28T07:07:36.594Z",
-      "nome": "Cerca voltimetro",
-      "desc": "",
-      "rank": "C",
-      "cliente": null,
-      "giorno": "2026-09-28",
-      "gws": [
-        1
       ]
     },
     {
@@ -247,43 +195,6 @@
       "giorno": "2026-09-29",
       "gws": [
         1
-      ]
-    },
-    {
-      "id": "tmul3zr9hzsd5",
-      "creata": "2026-09-28T10:32:57.029Z",
-      "nome": "Fix citazioni + check SEO",
-      "desc": "",
-      "rank": "A",
-      "cliente": "omnia",
-      "giorno": "2026-09-28",
-      "gws": [
-        2
-      ]
-    },
-    {
-      "id": "tmul41sav97lb",
-      "creata": "2026-09-28T10:34:31.687Z",
-      "nome": "Fix tag sito + sostituzione",
-      "desc": "",
-      "rank": "B",
-      "cliente": "fisio-leone",
-      "giorno": "2026-09-28",
-      "gws": [
-        2,
-        3
-      ]
-    },
-    {
-      "id": "tmul42tnwnab5",
-      "creata": "2026-09-28T10:35:20.109Z",
-      "nome": "Richieste sito",
-      "desc": "- preventivi gratuiti\n- vari pacchetti bella realizzazione ",
-      "rank": "A",
-      "cliente": "bergamaschi",
-      "giorno": "2026-09-28",
-      "gws": [
-        2
       ]
     },
     {
@@ -339,6 +250,43 @@
       "cliente": null,
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmunpsc9ewlxm",
+      "creata": "2026-09-30T06:18:34.898Z",
+      "nome": "Call",
+      "desc": "- volantini\n- bigliettini\n- sconto",
+      "rank": "A",
+      "cliente": "di-nucci",
+      "giorno": "2026-09-30",
+      "gws": [
+        0
+      ]
+    },
+    {
+      "id": "tmunpt7hhvqmj",
+      "creata": "2026-09-30T06:19:15.365Z",
+      "nome": "Scrittura creative",
+      "desc": "- Fix video sito\n- inizio stesura nuovi due video. ",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-30",
+      "gws": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "tmunpu0kxg83w",
+      "creata": "2026-09-30T06:19:53.073Z",
+      "nome": "1h Cold call + F.U.",
+      "desc": "",
+      "rank": "A",
+      "cliente": "hs-agency",
+      "giorno": "2026-09-30",
+      "gws": [
+        1
+      ]
     }
   ],
   "workout": {
