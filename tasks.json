@@ -258,6 +258,16 @@
       "gws": [
         2
       ]
+    },
+    {
+      "id": "tmunv6ncrm9ng",
+      "creata": "2026-09-30T08:49:40.539Z",
+      "nome": "Migliora traking landing top 3",
+      "desc": "Usa GA4 ",
+      "rank": "B",
+      "cliente": "hs-agency",
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
