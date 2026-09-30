@@ -172,11 +172,13 @@
       "id": "tmulbg1ymph0b",
       "creata": "2026-09-28T14:01:34.702Z",
       "nome": "Fix sito + plan package",
-      "desc": "Fix landing: \nIl prossimo passo per venir consigliato su Google e dalle IA\n\nPacchetti: \n250€ - Seo\n330€ - Top 3 (SEO + GBP)\n400€ - top 3 + ricerca IA (SEO + GBP + IA)",
+      "desc": "Fix landing: \nIl prossimo passo per venir consigliato su Google e dalle IA\n\nPacchetti: \n250€ - Seo\n330€ - Top 3 (SEO + GBP)\n400€ - top 3 + ricerca IA (SEO + GBP + IA)\n\nAggiungere nel modulo un ultimo slot per fare una domanda\n",
       "rank": "C",
       "cliente": "hs-agency",
-      "giorno": null,
-      "gws": null
+      "giorno": "2026-09-30",
+      "gws": [
+        4
+      ]
     },
     {
       "id": "tmumiu9j6d6eo",
