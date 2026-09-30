@@ -111,17 +111,8 @@
       "cliente": "manuela-lovo",
       "giorno": null,
       "gws": null,
-      "creata": "2026-09-10T07:24:06.084Z"
-    },
-    {
-      "id": "tmu56mrv71mye",
-      "nome": "Indexing manuela lovo website",
-      "desc": "",
-      "rank": "C",
-      "cliente": "manuela-lovo",
-      "giorno": null,
-      "gws": null,
-      "creata": "2026-09-17T07:02:31.315Z"
+      "creata": "2026-09-10T07:24:06.084Z",
+      "fatta": "2026-09-30T06:26:34.803Z"
     },
     {
       "id": "tmu6prtodvdv0",
@@ -237,7 +228,7 @@
       "id": "tmumtis03rlno",
       "creata": "2026-09-29T15:15:21.027Z",
       "nome": "Train Claude",
-      "desc": "- Progetto per:  target market analysis, gestione, impostazione dei sistemi di tracking. Tutto quello che riguarda il creare meta tags, Google tags, anche con il winner writing process preso dal target market analysis\nsaper collegare bene un bel winner writing process, una target market analysis e sapere come costruire delle landing page\n(per farlo gli darò molto materiale, tra cui walkthrough) \n\n- Progetto per completare il lavoro della top 3 interamente \n\n- Progetto per sviluppare applicazioni: tutto ciò che riguarda: come farlo, come gestire i dati, come mettersi in regola, come proteggerlo, tutto quello che riguarda il creare un'applicazione e metterla in vendita\n ",
+      "desc": "- Progetto per:  target market analysis, gestione, impostazione dei sistemi di tracking. Tutto quello che riguarda il creare meta ads, Google ads, anche con il winner writing process preso dal target market analysis\nsaper collegare bene un bel winner writing process ad una target market analysis e sapere come costruire delle landing page\n(per farlo gli darò molto materiale, tra cui walkthrough) \n\n- Progetto per completare il lavoro della top 3 interamente \n\n- Progetto per sviluppare applicazioni: tutto ciò che riguarda: come farlo, come gestire i dati, come mettersi in regola, come proteggerlo, tutto quello che riguarda il creare un'applicazione e metterla in vendita\n ",
       "rank": "B",
       "cliente": null,
       "giorno": null,
@@ -276,6 +267,18 @@
       "gws": [
         0,
         1
+      ]
+    },
+    {
+      "id": "tmunq2h21nubn",
+      "creata": "2026-09-30T06:26:27.673Z",
+      "nome": "Recupera foto",
+      "desc": "Contatta I vari fornitori per le foto della gioielleria di nucci",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-09-30",
+      "gws": [
+        2
       ]
     }
   ],
