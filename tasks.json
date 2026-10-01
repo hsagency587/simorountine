@@ -88,11 +88,8 @@
       "desc": "- Apri chat, prendi zip e riprendi a lavorare. \n",
       "rank": "B",
       "cliente": "manuela-lovo",
-      "giorno": "2026-09-30",
-      "gws": [
-        1,
-        2
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-09-10T07:23:26.456Z"
     },
     {
@@ -136,42 +133,6 @@
       "gws": null
     },
     {
-      "id": "tmukwn3pzgb98",
-      "creata": "2026-09-28T07:07:09.335Z",
-      "nome": "Organizzazione cretive",
-      "desc": "",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-29",
-      "gws": [
-        2
-      ]
-    },
-    {
-      "id": "tmukwol79ih58",
-      "creata": "2026-09-28T07:08:18.645Z",
-      "nome": "Nuovo numero di telefono",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-29",
-      "gws": [
-        2
-      ]
-    },
-    {
-      "id": "tmul3hyyqo41t",
-      "creata": "2026-09-28T10:19:07.202Z",
-      "nome": "Depositare",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-29",
-      "gws": [
-        1
-      ]
-    },
-    {
       "id": "tmulbg1ymph0b",
       "creata": "2026-09-28T14:01:34.702Z",
       "nome": "Fix sito + plan package",
@@ -181,30 +142,6 @@
       "giorno": "2026-09-30",
       "gws": [
         4
-      ]
-    },
-    {
-      "id": "tmumiu9j6d6eo",
-      "creata": "2026-09-29T10:16:21.186Z",
-      "nome": "Posta",
-      "desc": "",
-      "rank": "C",
-      "cliente": null,
-      "giorno": "2026-09-29",
-      "gws": [
-        1
-      ]
-    },
-    {
-      "id": "tmumtdyfx24d2",
-      "creata": "2026-09-29T15:11:36.093Z",
-      "nome": "Fix sito",
-      "desc": "",
-      "rank": "A",
-      "cliente": "fisio-leone",
-      "giorno": "2026-09-29",
-      "gws": [
-        3
       ]
     },
     {
