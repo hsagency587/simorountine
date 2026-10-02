@@ -88,8 +88,10 @@
       "desc": "- Apri chat, prendi zip e riprendi a lavorare. \n",
       "rank": "B",
       "cliente": "manuela-lovo",
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-10-02",
+      "gws": [
+        1
+      ],
       "creata": "2026-09-10T07:23:26.456Z"
     },
     {
@@ -153,18 +155,6 @@
       "gws": null
     },
     {
-      "id": "tmunq2h21nubn",
-      "creata": "2026-09-30T06:26:27.673Z",
-      "nome": "Recupera foto",
-      "desc": "Contatta I vari fornitori per le foto della gioielleria di nucci",
-      "rank": "A",
-      "cliente": "di-nucci",
-      "giorno": "2026-10-02",
-      "gws": [
-        2
-      ]
-    },
-    {
       "id": "tmunv6ncrm9ng",
       "creata": "2026-09-30T08:49:40.539Z",
       "nome": "Migliora traking landing top 3",
@@ -194,6 +184,19 @@
       "giorno": "2026-10-02",
       "gws": [
         0
+      ]
+    },
+    {
+      "id": "tmuqmwzr2srf0",
+      "creata": "2026-10-02T07:21:31.646Z",
+      "nome": "Recupera foto",
+      "desc": "",
+      "rank": "A",
+      "cliente": "di-nucci",
+      "giorno": "2026-10-02",
+      "gws": [
+        2,
+        3
       ]
     }
   ],
