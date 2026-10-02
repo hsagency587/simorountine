@@ -219,6 +219,18 @@
       "cliente": "hs-agency",
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmuqxfjsth662",
+      "creata": "2026-10-02T12:15:53.597Z",
+      "nome": "Conti montagna",
+      "desc": "",
+      "rank": "C",
+      "cliente": null,
+      "giorno": "2026-10-02",
+      "gws": [
+        3
+      ]
     }
   ],
   "workout": {
