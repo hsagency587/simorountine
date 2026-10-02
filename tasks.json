@@ -90,7 +90,8 @@
       "cliente": "manuela-lovo",
       "giorno": "2026-10-02",
       "gws": [
-        1
+        2,
+        3
       ],
       "creata": "2026-09-10T07:23:26.456Z"
     },
