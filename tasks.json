@@ -112,8 +112,11 @@
       "desc": "",
       "rank": "A",
       "cliente": "cmufl8y32jd3",
-      "giorno": null,
-      "gws": null
+      "giorno": "2026-10-02",
+      "gws": [
+        2,
+        3
+      ]
     },
     {
       "id": "tmujo8w29ped1",
