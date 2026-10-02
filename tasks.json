@@ -112,11 +112,8 @@
       "desc": "",
       "rank": "A",
       "cliente": "cmufl8y32jd3",
-      "giorno": "2026-10-02",
-      "gws": [
-        2,
-        3
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmujo8w29ped1",
@@ -233,6 +230,28 @@
       "gws": [
         3
       ]
+    },
+    {
+      "id": "tmur0v18bfttr",
+      "creata": "2026-10-02T13:51:54.875Z",
+      "nome": "Finish fix sito",
+      "desc": "",
+      "rank": "B",
+      "cliente": "hs-agency",
+      "giorno": "2026-10-02",
+      "gws": [
+        3
+      ]
+    },
+    {
+      "id": "tmur1uendanen",
+      "creata": "2026-10-02T14:19:25.225Z",
+      "nome": "Finisci piano vendita app",
+      "desc": "",
+      "rank": "A",
+      "cliente": "cmufl8y32jd3",
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
