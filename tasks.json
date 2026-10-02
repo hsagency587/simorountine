@@ -133,18 +133,6 @@
       "gws": null
     },
     {
-      "id": "tmulbg1ymph0b",
-      "creata": "2026-09-28T14:01:34.702Z",
-      "nome": "Fix sito + plan package",
-      "desc": "Fix landing: \nIl prossimo passo per venir consigliato su Google e dalle IA\n\nPacchetti: \n250€ - Seo\n330€ - Top 3 (SEO + GBP)\n400€ - top 3 + ricerca IA (SEO + GBP + IA)\n\nAggiungere nel modulo un ultimo slot per fare una domanda\n",
-      "rank": "C",
-      "cliente": "hs-agency",
-      "giorno": "2026-09-30",
-      "gws": [
-        4
-      ]
-    },
-    {
       "id": "tmumtis03rlno",
       "creata": "2026-09-29T15:15:21.027Z",
       "nome": "Train Claude",
@@ -163,31 +151,6 @@
       "cliente": null,
       "giorno": null,
       "gws": null
-    },
-    {
-      "id": "tmunpsc9ewlxm",
-      "creata": "2026-09-30T06:18:34.898Z",
-      "nome": "Call",
-      "desc": "- volantini\n- bigliettini\n- sconto",
-      "rank": "A",
-      "cliente": "di-nucci",
-      "giorno": "2026-09-30",
-      "gws": [
-        0
-      ]
-    },
-    {
-      "id": "tmunpt7hhvqmj",
-      "creata": "2026-09-30T06:19:15.365Z",
-      "nome": "Scrittura creative",
-      "desc": "- Fix video sito\n- inizio stesura nuovi due video. ",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-09-30",
-      "gws": [
-        0,
-        1
-      ]
     },
     {
       "id": "tmunq2h21nubn",
@@ -210,6 +173,28 @@
       "cliente": "hs-agency",
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmup53ni1fbo9",
+      "creata": "2026-10-01T06:15:03.098Z",
+      "nome": "Privata con cripto gem",
+      "desc": "- mio portafoglio\n- come far entrare 7k investendone 140k",
+      "rank": "C",
+      "cliente": "longkai",
+      "giorno": null,
+      "gws": null
+    },
+    {
+      "id": "tmuqm6hcsdxzu",
+      "creata": "2026-10-02T07:00:54.748Z",
+      "nome": "Report",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-10-02",
+      "gws": [
+        0
+      ]
     }
   ],
   "workout": {
