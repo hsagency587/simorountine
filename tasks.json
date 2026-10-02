@@ -194,10 +194,8 @@
       "desc": "",
       "rank": "A",
       "cliente": "di-nucci",
-      "giorno": "2026-10-02",
-      "gws": [
-        2
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmuqs1s49ej2e",
