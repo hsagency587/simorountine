@@ -303,6 +303,16 @@
       "gws": [
         2
       ]
+    },
+    {
+      "id": "tmusc6dmxfeab",
+      "creata": "2026-10-03T11:56:26.121Z",
+      "nome": "Compra gazzebo",
+      "desc": "",
+      "rank": "C",
+      "cliente": null,
+      "giorno": null,
+      "gws": null
     }
   ],
   "workout": {
