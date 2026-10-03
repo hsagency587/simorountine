@@ -56,7 +56,7 @@
       "desc": "Carica video e aggiungi descrizioni\n+ scheda zia",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-10-02",
+      "giorno": "2026-10-03",
       "gws": [
         4
       ],
@@ -88,10 +88,10 @@
       "desc": "- Apri chat, prendi zip e riprendi a lavorare. \n",
       "rank": "B",
       "cliente": "manuela-lovo",
-      "giorno": "2026-10-02",
+      "giorno": "2026-10-03",
       "gws": [
-        2,
-        3
+        0,
+        1
       ],
       "creata": "2026-09-10T07:23:26.456Z"
     },
@@ -199,7 +199,8 @@
       "cliente": "di-nucci",
       "giorno": "2026-10-03",
       "gws": [
-        2
+        0,
+        1
       ]
     },
     {
@@ -241,10 +242,8 @@
       "desc": "",
       "rank": "B",
       "cliente": "hs-agency",
-      "giorno": "2026-10-02",
-      "gws": [
-        3
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmur1uendanen",
@@ -255,6 +254,43 @@
       "cliente": "cmufl8y32jd3",
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmus20qdpzjqj",
+      "creata": "2026-10-03T07:12:06.541Z",
+      "nome": "Write new creative",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-10-03",
+      "gws": [
+        2,
+        3
+      ]
+    },
+    {
+      "id": "tmus244ajsq7h",
+      "creata": "2026-10-03T07:14:44.539Z",
+      "nome": "Report Completo",
+      "desc": "",
+      "rank": "A",
+      "cliente": "manuela-lovo",
+      "giorno": "2026-10-04",
+      "gws": [
+        0
+      ]
+    },
+    {
+      "id": "tmus25oz72hoh",
+      "creata": "2026-10-03T07:15:58.003Z",
+      "nome": "Fix my workouts",
+      "desc": "",
+      "rank": "C",
+      "cliente": null,
+      "giorno": "2026-10-03",
+      "gws": [
+        4
+      ]
     }
   ],
   "workout": {
