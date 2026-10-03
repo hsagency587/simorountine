@@ -291,6 +291,18 @@
       "gws": [
         4
       ]
+    },
+    {
+      "id": "tmus80v943shq",
+      "creata": "2026-10-03T10:00:10.552Z",
+      "nome": "Check Google ADS",
+      "desc": "Usa claude x un check delle ads",
+      "rank": "A",
+      "cliente": "cmufl8jhvkkm",
+      "giorno": "2026-10-03",
+      "gws": [
+        2
+      ]
     }
   ],
   "workout": {
