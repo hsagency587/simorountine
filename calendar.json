@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2026-10-03T10:52:19+02:00",
+  "scartati": {
+    "cancellati": 0,
+    "senzaTitolo": 0
+  },
+  "days": {
+    "2026-10-02": [],
+    "2026-10-03": [],
+    "2026-10-04": [],
+    "2026-10-05": [
+      {
+        "id": "51moc9t6pfc8b93p69ro38mpk4@google.com",
+        "title": "GF3 Abano Terme — follow up",
+        "start": "2026-10-05T10:15:00+02:00",
+        "end": "2026-10-05T10:30:00+02:00",
+        "description": "Giovanni"
+      },
+      {
+        "id": "ao9kejgegu4fiirdnk45j1o2ik@google.com",
+        "title": "Chitano Davide — follow up",
+        "start": "2026-10-05T10:15:00+02:00",
+        "end": "2026-10-05T10:30:00+02:00",
+        "description": ""
+      },
+      {
+        "id": "ckp3adr3cgo64bb470ojab9k68s38bb165h6ab9l64p62c9h6thj8phl6s@google.com",
+        "title": "MKprogetti (Cristian) - follow up",
+        "start": "2026-10-05T10:15:00+02:00",
+        "end": "2026-10-05T10:30:00+02:00",
+        "description": ""
+      },
+      {
+        "id": "lv6hsfi6aae449bcjj558qq870@google.com",
+        "title": "Studio Gianni De Nito — follow up",
+        "start": "2026-10-05T10:15:00+02:00",
+        "end": "2026-10-05T10:30:00+02:00",
+        "description": ""
+      },
+      {
+        "id": "6tj3cp1p68q30bb56pi3ib9kcgoj4bb2cksj6b9p6pgjadj4cdh30p9g60@google.com",
+        "title": "Live Arno x Google ADS",
+        "start": "2026-10-05T17:30:00+02:00",
+        "end": "2026-10-05T18:30:00+02:00",
+        "description": ""
+      }
+    ],
+    "2026-10-06": [
+      {
+        "id": "k33ji89ka1ncjpgosilcmaqrbk@google.com",
+        "title": "Porta Giulia a scuola",
+        "start": "2026-10-06T07:15:00+02:00",
+        "end": "2026-10-06T08:00:00+02:00",
+        "description": ""
+      },
+      {
+        "id": "6ssjipj361j32b9i6lj3eb9k68rm2b9p75j6ab9l6lj3ipb46oq32d1p70@google.com",
+        "title": "Porta loop al sifu",
+        "start": "2026-10-06T19:00:00+02:00",
+        "end": "2026-10-06T19:15:00+02:00",
+        "description": ""
+      },
+      {
+        "id": "68rj0dpi6crmcbb56tj30b9k6pj66bb274r3ebb6c9j3gc3174q3edhlcg@google.com::2026-10-06T22:00:00",
+        "title": "Butta immondizia",
+        "start": "2026-10-06T22:00:00+02:00",
+        "end": "2026-10-06T22:15:00+02:00",
+        "description": "Butta immondizia indifferenziata"
+      }
+    ],
+    "2026-10-07": [],
+    "2026-10-08": [
+      {
+        "id": "vhungi4hf8tt2r0o7f43t5k5ho@google.com",
+        "title": "Incontro Cinzia e Sifu",
+        "start": "2026-10-08T11:00:00+02:00",
+        "end": "2026-10-08T14:00:00+02:00",
+        "description": ""
+      }
+    ],
+    "2026-10-09": [],
+    "2026-10-10": []
+  }
+}
