@@ -46,7 +46,7 @@ const fmtTime = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-d
 
 /* Le regole del piano stanno in dati.js, in comune con la Routine. */
 const { MAX_SLOT, ORDINALI, MATTINA_BASE, EV, validMattina, viaGruppi,
-        validSchede, nomeVideoOk, videiDi, normEs, dataOk, validSorprese } = WK;
+        validSchede, nomeVideoOk, videiDi, normEs, dataOk } = WK;
 
 const nomeMattina = () => tstore.mattina || MATTINA_BASE;
 
@@ -216,9 +216,6 @@ let chipX = 0;
 /* L'anteprima di una preparazione che sta per iniziare: la pagina si
    disegna come se fosse gia' il primo giorno. null = la pagina di oggi. */
 let anteprima = null;
-/* Le postille (easter egg) accese adesso: spariscono al primo tocco,
-   scorrendo, o uscendo dall'app. */
-let festa = [];
 /* Quanti giorni prima dell'inizio compare l'avviso: dal sabato per un lunedi'. */
 const AVVISO_GIORNI = 2;
 
@@ -248,7 +245,6 @@ function disegnaW() {
     box.appendChild(bar);
   }
 
-  if (!pAnt) postille(box, 'top');
 
   /* una preparazione che inizia fra poco: l'avviso, con l'anteprima */
   if (!pAnt) {
@@ -291,7 +287,6 @@ function disegnaW() {
     return { g: g, d: d, k: k, pi: pi, w: workoutDelGiorno(pi, g) };
   }).filter(x => !pAnt || (x.k >= pAnt.dal && x.k <= pAnt.al));   /* in anteprima: solo i giorni della preparazione */
   const n = Math.max(1, ...giorni.map(x => x.pi.conti[x.g] || 0));
-  if (!pAnt) postille(box, 'week');
   const tab = el('div', 'tab tab-w');
   tab.style.setProperty('--wcol', n);
   /* in cima alla tabella, sempre la stessa scritta, su tutta la riga */
@@ -310,11 +305,8 @@ function disegnaW() {
   }
   box.appendChild(tab);
 
-  if (!pAnt) postille(box, 'every');
   paintMorning(box, oggi, kOggi);
-  if (!pAnt) postille(box, 'oggi');
   paintOggi(box, oggi, kOggi, t0.getDay(), pAnt ? GIORNI_IT[t0.getDay()].toUpperCase() + ' ' + t0.getDate() + ' WORKOUTS' : 'TODAY WORKOUTS');
-  if (!pAnt) postille(dx, 'wk');
   paintSchede(dx, oggi);
 }
 
@@ -471,7 +463,6 @@ function paintOggi(box, pi, k, g, titolo) {
     const sc = pi.schede[nome];
     if (!sc || (!sc.es.length && !sc.rec)) continue;
     if (!capo) { box.appendChild(el('p', 'grp', titolo || 'TODAY WORKOUTS')); capo = true; }
-    if (!anteprima) postille(box, 'w:' + nome);
     const t = tabScheda(nome, sc);
     t.classList.add('tab-oggi');
     box.appendChild(righeScheda(t, sc, pi.src, nome));
@@ -528,7 +519,6 @@ function paintSchede(box, pi) {
   box.appendChild(lista);
   for (const nome of visti) {
     const sc = pi.schede[nome];
-    if (!anteprima) postille(lista, 'w:' + nome);
     lista.appendChild(righeScheda(tabScheda(nome, sc), sc, pi.src, nome));
   }
 }
@@ -990,8 +980,6 @@ async function scaricaVideo() {
       }
     }
     for (const r of tstore.libreria || []) for (const v of videiDi(r)) if (nomi.indexOf(v) < 0) nomi.push(v);
-    /* le immagini delle sorprese: arrivano prima del loro giorno */
-    for (const x of validSorprese(tstore.sorprese)) if (x.img && nomi.indexOf(x.img) < 0) nomi.push(x.img);
     for (const n of nomi) if (!(await vGet(n))) await prendiVideo(n);
   } finally {
     scaricando = false;
@@ -1454,7 +1442,6 @@ function nomiNelPiano() {
   for (const tutte of [tstore.schede].concat(tstore.prep.map(p => p.schede))) {
     for (const k of Object.keys(tutte)) for (const r of tutte[k].es) for (const v of videiDi(r)) nomi.add(v);
   }
-  for (const x of tstore.sorprese || []) if (x && x.img) nomi.add(x.img);
   for (const r of tstore.libreria || []) for (const v of videiDi(r)) nomi.add(v);
   return nomi;
 }
@@ -1548,8 +1535,7 @@ window.wkApi = {
   paintSalva: () => { paintSalva(); paintSync(); },
   edApri: () => edApri(),
   edChiudi: () => edChiudi(false),
-  edAperto: () => !$('ed').hidden,
-  sorprese: () => controllaSorprese()
+  edAperto: () => !$('ed').hidden
 };
 
 disegnaW();
@@ -1560,94 +1546,6 @@ scaricaVideo();
 /* I video stanno nel telefono per sempre: si chiede al browser di non buttare
    mai i dati di questa app, nemmeno quando la memoria scarseggia. */
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-
-/* ------------------------------------------------ le sorprese ---- */
-
-/* Quali sorprese questo telefono ha gia' visto: ognuna si vede una volta. */
-const VISTE_KEY = 'gwork-wk-sorprese-viste-v1';
-function vistiLeggi() {
-  try { const v = JSON.parse(localStorage.getItem(VISTE_KEY) || '[]'); return Array.isArray(v) ? v : []; }
-  catch (e) { return []; }
-}
-function vistiSegna(ids) {
-  try { localStorage.setItem(VISTE_KEY, JSON.stringify(vistiLeggi().concat(ids).slice(-400))); } catch (e) {}
-}
-
-function postille(box, dove) {
-  for (const n of festa) {
-    if (n.dove !== dove) continue;
-    box.appendChild(el('div', 'postilla c' + n.colore, n.testo));
-  }
-}
-function spegniPostille() {
-  if (!festa.length) return;
-  festa = [];
-  document.removeEventListener('pointerdown', spegniPostille, true);
-  window.removeEventListener('scroll', spegniPostille);
-  paintW();
-}
-function armaPostille() {
-  /* un attimo di respiro: il disegno della pagina non deve spegnerle */
-  setTimeout(() => {
-    document.addEventListener('pointerdown', spegniPostille, true);
-    window.addEventListener('scroll', spegniPostille, { passive: true });
-  }, 400);
-}
-
-/* L'immagine a tutto schermo: si chiude toccandola. */
-function mostraImmagine(blob) {
-  return new Promise(ok => {
-    const u = URL.createObjectURL(blob);
-    const box = el('div', 'egg-img');
-    const img = el('img');
-    img.src = u; img.alt = '';
-    box.appendChild(img);
-    box.appendChild(el('p', 'egg-img-nota', 'tap to close'));
-    const chiudi = () => { box.classList.remove('on'); setTimeout(() => { box.remove(); URL.revokeObjectURL(u); ok(); }, 250); };
-    box.addEventListener('click', chiudi);
-    document.body.appendChild(box);
-    requestAnimationFrame(() => box.classList.add('on'));
-  });
-}
-
-/* Alla prima apertura del giorno: prima le immagini, poi le postille. */
-let festeggiando = false;
-async function controllaSorprese(prova) {
-  if (festeggiando) return;
-  const k = chiaveData(today());
-  const visti = vistiLeggi();
-  const nuove = prova ? [prova] : validSorprese(tstore.sorprese).filter(x => x.giorno === k && visti.indexOf(x.id) < 0);
-  if (!nuove.length) return;
-  festeggiando = true;
-  try {
-    const immagini = [];
-    for (const x of nuove) {
-      if (x.tipo !== 'img') continue;
-      const b = (await vGet(x.img)) || (await prendiVideo(x.img));
-      if (b) immagini.push({ x: x, b: b });
-    }
-    /* si segna come vista solo quello che si e' potuto mostrare */
-    if (!prova) vistiSegna(nuove.filter(x => x.tipo === 'nota' || immagini.some(i => i.x === x)).map(x => x.id));
-    for (const i of immagini) await mostraImmagine(i.b);
-    const note = nuove.filter(x => x.tipo === 'nota');
-    if (note.length) {
-      festa = festa.concat(note);
-      paintW();
-      armaPostille();
-    }
-  } finally {
-    festeggiando = false;
-  }
-}
-
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) spegniPostille();
-  else if (P.visibile()) controllaSorprese();
-});
-/* Le sorprese si vedono solo con la sezione Workout davanti: l'app si carica
-   insieme alla Routine, nascosta, e una sorpresa mostrata li' andrebbe persa.
-   Aprendo la sezione la Routine chiama `sorprese`. */
-if (P.visibile()) controllaSorprese();
 
 /* I video rimasti in coda ripartono da soli: all'apertura e quando l'app
    torna davanti. */
