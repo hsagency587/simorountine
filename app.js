@@ -2312,7 +2312,7 @@ function openW(on) {
   $('wdrawer').classList.toggle('open', on);
   $('velo').hidden = !on;
   document.body.classList.toggle('menu-open', on);
-  if (on) { paintSwitch(); paintW(); riportaSu(); }
+  if (on) { paintSwitch(); paintW(); riportaSu(); wkSorprese(); }
 }
 
 function setTab(t) {
@@ -2325,6 +2325,7 @@ function setTab(t) {
   paintSwitch();
   paintW();
   riportaSu();
+  wkSorprese();
 }
 
 /* Nella sezione Workout il bottone apre l'editor dell'app; nella dieta
@@ -2392,6 +2393,17 @@ function wkApp() {
   try { return (f && f.contentWindow && f.contentWindow.wkApi) || null; } catch (e) { return null; }
 }
 
+/* La sezione Workout si vede: tendina aperta e su Workout. */
+function wkVisibile() {
+  return wTab === 'w' && $('wdrawer').classList.contains('open');
+}
+
+/* Le sorprese dell'app si mostrano solo quando la sezione si vede. */
+function wkSorprese() {
+  const a = wkApp();
+  if (a && wkVisibile()) a.sorprese();
+}
+
 /* Il piano e' cambiato sotto l'app (letto online, o scritto da un'altra copia
    della Routine): l'app si ridisegna sul piano nuovo. */
 function wkRicarica() {
@@ -2425,6 +2437,8 @@ window.ponteWk = {
   sporco: () => !!tstore.dirty,
   salvando: () => salvando,
   errore: () => salvaErr,
+  /* la sezione Workout e' davanti agli occhi: tendina aperta, su Workout */
+  visibile: () => wkVisibile(),
   /* l'editor aperto: la tendina a tutto schermo */
   editor: on => { $('wdrawer').classList.toggle('ed-largo', !!on); if (on) $('wdrawer').querySelector('.wswitch').classList.remove('via'); },
   scorri: (y, fine) => wkScorri(y, fine),
@@ -4244,6 +4258,9 @@ async function loadCalendar() {
 }
 
 render();
+/* L'app dei workout parte con la Routine, nascosta nella tendina: cosi' i
+   video scendono subito, appena c'e' la rete, senza aspettare di aprirla. */
+$('wframe').src = 'workout/index.html';
 paintDrawer();
 paintSalva();
 loadCalendar();

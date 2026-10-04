@@ -974,23 +974,29 @@ async function prendiVideo(nome) {
 /* Tutti i video del piano che il telefono non ha ancora: si scaricano uno alla
    volta, in silenzio, appena il piano e' letto. */
 let scaricando = false;
+/* Chiamata mentre sta gia' scaricando (il piano e' appena cambiato, per
+   esempio con gli esercizi importati): finito il giro, ne fa un altro. */
+let scaricaAncora = false;
 async function scaricaVideo() {
-  if (scaricando) return;
+  if (!navigator.onLine) return;
+  if (scaricando) { scaricaAncora = true; return; }
   scaricando = true;
   try {
     const nomi = [];
-    /* i video del piano di sempre e di tutte le preparazioni */
+    /* i video del piano di sempre, di tutte le preparazioni e della libreria */
     for (const tutte of [tstore.schede].concat(tstore.prep.map(p => p.schede))) {
       for (const k of Object.keys(tutte)) {
         for (const r of tutte[k].es) for (const v of videiDi(r)) if (nomi.indexOf(v) < 0) nomi.push(v);
       }
     }
+    for (const r of tstore.libreria || []) for (const v of videiDi(r)) if (nomi.indexOf(v) < 0) nomi.push(v);
     /* le immagini delle sorprese: arrivano prima del loro giorno */
     for (const x of validSorprese(tstore.sorprese)) if (x.img && nomi.indexOf(x.img) < 0) nomi.push(x.img);
     for (const n of nomi) if (!(await vGet(n))) await prendiVideo(n);
   } finally {
     scaricando = false;
   }
+  if (scaricaAncora) { scaricaAncora = false; scaricaVideo(); }
 }
 
 /* Lo slot del video, in cima alla descrizione. Sempre orizzontale; un video
@@ -1490,7 +1496,8 @@ async function codaVideo() {
 
 /* ---------------------------------------------------------- avviamento --- */
 
-window.addEventListener('online', () => codaVideo());
+/* tornata la rete: i video nuovi scendono, quelli in coda salgono */
+window.addEventListener('online', () => { scaricaVideo(); codaVideo(); });
 
 /* A mezzanotte cambia la riga di oggi: si ridisegna al passare del giorno. */
 let giornoVisto = today().getTime();
@@ -1541,7 +1548,8 @@ window.wkApi = {
   paintSalva: () => { paintSalva(); paintSync(); },
   edApri: () => edApri(),
   edChiudi: () => edChiudi(false),
-  edAperto: () => !$('ed').hidden
+  edAperto: () => !$('ed').hidden,
+  sorprese: () => controllaSorprese()
 };
 
 disegnaW();
@@ -1634,11 +1642,14 @@ async function controllaSorprese(prova) {
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) spegniPostille();
-  else controllaSorprese();
+  else if (P.visibile()) controllaSorprese();
 });
-controllaSorprese();
+/* Le sorprese si vedono solo con la sezione Workout davanti: l'app si carica
+   insieme alla Routine, nascosta, e una sorpresa mostrata li' andrebbe persa.
+   Aprendo la sezione la Routine chiama `sorprese`. */
+if (P.visibile()) controllaSorprese();
 
 /* I video rimasti in coda ripartono da soli: all'apertura e quando l'app
    torna davanti. */
-document.addEventListener('visibilitychange', () => { if (!document.hidden) codaVideo(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { scaricaVideo(); codaVideo(); } });
 setTimeout(codaVideo, 3000);
