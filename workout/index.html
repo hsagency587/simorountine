@@ -20,7 +20,7 @@
 </head>
 <body class="in-routine">
 
-<!-- Niente testata: titolo, Salva e impostazioni li ha la Routine. -->
+<!-- Niente testata: titolo, Save e impostazioni li ha la Routine. -->
 <main class="pagina" id="wlist"></main>
 
 <!-- Il pannello dei gruppi di una scheda: le pastiglie in alto dicono quali
@@ -38,7 +38,26 @@
         <select class="campo gsel" id="gDentro" aria-label="Inside which group"></select>
       </div>
 
-      <p class="commento-lab">Tick what goes in</p>
+      <!-- il tipo del gruppo: con Tabata ed EMOM il timer sa esattamente cosa fare -->
+      <p class="commento-lab">Type</p>
+      <div class="chips" id="gTipo">
+        <button type="button" class="chip" data-gtipo="">Normal</button>
+        <button type="button" class="chip" data-gtipo="tabata">Tabata</button>
+        <button type="button" class="chip" data-gtipo="emom">EMOM</button>
+      </div>
+      <p class="nota gconsiglio" id="gConsiglio" hidden></p>
+      <div class="gtipo-campi" id="gTabata" hidden>
+        <label class="gnum"><span>Work</span><input class="campo" id="gLav" type="number" inputmode="numeric" min="1" max="600"><span>sec</span></label>
+        <label class="gnum"><span>Rest</span><input class="campo" id="gRec" type="number" inputmode="numeric" min="0" max="600"><span>sec</span></label>
+        <label class="gnum"><span>Rounds</span><input class="campo" id="gGiri" type="number" inputmode="numeric" min="0" max="99" placeholder="∞"><span>times the whole group</span></label>
+      </div>
+      <div class="gtipo-campi" id="gEmom" hidden>
+        <label class="gnum"><span>Total</span><input class="campo" id="gMin" type="number" inputmode="numeric" min="0" max="180" placeholder="∞"><span>minutes</span></label>
+        <div id="gAlt"></div>
+      </div>
+      <p class="nota gtimer" id="gTimerNota" hidden></p>
+
+      <p class="commento-lab">What goes in</p>
       <div class="glista" id="gLista"></div>
 
       <div class="wrow gnuovo">
@@ -63,13 +82,19 @@
 <dialog class="descbox" id="descrizione" aria-labelledby="descTit">
   <div class="descbox-in">
     <h2 class="desctit" id="descTit"></h2>
-    <!-- ripetizioni, tempi e gruppo, per esteso: nella tabella possono essere tagliati -->
-    <p class="descqta" id="descQta" hidden></p>
-    <!-- Lo slot del video: sempre orizzontale, in cima. Play da qui; girando
-         il telefono va a schermo intero, e per i video verticali c'e' il bottone. -->
+    <!-- ripetizioni, tempi e gruppo, per esteso; accanto, quando sono tempi
+         veri, il tasto che fa partire il timer -->
+    <div class="descqta-riga" id="descQtaRiga">
+      <p class="descqta" id="descQta" hidden></p>
+      <button type="button" class="tavvia" id="tAvvia" hidden>
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="14" r="8"/><path d="M12 14V10M9 2h6M12 2v4M19 7l1.5-1.5"/></svg>
+        <span id="tAvviaTxt">Start</span>
+      </button>
+    </div>
+    <!-- Lo slot del video: sempre orizzontale, in cima. Play, audio e
+         schermo intero dai comandi del video; girando il telefono va a schermo intero. -->
     <div class="vslot" id="vSlot" hidden>
-      <video id="vVideo" controls playsinline preload="metadata" hidden></video>
-      <button type="button" class="vfull" id="vFull" aria-label="Full screen" hidden>⛶</button>
+      <video id="vVideo" controls playsinline preload="metadata" muted hidden></video>
       <p class="vstato" id="vStato"></p>
       <!-- con piu' video: un avviso sopra il primo, che sparisce al tocco -->
       <p class="vavviso" id="vAvviso" hidden></p>
@@ -82,6 +107,18 @@
     <div class="desctesto" id="descTesto"></div>
     <div class="chiusura-btn">
       <button type="button" class="btn" id="descChiudi">Close</button>
+    </div>
+  </div>
+  <!-- Il timer: copre la descrizione finche' corre. Numeri grandi, da leggere
+       col telefono per terra. Stop torna alla descrizione. -->
+  <div class="tmr" id="tmr" hidden>
+    <p class="tmr-fase" id="tmrFase"></p>
+    <p class="tmr-nome" id="tmrNome"></p>
+    <p class="tmr-tempo" id="tmrTempo" role="timer"></p>
+    <p class="tmr-info" id="tmrInfo"></p>
+    <div class="chiusura-btn tmr-btn">
+      <button type="button" class="btn" id="tmrPausa">Pause</button>
+      <button type="button" class="btn btn-del" id="tmrStop">Stop</button>
     </div>
   </div>
 </dialog>

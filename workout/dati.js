@@ -5,7 +5,8 @@
    Routine, che tiene il piano dentro il suo file delle task e scrive nella
    giornata cosa si fa nei due workout, e l'app dei workout che sta nella
    tendina. Tutto chiuso in WK: nella Routine ci sono gia' funzioni con gli
-   stessi nomi, e devono restare sue.
+   stessi nomi, e devono restare sue. Le regole sono quelle dell'app dei
+   workout (l'ultima versione online): se cambia la forma la', cambia qui.
    ========================================================================= */
 
 const WK = (() => {
@@ -47,7 +48,10 @@ const WK = (() => {
      { modo: 'sempre' }                         tutti i giorni
      { modo: 'giorni', giorni: [1, 3, 5] }      certi giorni della settimana (0 domenica)
      { modo: 'ogni', n: 2, dal: 'aaaa-mm-gg' }  un giorno si' e n-1 no, a partire da una data
-     { modo: 'date', date: ['aaaa-mm-gg'] }     solo in certe date */
+     { modo: 'date', date: ['aaaa-mm-gg'] }     solo in certe date
+     { modo: 'ciclo', dal: 'aaaa-mm-gg', passi: [3, -2, 4, -1] }
+                                                un ritmo che si ripete: 3 giorni si',
+                                                2 no, 4 si', 1 no, e daccapo */
   function validQuando(q) {
     if (!q || typeof q !== 'object') return { modo: 'sempre' };
     if (q.modo === 'giorni') {
@@ -59,8 +63,12 @@ const WK = (() => {
       return { modo: 'ogni', n: n >= 2 && n <= 14 ? n : 2, dal: /^\d{4}-\d{2}-\d{2}$/.test(q.dal) ? q.dal : '2026-01-05' };
     }
     if (q.modo === 'date') {
-      const d = [...new Set((Array.isArray(q.date) ? q.date : []).filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)))].sort().slice(-200);
+      const d = [...new Set((Array.isArray(q.date) ? q.date : []).filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)))].sort().slice(-400);
       return { modo: 'date', date: d };
+    }
+    if (q.modo === 'ciclo') {
+      const p = (Array.isArray(q.passi) ? q.passi : []).map(x => Math.round(+x)).filter(x => x && Math.abs(x) <= 60).slice(0, 20);
+      return { modo: 'ciclo', dal: /^\d{4}-\d{2}-\d{2}$/.test(q.dal) ? q.dal : '2026-01-05', passi: p.length ? p : [1, -1] };
     }
     return { modo: 'sempre' };
   }
@@ -83,16 +91,83 @@ const WK = (() => {
     return a.map(x => String(x == null ? '' : x).slice(0, 40).trim()).filter(Boolean).slice(0, 4);
   }
 
-  /* Il nome di un video: lettere e numeri a caso, e l'estensione. Lo sceglie
-     l'app quando si carica il file, e non cambia piu'. */
-  const nomeVideoOk = v => typeof v === 'string' && /^[a-z0-9]{6,30}\.(mp4|webm|mov|m4v|jpg)$/.test(v);
+  /* Il nome di un video (o di un audio): lettere e numeri a caso, e
+     l'estensione. Lo sceglie l'app quando si carica il file. */
+  const nomeVideoOk = v => typeof v === 'string' && /^[a-z0-9]{6,30}\.(mp4|webm|mov|m4v|jpg|mp3|m4a|aac|ogg|wav)$/.test(v);
   /* I video di un esercizio: la quinta casella ne tiene uno o piu'. */
   const videiDi = r => String((r && r[4]) || '').split(',').filter(Boolean);
 
-  /* Le schede: per ogni nome di allenamento un elenco di esercizi e il
-     recupero. Ogni esercizio e' [nome, quantita', via dei gruppi, descrizione,
-     video]. La descrizione e' testo libero; un link scritto da solo su una riga
-     e' un video. Le righe vuote non si tengono. */
+  const normEs = t => String(t || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+  /* Il tipo di un gruppo di un workout: Tabata o EMOM, con i numeri che servono
+     al timer. Sta nella scheda, per gruppo: la chiave e' la via del gruppo
+     scritta come testo (JSON). Tabata: l = secondi di lavoro, r = secondi di
+     recupero, g = giri (0: finche' non si ferma). EMOM: m = minuti (0: finche'
+     non si ferma), a = i minuti di fila di ogni esercizio, in ordine. Un
+     gruppo che non c'e' piu' nelle righe perde il suo tipo. lati: per
+     esercizio quanti lati ha, se piu' di uno. */
+  const intra = (x, min, max, def) => { const n = Math.round(+x); return n >= min && n <= max ? n : def; };
+  function validLati(o) {
+    const out = {};
+    if (o && typeof o === 'object' && !Array.isArray(o)) {
+      for (const k of Object.keys(o).slice(0, 40)) { const n = intra(o[k], 1, 4, 1); if (n > 1) out[normEs(k)] = n; }
+    }
+    return Object.keys(out).length ? out : undefined;
+  }
+  function validTipo(x) {
+    if (!x || typeof x !== 'object') return null;
+    let t = null;
+    if (x.t === 'tabata') t = { t: 'tabata', l: intra(x.l, 1, 600, 20), r: intra(x.r, 0, 600, 10), g: intra(x.g, 0, 99, 0) };
+    if (x.t === 'emom') {
+      const a = (Array.isArray(x.a) ? x.a : []).slice(0, 20).map(n => intra(n, 1, 10, 1));
+      t = { t: 'emom', m: intra(x.m, 0, 180, 0), a: a };
+    }
+    const lati = t && validLati(x.lati);
+    if (lati) t.lati = lati;
+    return t;
+  }
+  const latiDi = (t, nome) => (t && t.lati && t.lati[normEs(nome)]) || 1;
+  function validTipi(t, es) {
+    if (!t || typeof t !== 'object' || Array.isArray(t)) return null;
+    const out = {};
+    for (const k of Object.keys(t).slice(0, 40)) {
+      let via;
+      try { via = viaGruppi(JSON.parse(k)); } catch (e) { continue; }
+      if (!via.length) continue;
+      const usata = es.some(r => via.every((x, i) => (r[2] || [])[i] === x));
+      const v = validTipo(t[k]);
+      if (usata && v) out[JSON.stringify(via)] = v;
+    }
+    return Object.keys(out).length ? out : null;
+  }
+
+  /* Il tipo del gruppo piu' interno di una riga che ne ha uno, con la sua via. */
+  function tipoDi(sc, r) {
+    const g = (r && r[2]) || [];
+    for (let d = g.length; d > 0; d--) {
+      const t = sc && sc.tipi && sc.tipi[JSON.stringify(g.slice(0, d))];
+      if (t) return { via: g.slice(0, d), tipo: t };
+    }
+    return null;
+  }
+
+  /* Quando un gruppo cambia via (nome, o dentro un altro), il suo tipo e
+     quelli dei gruppi dentro lo seguono. */
+  function spostaTipi(sc, vecchia, nuova) {
+    if (!sc.tipi) return;
+    const out = {};
+    for (const k of Object.keys(sc.tipi)) {
+      const v = JSON.parse(k);
+      const dentro = vecchia.every((x, i) => v[i] === x) && v.length >= vecchia.length;
+      out[JSON.stringify(dentro ? nuova.concat(v.slice(vecchia.length)) : v)] = sc.tipi[k];
+    }
+    sc.tipi = out;
+  }
+
+  /* Le schede: per ogni nome di allenamento un elenco di esercizi, il
+     recupero e i tipi dei gruppi. Ogni esercizio e' [nome, quantita', via dei
+     gruppi, nota (o descrizione, nei dati di prima), video]. Le righe vuote
+     non si tengono. */
   function validSchede(w) {
     const out = {};
     if (!w || typeof w !== 'object') return out;
@@ -109,15 +184,15 @@ const WK = (() => {
         String((Array.isArray(r) ? r[4] : '') || '').split(',').filter(nomeVideoOk).slice(0, 6).join(',')
       ]).filter(r => r[0] || r[1]);
       const rec = String(v.rec == null ? '' : v.rec).slice(0, 60).trim();
-      if (es.length || rec) out[nome] = { es: es, rec: rec };
+      if (!es.length && !rec) continue;
+      out[nome] = { es: es, rec: rec };
+      const tipi = validTipi(v.tipi, es);
+      if (tipi) out[nome].tipi = tipi;
     }
     return out;
   }
 
-  const normEs = t => String(t || '').toLowerCase().replace(/\s+/g, ' ').trim();
-
-  /* Quanti workout ha ogni giorno: da zero a quattro, giorno per giorno. Zero
-     e' un giorno senza allenamenti. */
+  /* Quanti workout ha ogni giorno: da zero a quattro, giorno per giorno. */
   function validConti(c, vecchio) {
     const out = {};
     const base = vecchio == null ? SLOT_BASE : validSlot(vecchio);
@@ -133,7 +208,7 @@ const WK = (() => {
   /* Le preparazioni: un periodo da una data a un'altra, con un piano suo, fatto
      a settimane. La settimana 1 e' quella del calendario (lunedi'-domenica) in
      cui cade l'inizio; se le settimane scritte sono meno di quelle del periodo,
-     l'ultima si ripete. */
+     l'ultima si ripete. nomeFine: l'ultimo giorno mostra il nome (l'evento). */
   function validPrep(l) {
     if (!Array.isArray(l)) return [];
     return l.map(x => {
@@ -152,24 +227,28 @@ const WK = (() => {
         mattina: validMattina(x.mattina),
         mattinaVia: !!x.mattinaVia,
         mattinaQuando: validQuando(x.mattinaQuando),
-        altre: validAltre(x.altre)
+        altre: validAltre(x.altre),
+        nomeFine: !!x.nomeFine
       };
     }).filter(Boolean).sort((a, b) => a.dal < b.dal ? -1 : 1);
   }
 
-  /* Le sorprese (easter egg): un'immagine a tutto schermo, o una postilla
-     colorata in un punto della pagina, solo in un giorno scelto. */
+  /* Le sorprese (easter egg) dell'app dei workout. Nella Routine non ci sono:
+     se un file ne avesse, restano scritte com'erano, e basta. */
   function validSorprese(l) {
     if (!Array.isArray(l)) return [];
     return l.slice(0, 200).map(x => {
       if (!x || typeof x !== 'object' || !dataOk(x.giorno)) return null;
-      const tipo = x.tipo === 'img' ? 'img' : x.tipo === 'nota' ? 'nota' : null;
+      const tipo = x.tipo === 'img' ? 'img' : x.tipo === 'nota' ? 'nota' : x.tipo === 'suono' ? 'suono' : null;
       if (!tipo) return null;
       const o = { id: typeof x.id === 'string' && /^[\w-]{3,30}$/.test(x.id) ? x.id : 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
                   tipo: tipo, giorno: x.giorno };
       if (tipo === 'img') {
         if (!nomeVideoOk(x.img)) return null;
         o.img = x.img;
+      } else if (tipo === 'suono') {
+        if (!nomeVideoOk(x.audio)) return null;
+        o.audio = x.audio;
       } else {
         o.testo = String(x.testo == null ? '' : x.testo).slice(0, 300).trim();
         if (!o.testo) return null;
@@ -180,8 +259,28 @@ const WK = (() => {
     }).filter(Boolean);
   }
 
-  /* La libreria degli esercizi scritti a parte, fuori dai workout. */
+  /* La libreria degli esercizi: una riga per esercizio, con la descrizione e
+     i video (nome, '', [], descrizione, video). */
   const validLibreria = l => { const v = validSchede({ l: { es: Array.isArray(l) ? l : [], rec: '' } }).l; return v ? v.es.filter(r => r[0]) : []; };
+
+  /* Di ogni esercizio, per nome (minuscolo, spazi puliti): di chi e' variante
+     (p, il nome del padre) e la categoria (c). Serve solo all'editor. */
+  function validEsercizi(o) {
+    const out = {};
+    if (!o || typeof o !== 'object' || Array.isArray(o)) return out;
+    for (const k of Object.keys(o).slice(0, 2000)) {
+      const n = normEs(k).slice(0, 60);
+      const x = o[k] || {};
+      const p = String(x.p == null ? '' : x.p).slice(0, 60).trim();
+      const c = String(x.c == null ? '' : x.c).slice(0, 40).trim();
+      if (!n || (!p && !c)) continue;
+      out[n] = {};
+      if (p && normEs(p) !== n) out[n].p = p;
+      if (c) out[n].c = c;
+      if (!out[n].p && !out[n].c) delete out[n];
+    }
+    return out;
+  }
 
   /* Il contenuto del piano, e basta: serve a capire se due versioni sono uguali. */
   const contenuto = s => JSON.stringify({ workout: validWorkout(s.workout), schede: validSchede(s.schede),
@@ -189,7 +288,7 @@ const WK = (() => {
                                            mattinaVia: !!s.mattinaVia, prep: validPrep(s.prep),
                                            mattinaQuando: validQuando(s.mattinaQuando), altre: validAltre(s.altre),
                                            sorprese: validSorprese(s.sorprese), libreria: validLibreria(s.libreria),
-                                           importati: !!s.importati });
+                                           esercizi: validEsercizi(s.esercizi), importati: !!s.importati });
 
   /* Il piano pulito, pronto per stare in memoria. */
   function valida(s) {
@@ -199,7 +298,7 @@ const WK = (() => {
              mattinaVia: !!s.mattinaVia, mattinaQuando: validQuando(s.mattinaQuando),
              altre: validAltre(s.altre), prep: validPrep(s.prep),
              sorprese: validSorprese(s.sorprese), libreria: validLibreria(s.libreria),
-             importati: !!s.importati };
+             esercizi: validEsercizi(s.esercizi), importati: !!s.importati };
   }
 
   /* Il piano come si scrive nel file: quello che e' vuoto o di fabbrica resta
@@ -214,6 +313,7 @@ const WK = (() => {
              prep: v.prep.length ? v.prep : undefined,
              sorprese: v.sorprese.length ? v.sorprese : undefined,
              libreria: v.libreria.length ? v.libreria : undefined,
+             esercizi: Object.keys(v.esercizi).length ? v.esercizi : undefined,
              importati: v.importati || undefined };
   }
 
@@ -290,5 +390,6 @@ const WK = (() => {
   return { MAX_SLOT, SLOT_BASE, ORDINALI, MATTINA_BASE, MORNING, EV,
            validWorkout, validSlot, validMattina, validQuando, validAltre, viaGruppi,
            validSchede, nomeVideoOk, videiDi, normEs, validConti, dataOk, validPrep,
-           validSorprese, validLibreria, contenuto, valida, daFile, migra, importa, workoutDi };
+           validSorprese, validLibreria, validEsercizi, validTipo, validTipi, latiDi,
+           tipoDi, spostaTipi, contenuto, valida, daFile, migra, importa, workoutDi };
 })();

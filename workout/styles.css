@@ -10,6 +10,7 @@
   --text-2:#c6ccd6;
   --muted:#98a1ae;
   --accent:#3ddc84;
+  --blu:#4da3ff;
   --danger:#ff453a;
 
   --radius:10px;
@@ -34,6 +35,7 @@
   --text-2:#2b323b;
   --muted:#5c6672;
   --accent:#138a48;
+  --blu:#1f6fd1;
   --danger:#d70015;
   color-scheme:light;
 }
@@ -84,6 +86,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .bar{min-width:0}
 body{overflow-x:clip}
 .salva.err{background:var(--danger);color:#fff}
+/* Pubblica: blu finche' c'e' qualcosa da mandare al Sifu, poi solo una scritta */
+.salva.pubblica{background:var(--blu);color:#fff}
+.salva.pubblica.fatto{background:none;color:var(--muted);font-weight:600;opacity:1}
+.salva.pubblica.err{background:var(--danger)}
 .sync{
   max-width:720px;margin:2px auto 0;min-height:1.2em;
   font-size:14px;color:var(--muted);
@@ -143,7 +149,7 @@ body{overflow-x:clip}
 /* con tre o quattro workout al giorno le colonne sono strette: il testo cala */
 .tab-w[style*="--wcol: 3"],.tab-w[style*="--wcol: 4"]{font-size:16px}
 .tab-w[style*="--wcol: 4"] .tabc{padding-left:6px;padding-right:6px}
-.tab-i .tabr{grid-template-columns:3fr 1.25fr}
+.tab-i .tabr{grid-template-columns:var(--colonne,3fr 1.25fr)}
 .tabc.val{color:var(--accent)}
 .tabc{
   min-width:0;padding:10px var(--s2);
@@ -159,6 +165,8 @@ body{overflow-x:clip}
 }
 /* nelle schede il nome dell'esercizio si legge bene: niente maiuscolo grigio */
 .tab-i .tabc.eti{font-size:18px;letter-spacing:0;text-transform:none;color:var(--text)}
+/* il nome intero, anche su due righe: e' quello che distingue due esercizi simili */
+.tab-i .tabc.eti{white-space:normal;overflow-wrap:break-word;line-height:1.3}
 /* la testata di una scheda: il nome e il bottone per modificarla */
 .tab-i .tabr.schcapo{grid-template-columns:1fr auto auto}
 .tabr.schcapo .tabc + .tabc{border-left:0}
@@ -244,6 +252,9 @@ body{overflow-x:clip}
 }
 .grpbox .grpbox .grpeti{right:18px}
 .grpbox .grpbox .grpbox .grpeti{right:24px}
+/* nelle schede l'etichetta sta fra i nomi, a un quinto della riga: non
+   copre la colonna delle quantita' */
+.tab-i .grpeti,.tab-i .grpbox .grpeti,.tab-i .grpbox .grpbox .grpeti{right:auto;left:22%;max-width:70%}
 .schapri .grpeti{background:var(--surface-2);cursor:pointer;height:22px;top:-11px}
 .schapri .grpeti:active{background:var(--accent);color:var(--bg)}
 
@@ -396,7 +407,35 @@ body{overflow-x:clip}
   border-bottom:1px solid var(--line);
 }
 .descbox .desctit{margin-bottom:var(--s2)}
-.descqta{margin:0 0 var(--s3);font-size:20px;font-weight:700;color:var(--text);text-align:center;line-height:1.35}
+.descqta{margin:0;font-size:20px;font-weight:700;color:var(--text);text-align:center;line-height:1.35}
+.descqta-riga{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--s2) var(--s3);margin:0 0 var(--s3)}
+/* il tasto del timer: verde pieno, accanto ai tempi */
+.tavvia{
+  display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 var(--s4);
+  border-radius:999px;background:var(--accent);color:var(--bg);font-size:18px;font-weight:700;
+}
+.tavvia:active{opacity:.8}
+
+/* ---------- il timer ---------- */
+.tmr{
+  position:fixed;inset:0;z-index:60;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s2);
+  padding:calc(var(--s4) + env(safe-area-inset-top)) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom));
+  background:var(--bg);color:var(--text);text-align:center;
+}
+.tmr p{margin:0}
+.tmr-fase{font-size:22px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.tmr-nome{font-size:26px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.tmr-tempo{font-size:min(34vw,180px);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--accent)}
+.tmr-info{font-size:20px;color:var(--muted)}
+.tmr.pausa .tmr-fase,.tmr.pausa .tmr-tempo{color:var(--text-2)}
+.tmr.fermo .tmr-tempo{opacity:.45;animation:tmrLampeggia 1s steps(2,start) infinite}
+.tmr.fermo .tmr-fase{color:var(--danger)}
+@keyframes tmrLampeggia{to{visibility:hidden}}
+.tmr-btn .btn.sicuro{background:var(--danger);border-color:var(--danger);color:#fff}
+.tmr-btn{width:100%;max-width:480px}
+.tmr-btn .btn{flex:1}
+
 .desctesto{
   flex:1;margin:0;overflow-y:auto;
   font-size:24px;line-height:1.5;
@@ -521,15 +560,6 @@ body{overflow-x:clip}
 }
 .vslot video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
 .vstato{margin:0;padding:var(--s4);text-align:center;font-size:17px;color:var(--muted)}
-/* il bottone a schermo intero: in alto a destra, grande, sopra il video */
-.vfull{
-  position:absolute;top:var(--s2);right:var(--s2);z-index:2;
-  width:52px;height:52px;border-radius:var(--radius);
-  background:rgba(0,0,0,.55);color:#fff;font-size:28px;line-height:1;
-}
-.vfull:active{background:rgba(0,0,0,.8)}
-/* per un video verticale il bottone e' la via per vederlo grande: si accende */
-.vslot.verticale .vfull{background:var(--accent);color:var(--bg)}
 /* piu' video: le frecce sotto lo slot, e l'avviso leggero sopra il primo */
 .vnav{display:flex;align-items:center;justify-content:center;gap:var(--s3);margin:calc(-1 * var(--s2)) 0 var(--s3)}
 .vnav-btn{width:48px;height:40px;border-radius:var(--radius);border:1px solid var(--line);background:transparent;color:var(--text);font-size:26px;line-height:1;cursor:pointer}
@@ -540,7 +570,7 @@ body{overflow-x:clip}
   border-radius:var(--radius);background:var(--accent);color:#0d0f12;font-size:18px;font-weight:700;text-decoration:none}
 .vlink-host{font-size:13px;font-weight:600;opacity:.75}
 .vavviso{
-  position:absolute;left:var(--s2);top:var(--s2);z-index:3;max-width:calc(100% - 84px);
+  position:absolute;left:var(--s2);top:var(--s2);z-index:3;max-width:calc(100% - 16px);
   margin:0;padding:6px 14px;border-radius:999px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:700;cursor:pointer;
 }
@@ -631,7 +661,7 @@ body.vland .vslot{
 .wkbar.open .wkbar-frec{transform:none}
 .wkbar.open{border-color:var(--accent)}
 @media (hover:hover){ .wkbar:hover{border-color:var(--accent)} }
-@media (min-width:1000px){ .col .wkbar{width:100%;margin-left:0;margin-right:0} .col .prepbanda{margin-left:0;margin-right:0} }
+@media (min-width:1000px){ .col .wkbar{width:100%;margin-left:0;margin-right:0} .pagina > .prepbanda{grid-column:1/-1;margin:0} }
 
 /* ---------- l'editor ---------- */
 
@@ -656,7 +686,7 @@ body.ed-aperto{overflow:hidden}
 .ed-pane > *{max-width:760px}
 
 /* l'elenco */
-.ed-sez{margin:var(--s4) var(--s2) var(--s1);font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--muted)}
+.ed-sez{margin:var(--s4) var(--s2) var(--s1);font-size:16px;font-weight:800;letter-spacing:.1em;color:var(--accent)}
 .ed-sez:first-child{margin-top:var(--s2)}
 .ed-voce{
   display:block;width:100%;text-align:left;
@@ -709,11 +739,37 @@ body.ed-aperto{overflow:hidden}
 .ed-es-riga{display:flex;align-items:center;gap:var(--s1);padding:var(--s1)}
 .ed-es-nome{flex:1 1 auto;min-width:0}
 .ed-es-qta{flex:0 1 140px;min-width:70px}
+/* la tendina sotto un campo: le voci che esistono, da toccare */
+.ed-tend-w{position:relative;min-width:0}
+.ed-tend-w > .campo{width:100%}
+.ed-tend-w.nome{flex:1 1 auto}
+.ed-lib-nuovo .ed-tend-w{flex:1}
+.ed-tend{
+  position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;
+  max-height:min(50vh,320px);overflow-y:auto;
+  background:var(--surface);border:1px solid var(--accent);border-radius:var(--radius);
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+}
+.ed-tend-voce{display:block;width:100%;text-align:left;padding:12px 14px;font-size:16px;color:var(--text);border-bottom:1px solid var(--line)}
+.ed-tend-voce:last-child{border-bottom:0}
+.ed-tend-voce:active,.ed-tend-voce.uguale{background:var(--surface-2)}
+.ed-tend-voce.uguale{font-weight:700;color:var(--accent)}
+.ed-tend-vuota{margin:0;padding:10px 14px;font-size:14px;color:var(--muted)}
+.ed-tend-padre{flex:1 1 200px;max-width:320px}
+.ed-in-gruppo{margin:4px 0 var(--s2);min-height:40px;font-size:15px}
+/* la riga appena tolta: si puo' rimettere */
+/* la barra per rimettere: sempre in basso sullo schermo, dove si vede */
+.ed-tolto{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;
+  display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--s3);
+  border:1px solid var(--accent);border-radius:var(--radius);background:var(--surface-2);
+  box-shadow:0 8px 28px rgba(0,0,0,.45)}
+.ed-tolto-t{flex:1;min-width:0;font-size:15px;color:var(--text)}
 .ed-es-tasti{display:flex;gap:2px;flex:0 0 auto}
 .ed-tasto{margin-left:0;min-width:40px;min-height:44px;padding:0 6px;font-size:18px;color:var(--text-2)}
 .ed-tasto:disabled{opacity:.25}
 .ed-desc.piena{color:var(--accent);border-color:var(--accent)}
-.ed-x:hover{color:var(--danger)}
+.ed-x{color:var(--danger);border-color:rgba(255,69,58,.45)}
+.ed-x.sicuro{background:var(--danger);border-color:var(--danger);color:#fff;font-size:14px;font-weight:700;padding:0 10px}
 .ed-es-grp{margin:0 var(--s3) var(--s2);font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
 .ed-desc-box{padding:0 var(--s2) var(--s2)}
 .ed-video{margin-bottom:var(--s2)}
@@ -737,12 +793,12 @@ body.ed-aperto{overflow:hidden}
   .ed.in-pagina .ed-indietro{display:inline-flex;align-items:center;justify-content:center}
   .ed-giorno{grid-template-columns:1fr;gap:var(--s2)}
   .ed-es-riga{flex-wrap:wrap}
-  .ed-es-nome{flex:1 1 100%}
+  .ed-es-nome,.ed-tend-w.nome{flex:1 1 100%}
   .ed-es-qta{flex:1 1 90px}
   .ed-tit{font-size:20px}
 }
 
-.ed-sub{margin:var(--s2) var(--s3) 2px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ed-sub{margin:var(--s2) var(--s3) 2px;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
 .ed-tendina{
   display:flex;align-items:center;gap:var(--s2);width:calc(100% - 2*var(--s3));
   padding:6px 0;background:none;border:0;border-bottom:1px solid var(--line);
@@ -768,58 +824,9 @@ body.ed-aperto{overflow:hidden}
 .ed-giorno.fuori .ed-giorno-nome{color:var(--muted)}
 .ed-giorno-data{font-weight:400;color:var(--muted);font-size:15px;white-space:nowrap}
 /* nelle schede da leggere la quantita' e' corta: sta a destra, meno larga */
-.tab-i .tabc.val{white-space:normal;overflow-wrap:anywhere}
+.tab-i .tabc.val{white-space:normal;overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
 .ed-cat{margin:0 0 var(--s1)}
 
-/* ---------- easter egg ---------- */
-
-/* il tastino in basso a destra dell'editor */
-.ed-egg{
-  position:absolute;right:16px;bottom:16px;z-index:5;
-  padding:8px 14px;border:1px dashed var(--accent);border-radius:999px;
-  background:var(--bg);color:var(--accent);font:inherit;font-size:14px;font-weight:700;cursor:pointer;
-  box-shadow:0 4px 14px rgba(0,0,0,.25);
-}
-
-/* l'immagine del giorno, a tutto schermo */
-.egg-img{
-  position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:#000;opacity:0;transition:opacity .25s;cursor:pointer;
-}
-.egg-img.on{opacity:1}
-.egg-img img{max-width:100%;max-height:calc(100% - 48px);object-fit:contain}
-.egg-img-nota{margin:12px 0 0;color:rgba(255,255,255,.6);font-size:14px}
-
-/* la postilla: un foglietto colorato, un po' storto, che luccica */
-.postilla{
-  position:relative;overflow:hidden;
-  margin:0 var(--s3) var(--s3);padding:12px 16px;
-  border-radius:6px;transform:rotate(-1.2deg);
-  font-size:18px;font-weight:700;line-height:1.35;color:#1b1b1b;white-space:pre-wrap;
-  box-shadow:0 6px 18px rgba(0,0,0,.28);
-  animation:postilla-entra .35s ease-out;
-}
-.postilla::after{
-  content:'';position:absolute;top:0;bottom:0;left:-60%;width:40%;
-  background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);
-  animation:postilla-luce 2.4s ease-in-out infinite;
-}
-.postilla.c0{background:#ffe45c}
-.postilla.c1{background:#ff8fc7}
-.postilla.c2{background:#7fd3ff}
-.postilla.c3{background:#8ef0a7}
-@keyframes postilla-entra{from{transform:scale(.8) rotate(-6deg);opacity:0}to{transform:rotate(-1.2deg);opacity:1}}
-@keyframes postilla-luce{0%{left:-60%}60%,100%{left:130%}}
-@media (min-width:1000px){ .col .postilla{margin-left:0;margin-right:0} }
-@media (prefers-reduced-motion:reduce){ .postilla,.postilla::after{animation:none} }
-
-/* le righe della pagina Easter eggs nell'editor */
-.egg-riga{display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s2) 0;border-bottom:1px solid var(--line)}
-.egg-mini{flex:0 0 96px;height:96px;border-radius:var(--radius);background:var(--line);overflow:hidden}
-.egg-mini img{width:100%;height:100%;object-fit:cover;display:block}
-.egg-dx{flex:1;min-width:0}
-.egg-nota{padding:var(--s2) 0 var(--s3);border-bottom:1px solid var(--line)}
-.egg-nota .postilla{margin:0 0 var(--s2);animation:none}
 .ed-pane{padding-bottom:88px}
 
 /* ---------- Every day: quando si vede ---------- */
@@ -850,7 +857,8 @@ body.ed-aperto{overflow:hidden}
 .ed-prep-hint{font-style:italic}
 
 /* ---------- editor: libreria degli esercizi ---------- */
-.ed-voce.ed-lib-link{margin:var(--s2) 0;border:1px dashed var(--line);font-weight:700}
+/* la libreria: blu, con il suo libro */
+.ed-voce.ed-lib-link{display:flex;align-items:center;gap:8px;margin:var(--s2) 0;border:1px solid var(--blu);font-weight:800;color:var(--blu)}
 .ed-lib-cerca{margin:0 0 var(--s2)}
 .ed-lib-voce{border-bottom:1px solid var(--line)}
 .ed-lib-testa{display:flex;align-items:center;gap:var(--s2);width:100%;padding:10px 4px;border:0;background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer}
@@ -869,6 +877,205 @@ body.ed-aperto{overflow:hidden}
 .ed-lib-nomecampo{width:100%;margin:0 0 6px;font-weight:600}
 .ed-lib-nota{margin:0 0 var(--s2);font-size:13px;color:var(--muted);font-style:italic}
 .ed-lib-msg{color:var(--accent)}
+/* varianti: sotto il padre, meno in evidenza */
+/* le varianti: rientrate sotto il loro esercizio, un pelo piu' piccole ma
+   ben leggibili, con la freccia verde che le lega al padre */
+.ed-lib-var .ed-lib-testa{padding-left:22px;padding-top:9px;padding-bottom:9px}
+.ed-lib-var .ed-lib-nome{font-weight:500;font-size:17px;color:var(--text-2)}
+.ed-lib-freccia{color:var(--accent);font-weight:700}
+.ed-lib-var .ed-lib-corpo{padding-left:22px}
+.ed-lib-spunta{flex:0 0 auto;font-size:18px;color:var(--accent)}
+.ed-lib-sel{margin:0 0 var(--s2);padding:var(--s2);border:1px solid var(--line);border-radius:var(--radius)}
+.ed-lib-sel .ed-azioni{margin:var(--s2) 0 0}
+.ed-lib-meta{display:flex;flex-wrap:wrap;gap:6px var(--s3);margin:0 0 var(--s2)}
+.ed-lib-postilla{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+/* la domanda sotto un esercizio appena scritto */
+.ed-domanda{margin:0 var(--s3) var(--s2);padding:var(--s2);border:1px dashed var(--accent);border-radius:var(--radius)}
+.ed-domanda-t{margin:0 0 6px;font-size:14px}
+.ed-domanda-tasti{display:flex;flex-wrap:wrap;gap:6px}
+.ed-domanda-tasti .schbtn{margin-left:0}
+.ed-domanda-sel{max-width:100%;font-size:14px}
+.ed-lib-corpo .ed-domanda{margin:0 0 var(--s2)}
+
+/* ---------- editor compatto: meno aria fra i pezzi, stessi tocchi ---------- */
+.ed .campo{min-height:40px;font-size:16px}
+.ed .schbtn{min-height:36px;padding:0 10px;font-size:15px}
+.ed input[type=date]{min-height:40px}
+.ed-h{font-size:22px}
+.ed-sotto{margin:2px 0 var(--s2);font-size:14px;line-height:1.35}
+.ed-sez{margin:var(--s3) var(--s2) 2px}
+.ed-sez-pag{margin:var(--s3) 0 6px;font-size:13px}
+.ed-campo{margin:0 0 var(--s2)}
+.ed-eti{margin-bottom:2px;font-size:13px}
+.ed-azioni{margin:var(--s2) 0}
+.ed-voce{min-height:38px;padding:7px var(--s2);font-size:16px}
+.ed-voce.wk{padding-left:var(--s4)}
+.ed-giorno{padding:var(--s1) 0;gap:var(--s2)}
+.ed-giorno-testa{min-height:38px}
+.ed-giorno-campi{gap:6px}
+.ed-piumeno{min-width:36px;min-height:36px}
+.ed-riposo{min-height:38px}
+.ed-spunta{min-height:36px;margin:0 0 var(--s1);font-size:16px}
+.ed-es{margin-bottom:6px}
+.ed-es-riga{gap:4px;padding:4px}
+.ed-tasto{min-width:36px;min-height:38px;padding:0 4px;font-size:17px}
+.ed-es-grp{margin:0 var(--s2) 4px;font-size:12px}
+.ed-desc-box{padding:0 4px 4px}
+.ed-video{margin-bottom:6px}
+.ed-desc-testo{padding:var(--s1) var(--s2);font-size:16px}
+.ed-aggiungi{min-height:40px;margin-top:6px;font-size:16px}
+.ed-lib-testa{padding:7px 4px}
+.ed-lib-var .ed-lib-testa{padding-top:8px;padding-bottom:8px}
+.ed-lib-corpo{padding:0 4px var(--s2)}
+.ed-lib-usi,.ed-lib-nota{margin-bottom:6px}
+.ed-lib-nomecampo{margin-bottom:4px}
+.ed-lib-filtro{padding:4px 12px;margin-bottom:6px}
+.ed-domanda{margin:0 4px 4px;padding:6px var(--s2)}
+.ed-prossimi{margin:2px 0 var(--s2)}
+@media (max-width: 899px){
+  .ed-nav{padding:var(--s1) var(--s2) var(--s5)}
+  .ed-pane{padding:var(--s2) var(--s2) calc(var(--s5) * 3)}
+  .ed-giorno{gap:4px}
+}
+
+/* ---------- Every day: calendario a settimane e ritmo ---------- */
+.ed-prossimi .ed-pross{font:inherit;font-size:13px;cursor:pointer}
+.ed-cal{margin:var(--s2) 0;max-width:420px}
+.ed-cal-testa{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);margin-bottom:4px}
+.ed-cal-mese{font-weight:700;font-size:16px}
+.ed-cal-griglia{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.ed-cal-gs{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:2px 0}
+.ed-cal-g{min-height:38px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);color:var(--text);font:inherit;font-size:15px;font-variant-numeric:tabular-nums;cursor:pointer}
+.ed-cal-g.fuori{opacity:.4}
+.ed-cal-g.oggi{border-color:var(--accent)}
+.ed-cal-g.si{background:var(--accent);border-color:var(--accent);color:#0d0f12;font-weight:700;opacity:1}
+.ed-ciclo{display:grid;gap:6px;margin-top:var(--s2)}
+.ed-ciclo-passo{display:flex;align-items:center;gap:6px}
+.ed-ciclo-n{flex:0 0 64px;text-align:center}
+.ed-ciclo-eti{flex:0 0 50px;font-size:14px;color:var(--muted)}
+.ed-ciclo-passo .chip{min-height:36px;padding:0 var(--s2);font-size:15px}
+
+/* ---------- scegliere fra i video gia' caricati ---------- */
+.ed-vpick{margin:var(--s2) 0;padding:var(--s2);border:1px solid var(--line);border-radius:var(--radius)}
+.ed-vpick-uno{padding:6px 0;border-bottom:1px solid var(--line)}
+.ed-vpick-eti{display:flex;align-items:center;gap:var(--s2);font-size:15px;cursor:pointer}
+.ed-vpick-eti input{width:20px;height:20px;accent-color:var(--accent)}
+.ed-vpick-ant{margin:4px 0 0 28px}
+.ed-vpick-ant video{display:block;width:100%;max-height:180px;background:#000;border-radius:var(--radius)}
+.ed-vpick > .ed-video-tasti{position:sticky;top:0;z-index:1;padding:4px 0;background:var(--surface)}
+
+/* il pennino delle preparazioni: porta alla modifica */
+.ed-pennino{flex:0 0 44px;border:0;background:none;color:var(--muted);font-size:20px;cursor:pointer;border-radius:var(--radius)}
+@media (hover:hover){ .ed-pennino:hover{color:var(--accent);background:var(--surface-2)} }
+
+/* la tendina della programmazione, sopra gli allenamenti */
+.calbar .wkbar-nome{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calbar.open{margin-bottom:var(--s2)}
+
+/* la riga di un workout aperta: la libreria da leggere, poi la nota sua */
+.ed-nota-lib{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin:0 0 6px}
+.ed-nota-cosa{font-size:13px;color:var(--muted)}
+.ed-nota-vai{margin-left:0}
+.ed-nota-anteprima{margin:0 0 var(--s2);padding:6px var(--s2);border-left:2px solid var(--line);font-size:14px;line-height:1.4;color:var(--text-2);white-space:pre-wrap;max-height:9em;overflow:hidden}
+
+/* ---------- righe degli esercizi: sul telefono una riga sola e la maniglia,
+   sul PC le frecce ---------- */
+.solo-tel{display:none}
+.ed-maniglia{flex:0 0 26px;align-self:stretch;align-items:center;justify-content:center;font-size:20px;color:var(--muted);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.ed-es.trascina{position:relative;z-index:3;box-shadow:0 8px 22px rgba(0,0,0,.35);border-color:var(--accent)}
+.ed-es-lista .ed-es{transition:transform .12s}
+.ed-es-lista .ed-es.trascina{transition:none}
+/* selezionati: il gruppo (o l'esercizio) che si sposta */
+.ed-es.sel{border-color:var(--blu);box-shadow:inset 3px 0 0 var(--blu)}
+.ed-sel-barra{display:flex;align-items:center;gap:var(--s2);padding:6px var(--s3) 0;font-size:14px;color:var(--blu);font-weight:700}
+.ed-sel-t{flex:1;min-width:0}
+.ed-sel-via{min-height:36px;padding:0 var(--s3);border-radius:var(--radius);border:1px solid var(--blu);color:var(--blu);font-size:14px;font-weight:700;background:none}
+.ed-domanda-gr{border-color:var(--blu)}
+.trascina-gruppo .ed-in-gruppo{visibility:hidden}
+.ed-nota-az{padding:0 4px 6px}
+@media (max-width: 899px){
+  .solo-pc{display:none}
+  .solo-tel{display:block}
+  .ed-maniglia.solo-tel{display:flex}
+  .ed-es-riga{flex-wrap:nowrap}
+  .ed-es-nome,.ed-tend-w.nome{flex:1 1 auto;min-width:0}
+  .ed-es-qta{flex:0 0 78px;min-width:0}
+  .ed-nota-az.solo-tel{display:flex}
+}
+
+/* il tipo di un gruppo: Tabata o EMOM, coi numeri del timer */
+.gtipo-campi{display:flex;flex-direction:column;gap:var(--s2);margin:var(--s2) 0}
+.gnum{display:flex;align-items:center;gap:var(--s2);font-size:16px;color:var(--text-2)}
+.gnum > span:first-child{flex:0 0 84px;font-weight:700;color:var(--text)}
+.gnum .campo{flex:0 0 84px;width:84px;text-align:center;font-size:18px}
+.gnum > span:last-child{font-size:14px;color:var(--muted)}
+.gnum > span.galt-es{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.gconsiglio{color:var(--accent);font-weight:700}
+.gtimer{margin-top:0;color:var(--text-2)}
+#gTipo .chip.consigliato{border-color:var(--accent);border-style:dashed}
+.tabr.recgiu.contimer .tabc{display:flex;align-items:center;gap:var(--s2)}
+.tabr.recgiu.contimer .recval{margin-left:auto}
+.tavvia-rec{min-height:38px;padding:0 var(--s3);font-size:16px;gap:6px}
+
+/* il giorno dell'evento di una preparazione: il suo nome, in evidenza */
+.prepbanda.evento{border-left-width:5px;background:rgba(61,220,132,.16)}
+.prepbanda-evento{margin:2px 0 0;font-size:24px;font-weight:800;color:var(--text);line-height:1.2}
+.tab-w .tabc.evento{grid-column:2 / -1;color:var(--accent);font-weight:800;white-space:normal}
+
+/* sotto un esercizio di un Tabata o di un EMOM: il gruppo e i lati */
+.ed-es-grp-riga{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);padding-right:var(--s2)}
+.ed-es-grp-riga .ed-es-grp{margin-bottom:var(--s1)}
+.ed-lati{min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);font-size:14px;font-weight:700;color:var(--text-2);margin:0 0 var(--s1)}
+.ed-lati.on{border-color:var(--accent);color:var(--accent)}
+
+/* nell'elenco dell'editor la voce aperta non si evidenzia: si vede la pagina */
+#edNav .ed-voce.on{background:none;box-shadow:none;font-weight:inherit;color:inherit}
+#edNav .ed-voce.ed-lib-link.on{color:var(--blu);font-weight:800}
+
+/* copia e incolla di un gruppo */
+.chip.gcopia{background:var(--blu);border-color:var(--blu);color:#fff;font-weight:800}
+.ed-incolla{border-color:var(--blu);color:var(--blu)}
+
+/* la tendina delle preparazioni finite */
+.ed-voce.ed-finite{color:var(--muted);font-size:15px;font-weight:700}
+.ed-finite-box{padding-left:var(--s2)}
+
+/* scrivendo nella riga di un esercizio, il campo prende tutta la larghezza:
+   il resto della riga sparisce finche' non si esce dal campo */
+.ed-es-riga:has(.ed-es-qta:focus) > :not(.ed-es-qta),
+.ed-es-riga:has(.ed-tend-w.nome :focus) > :not(.ed-tend-w.nome){display:none}
+.ed-es-riga > .ed-es-qta:focus,
+.ed-es-riga > .ed-tend-w.nome:focus-within{flex:1 1 100%;max-width:none}
+
+/* sotto il nome di una lista Ogni giorno: quando si vede */
+.ed-voce-sotto{display:block;font-size:13px;color:var(--muted);font-weight:400}
+/* la settimana nella pagina di una lista */
+.ed-sett-lista{display:flex;flex-direction:column;gap:4px;margin-bottom:var(--s3)}
+.ed-sl-riga{display:flex;gap:var(--s2);align-items:baseline;padding:6px var(--s2);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.ed-sl-riga.qui{border-left-color:var(--accent)}
+.ed-sl-riga.oggi .ed-sl-giorno{color:var(--accent)}
+.ed-sl-riga.fuori{opacity:.5}
+.ed-sl-giorno{flex:0 0 52px;white-space:nowrap;font-weight:700;font-size:14px}
+.ed-sl-corpo{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.ed-sl-wk{font-size:15px}
+.ed-sl-lista{font-size:13px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.ed-sl-lista.on{border-color:var(--accent);color:var(--accent);font-weight:700}
+
+/* Pubblica grande quanto Chiudi */
+.ed .salva.pubblica{min-height:36px;padding:0 10px;font-size:15px;font-weight:600;border:1px solid transparent;border-radius:var(--radius)}
+
+/* la frequenza di una lista: meno aria fra le scelte */
+.ed-modi{gap:6px}
+.ed-modi .chip{min-height:36px;padding:0 12px;font-size:15px}
+.ed-giorni-sett{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:6px;max-width:420px}
+.ed-giorni-sett .chip{min-height:38px;padding:0;font-size:15px}
+.ed-ogni{gap:var(--s2);margin-top:6px}
+.ed-ciclo{margin-top:6px}
+
+/* Nell'elenco dell'editor, con piu' workout al giorno: il titolo di ogni
+   sessione, sopra i suoi workout. Piu' piccolo della sezione Workout, e
+   grigio: e' un sottotitolo. */
+.ed-sess{margin:var(--s2) var(--s3) 0 var(--s4);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 
 /* ---------- dentro la Routine ---------- */
 
@@ -884,8 +1091,7 @@ body.ed-aperto{overflow:hidden}
   body.in-routine .col-sx{position:static;max-height:none;overflow:visible}
   body.in-routine .col .tab,body.in-routine .col .schapri,body.in-routine .col .wconta,
   body.in-routine .col .lpiu,body.in-routine .col .nota.wnota,body.in-routine .col .prossima,
-  body.in-routine .col .antbar,body.in-routine .col .wkbar,body.in-routine .col .prepbanda,
-  body.in-routine .col .postilla{margin-left:var(--s3);margin-right:var(--s3)}
+  body.in-routine .col .antbar,body.in-routine .col .wkbar,body.in-routine .col .prepbanda{margin-left:var(--s3);margin-right:var(--s3)}
   body.in-routine .col .lpiu,body.in-routine .col .wkbar{width:calc(100% - 2 * var(--s3))}
   body.in-routine .col .grp,body.in-routine .col .grpcli{padding-left:var(--s4);padding-right:var(--s4)}
   body.in-routine .col .chiprow{padding-left:var(--s2);padding-right:var(--s2)}
