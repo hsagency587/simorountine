@@ -249,6 +249,19 @@
       "gws": [
         0
       ]
+    },
+    {
+      "id": "tmutnmjtc9ram",
+      "creata": "2026-10-04T10:04:42.576Z",
+      "nome": "Record meta ads",
+      "desc": "A novara",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-10-05",
+      "gws": [
+        0,
+        1
+      ]
     }
   ],
   "workout": {
