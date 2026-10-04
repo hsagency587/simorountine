@@ -485,15 +485,10 @@ function edPagSettimana(box, ctx, si) {
       (ultima && f.settimane.length < settimaneDel(f.prep) ? ' · repeats until the end of the preparation' : ''));
   }
 
-  /* i nomi gia' usati, da scegliere mentre si scrive */
-  const lista = el('datalist');
-  lista.id = 'edNomi';
   /* in cima la lista di tutti i giorni: scelta in un giorno, quel giorno
      porta il suo nome */
   const nomeEvery = nomeMattinaDi(f.obj);
   const EVERY = 'Every day';
-  for (const n of [EVERY].concat(edWorkout(f))) { const o = el('option'); o.value = n; lista.appendChild(o); }
-  box.appendChild(lista);
 
   /* In una preparazione la prima e l'ultima settimana possono essere a meta':
      i giorni prima dell'inizio e dopo la fine restano al piano di sempre, e
@@ -526,7 +521,6 @@ function edPagSettimana(box, ctx, si) {
       const inp = el('input', 'campo');
       inp.type = 'text';
       inp.maxLength = 60;
-      inp.setAttribute('list', 'edNomi');
       inp.placeholder = ORDINALI[i] + ' workout';
       const val = (w.workout[g] || [])[i] || '';
       inp.value = val === MORNING ? EVERY : val;
@@ -536,9 +530,9 @@ function edPagSettimana(box, ctx, si) {
         while (r.length <= i) r.push('');
         let scritto = inp.value.slice(0, 60).trim();
         const basso = scritto.toLowerCase();
-        /* un workout che c'e' gia', scritto in modo simile, e' quello: niente
-           workout fantasma */
-        const esiste = edSimile(edWorkout(f), scritto);
+        /* un workout che c'e' gia', scritto con maiuscole diverse, e' quello:
+           niente workout fantasma. Per i nomi simili c'e' la tendina */
+        const esiste = edWorkout(f).find(n => n.toLowerCase() === basso);
         if (esiste) { scritto = esiste; inp.value = esiste; }
         r[i] = scritto && (basso === EVERY.toLowerCase() || basso === 'every day' || basso === 'everyday' || basso === 'ogni giorno' || basso === nomeEvery.toLowerCase()) ? MORNING : scritto;
         if (r[i] === MORNING) inp.value = EVERY;
@@ -547,7 +541,8 @@ function edPagSettimana(box, ctx, si) {
         inp.classList.toggle('every', r[i] === MORNING);
         edCambio(true);
       });
-      campi.appendChild(inp);
+      campi.appendChild(edTendina(inp, () => [EVERY].concat(edWorkout(f)),
+        v => { inp.value = v; inp.blur(); inp.dispatchEvent(new Event('change')); }, { simili: true, nuova: 'New workout' }));
     }
     riga.appendChild(campi);
     box.appendChild(riga);
@@ -569,26 +564,28 @@ function edPagSettimana(box, ctx, si) {
 const settimaneDel = p =>
   Math.floor(giorniFra(chiaveData(lunedi(daChiave(p.dal))), chiaveData(lunedi(daChiave(p.al)))) / 7) + 1;
 
-/* Il workout che somiglia a un nome scritto nella settimana: le stesse
-   lettere a parte maiuscole, spazi e segni; oppure una o due lettere diverse
-   (un errore di battitura); oppure le stesse parole accorciate ("priv wing
-   chun", "sat calisthenics"). Se ne somigliano due o piu', nessuno. */
-function edSimile(nomi, scritto) {
+/* I workout che somigliano a un nome scritto nella settimana, per la
+   tendina: le stesse lettere a parte maiuscole, spazi e segni; una o due
+   lettere diverse (un errore di battitura); o le stesse parole, accorciate
+   o con qualche lettera sbagliata
+   ("priv wing chun", "sat calistenics"). */
+function edSimili(nomi, scritto) {
   const k = t => edNorm(t).replace(/[^a-z0-9]+/g, '');
   const parole = t => edNorm(t).replace(/[^a-z0-9 ]+/g, ' ').split(' ').filter(Boolean);
   const s = k(scritto);
-  if (!s) return '';
-  const uno = l => l.length === 1 ? l[0] : '';
-  const uguali = nomi.filter(n => k(n) === s);
-  if (uguali.length) return uguali[0];
+  if (!s) return [];
   const soglia = s.length < 6 ? 1 : 2;
-  const quasi = uno(nomi.filter(n => edDistanza(k(n), s) <= soglia));
-  if (quasi) return quasi;
   const ps = parole(scritto);
-  return uno(nomi.filter(n => {
+  /* una parola scritta va bene se e' l'inizio di quella del workout, anche con
+     una lettera sbagliata, o se e' quasi uguale; le parole corte solo se sono
+     l'inizio esatto */
+  const parola = (p, q) => p.indexOf(q) === 0 || (q.length >= 4 && (edDistanza(p.slice(0, q.length), q) <= 1 ||
+                           edDistanza(p, q) <= (q.length < 6 ? 1 : 2)));
+  return nomi.filter(n => {
+    if (k(n) === s || edDistanza(k(n), s) <= soglia) return true;
     const pn = parole(n);
-    return pn.length === ps.length && pn.every((p, i) => p.indexOf(ps[i]) === 0);
-  }));
+    return pn.length >= ps.length && ps.every((q, i) => parola(pn[i], q));
+  });
 }
 
 /* Quante lettere vanno cambiate, aggiunte o tolte per passare da a a b. */
@@ -630,7 +627,9 @@ function edTendina(inp, voci, scegli, opt) {
       if (!q || n.indexOf(q) === 0) inizio.push(v);
       else if (n.indexOf(q) > 0) dentro.push(v);
     }
-    const trovate = inizio.concat(dentro).slice(0, 60);
+    /* con `simili`, anche quelli che somigliano (lettere sbagliate, parole accorciate) */
+    const simili = opt.simili ? edSimili(tutte, inp.value).filter(v => inizio.indexOf(v) < 0 && dentro.indexOf(v) < 0) : [];
+    const trovate = inizio.concat(dentro, simili).slice(0, 60);
     for (const v of trovate) {
       const b = el('button', 'ed-tend-voce' + (edNorm(v) === q ? ' uguale' : ''), v);
       b.type = 'button';
