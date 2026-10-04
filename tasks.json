@@ -266,10 +266,8 @@
       "desc": "",
       "rank": "C",
       "cliente": null,
-      "giorno": "2026-10-04",
-      "gws": [
-        1
-      ]
+      "giorno": null,
+      "gws": null
     }
   ],
   "wk": {
