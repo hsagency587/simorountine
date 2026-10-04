@@ -29,6 +29,30 @@
   color-scheme:dark;
 }
 
+/* Il tema chiaro, scelto nelle impostazioni: fondo bianco, stesse forme, gli
+   stessi colori dell'app dei workout. Il verde, l'oro e il giallo sono piu'
+   scuri, se no sul bianco non si leggono. */
+:root[data-theme="light"]{
+  --bg:#ffffff;
+  --surface:#f4f6f8;
+  --surface-2:#eaeef2;
+  --line:#d3d9e0;
+  --text:#111418;
+  --text-2:#2b323b;
+  --muted:#5c6672;
+  --accent:#138a48;
+  --gold:#9a6f00;
+  --blu:#0060df;
+  --danger:#d70015;
+  --stale:#b86e00;
+  --giallo:#9a7d00;
+  color-scheme:light;
+}
+:root[data-theme="light"] .row:active,
+:root[data-theme="light"] .grpcli:active{background:rgba(0,0,0,.05)}
+:root[data-theme="light"] .rA{color:#b3140b}
+:root[data-theme="light"] .velo{background:rgba(0,0,0,.35)}
+
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 /* hidden vince sempre, anche su chi ha un display proprio (.chips, .commento-lab) */
@@ -1153,3 +1177,21 @@ button.tendina:active{background-color:var(--line)}
 }
 .rtlogq{flex:0 0 auto;color:var(--muted);font-variant-numeric:tabular-nums}
 .rtlogt{flex:1;min-width:0;color:var(--text-2)}
+
+/* ---------- impostazioni ---------- */
+
+/* Token e chiave chiusi in una tendina, come nell'app dei workout. */
+.sviluppo{margin-top:var(--s4);border-top:1px solid var(--line);padding-top:var(--s2)}
+.sviluppo-tit{
+  display:flex;align-items:center;gap:var(--s2);min-height:38px;cursor:pointer;
+  font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  list-style:none;
+}
+.sviluppo-tit::-webkit-details-marker{display:none}
+.sviluppo-tit::before{content:'\25b8';color:var(--muted)}
+.sviluppo[open] .sviluppo-tit::before{content:'\25be'}
+.sviluppo-corpo .commento-lab:first-child{margin-top:var(--s1)}
+/* il token col suo bottone per copiarlo, sulla stessa riga */
+.campo-riga{display:flex;align-items:center;gap:var(--s2)}
+.campo-riga .campo{flex:1;min-width:0}
+.campo-riga .schbtn{flex:0 0 auto}

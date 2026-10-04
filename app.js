@@ -3823,6 +3823,8 @@ $('pescaAnnulla').addEventListener('click', () => dlgPesca.close());
 const dlgImp = $('impostazioni');
 
 function openImpostazioni() {
+  $('sviluppo').open = false;        /* si riapre sempre chiusa */
+  $('tokenCopia').textContent = 'Copy';
   $('tokenInput').value = token;
   $('chiaveInput').value = chiave;
   const s = $('tokenStato');
@@ -3858,6 +3860,63 @@ $('impostazioniForm').addEventListener('submit', () => {
   else paintSync('no token');
 });
 $('tokenAnnulla').addEventListener('click', () => dlgImp.close());
+
+/* Il token si copia, per incollarlo su un altro telefono: quello scritto nel
+   campo, anche se non ancora salvato. Se il browser non concede gli appunti,
+   il campo si mostra e si seleziona, e si copia a mano. */
+$('tokenCopia').addEventListener('click', async () => {
+  const inp = $('tokenInput');
+  const b = $('tokenCopia');
+  const v = inp.value.trim();
+  if (!v) { b.textContent = 'Empty'; return; }
+  try {
+    await navigator.clipboard.writeText(v);
+    b.textContent = 'Copied';
+  } catch (e) {
+    /* la via vecchia: il testo selezionato e il comando copia */
+    inp.type = 'text';
+    inp.focus();
+    inp.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e2) { /* niente */ }
+    b.textContent = ok ? 'Copied' : 'Select & copy';
+  }
+  setTimeout(() => { if (b.isConnected) b.textContent = 'Copy'; }, 2500);
+});
+/* chiudendo, il token torna nascosto */
+dlgImp.addEventListener('close', () => { $('tokenInput').type = 'password'; });
+
+/* Il tema: scuro com'era, o chiaro su fondo bianco. Si cambia al tocco, senza
+   Save: e' una preferenza di questo schermo, non un dato del file. Lo segue
+   anche l'app dei workout nella tendina. */
+const TEMA_KEY = 'gwork-tema-v1';
+function paintTema() {
+  const chiaro = document.documentElement.dataset.theme === 'light';
+  for (const b of document.querySelectorAll('#temaScelta [data-tema]')) {
+    b.classList.toggle('sel', (b.dataset.tema === 'light') === chiaro);
+  }
+}
+function temaWk() {
+  const f = $('wframe');
+  try {
+    const r = f && f.contentDocument && f.contentDocument.documentElement;
+    if (!r) return;
+    if (document.documentElement.dataset.theme === 'light') r.dataset.theme = 'light';
+    else delete r.dataset.theme;
+  } catch (e) { /* cornice non ancora pronta: prende il tema da sola */ }
+}
+$('temaScelta').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-tema]');
+  if (!b) return;
+  const chiaro = b.dataset.tema === 'light';
+  if (chiaro) document.documentElement.dataset.theme = 'light';
+  else delete document.documentElement.dataset.theme;
+  $('metaTema').content = chiaro ? '#ffffff' : '#0d0f12';
+  try { localStorage.setItem(TEMA_KEY, chiaro ? 'light' : 'dark'); } catch (e) { /* solo per ora */ }
+  paintTema();
+  temaWk();
+});
+paintTema();
 
 /* Una lettura autenticata: se passa, il token e' buono. Scrivere lo si
    scopre al primo Salva, e se manca il permesso lo dice lui. */

@@ -8,7 +8,14 @@
      una cornice, e le passa i dati. Aperta da sola torna alla Routine. -->
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
+<!-- il tema e' quello della Routine: si prende prima di disegnare; quando
+     cambia, lo rimette la Routine -->
+<script>
+  try {
+    if (parent.document.documentElement.dataset.theme === 'light') document.documentElement.dataset.theme = 'light';
+  } catch (e) { /* si resta scuri */ }
+</script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body class="in-routine">
