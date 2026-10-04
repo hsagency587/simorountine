@@ -373,18 +373,21 @@ const WK = (() => {
      n'e' una, altrimenti quello di sempre. */
   function pianoDi(s, k) {
     const p = (s.prep || []).find(x => x.dal <= k && k <= x.al);
-    if (!p) return { workout: s.workout || {}, conti: s.conti || {}, mattina: s.mattina };
+    if (!p) return { workout: s.workout || {}, conti: s.conti || {}, mattina: s.mattina, altre: s.altre || [] };
     const w = p.settimane[settimanaDi(p, k)];
-    return { workout: w.workout, conti: w.conti, mattina: p.mattina };
+    return { workout: w.workout, conti: w.conti, mattina: p.mattina, altre: p.altre || [] };
   }
 
-  /* Cosa si fa in quel workout (0 il primo, 1 il secondo...), quel giorno. */
+  /* Cosa si fa in quel workout (0 il primo, 1 il secondo...), quel giorno. Un
+     posto con una lista Every day dice il nome della lista. */
   function workoutDi(s, k, slot) {
     if (!s) return '';
     const pi = pianoDi(s, k);
     const g = daChiave(k).getDay();
     const v = (pi.workout[g] || []).slice(0, pi.conti[g] || 0)[slot] || '';
-    return v === MORNING ? (pi.mattina || MATTINA_BASE) : v;
+    if (v === MORNING) return pi.mattina || MATTINA_BASE;
+    if (v.indexOf('__ev_') === 0) { const a = pi.altre.find(x => EV(x.id) === v); return a ? (a.nome || 'Every day') : ''; }
+    return v;
   }
 
   return { MAX_SLOT, SLOT_BASE, ORDINALI, MATTINA_BASE, MORNING, EV,

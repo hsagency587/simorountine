@@ -40,7 +40,7 @@ function edWorkout(f) {
   const out = [];
   for (const w of f.settimane) {
     for (const g of SETTIMANA) {
-      for (const v of (w.workout[g] || []).slice(0, w.conti[g] || 0)) if (v && v !== MORNING && out.indexOf(v) < 0) out.push(v);
+      for (const v of (w.workout[g] || []).slice(0, w.conti[g] || 0)) if (v && !eLista(v) && out.indexOf(v) < 0) out.push(v);
     }
   }
   for (const k of Object.keys(f.schede)) if (k.indexOf('__') !== 0 && out.indexOf(k) < 0) out.push(k);
@@ -185,7 +185,7 @@ function edAnteprimaSett(pv, f, si) {
   SETTIMANA.forEach((g, pos) => {
     const k = lun ? chiaveData(piuGiorni(lun, pos)) : null;
     if (k && (k < f.prep.dal || k > f.prep.al)) return;
-    const nomi = (w.workout[g] || []).slice(0, w.conti[g] || 0).map(x => x === MORNING ? nomeMattinaDi(f.obj) : x).filter(Boolean);
+    const nomi = (w.workout[g] || []).slice(0, w.conti[g] || 0).map(x => eLista(x) ? nomeLista(f.obj, x) : x).filter(Boolean);
     const l = el('div', 'ed-ant-riga');
     l.appendChild(el('span', 'ed-ant-giorno', GIORNI2[g] + (k ? ' ' + daChiave(k).getDate() : '')));
     l.appendChild(el('span', 'ed-ant-nome', nomi.length ? nomi.join(' + ') : 'Rest'));
@@ -203,7 +203,7 @@ function edWorkoutElenco(f) {
     SETTIMANA.forEach((g, pos) => {
       const k = chiaveData(piuGiorni(lun, pos));
       if (k < f.prep.dal || k > f.prep.al) return;
-      for (const v of (w.workout[g] || []).slice(0, w.conti[g] || 0)) if (v && v !== MORNING && out.indexOf(v) < 0) out.push(v);
+      for (const v of (w.workout[g] || []).slice(0, w.conti[g] || 0)) if (v && !eLista(v) && out.indexOf(v) < 0) out.push(v);
     });
   });
   return out;
@@ -298,7 +298,7 @@ function edWorkoutSessioni(f) {
       const r = (w.workout[g] || []).slice(0, w.conti[g] || 0);
       if ((w.conti[g] || 0) > 1) piu = true;
       r.forEach((x, s) => {
-        if (!x || x === MORNING) return;
+        if (!x || eLista(x)) return;
         if (!per[s]) per[s] = [];
         if (per[s].indexOf(x) < 0) per[s].push(x);
         if (tutti.indexOf(x) < 0) tutti.push(x);
@@ -485,10 +485,20 @@ function edPagSettimana(box, ctx, si) {
       (ultima && f.settimane.length < settimaneDel(f.prep) ? ' · repeats until the end of the preparation' : ''));
   }
 
-  /* in cima la lista di tutti i giorni: scelta in un giorno, quel giorno
-     porta il suo nome */
-  const nomeEvery = nomeMattinaDi(f.obj);
+  /* In un giorno va un workout o una lista Every day: si scelgono dalla
+     tendina sotto il campo, prima le liste e poi i workout gia' scritti. Una
+     lista si sceglie per nome, ma nel campo si legge solo "Every day": quale
+     sia lo dice la pagina della lista. Il giorno tiene la sua chiave, cosi' se
+     la lista cambia nome il giorno la segue. "Every day" vale la prima. */
+  const liste = listeDi(f.obj);
+  const voci = () => liste.map(l => l.nome).concat(edWorkout(f).filter(n => !liste.some(l => edNorm(l.nome) === edNorm(n))));
   const EVERY = 'Every day';
+  const listaDi = t => {
+    const b = edNorm(t);
+    if (!b) return null;
+    return liste.find(l => edNorm(l.nome) === b) ||
+           (['every day', 'everyday', 'ogni giorno'].indexOf(b) >= 0 ? liste[0] : null);
+  };
 
   /* In una preparazione la prima e l'ultima settimana possono essere a meta':
      i giorni prima dell'inizio e dopo la fine restano al piano di sempre, e
@@ -523,26 +533,35 @@ function edPagSettimana(box, ctx, si) {
       inp.maxLength = 60;
       inp.placeholder = ORDINALI[i] + ' workout';
       const val = (w.workout[g] || [])[i] || '';
-      inp.value = val === MORNING ? EVERY : val;
-      if (val === MORNING) inp.classList.add('every');
-      inp.addEventListener('change', () => {
+      /* una lista si vede come "Every day": quale sia, lo dice la pagina della lista */
+      inp.value = eLista(val) ? EVERY : val;
+      inp.classList.toggle('every', eLista(val));
+      const salva = () => {
         const r = (w.workout[g] || []).slice();
         while (r.length <= i) r.push('');
         let scritto = inp.value.slice(0, 60).trim();
-        const basso = scritto.toLowerCase();
-        /* un workout che c'e' gia', scritto con maiuscole diverse, e' quello:
-           niente workout fantasma. Per i nomi simili c'e' la tendina */
-        const esiste = edWorkout(f).find(n => n.toLowerCase() === basso);
-        if (esiste) { scritto = esiste; inp.value = esiste; }
-        r[i] = scritto && (basso === EVERY.toLowerCase() || basso === 'every day' || basso === 'everyday' || basso === 'ogni giorno' || basso === nomeEvery.toLowerCase()) ? MORNING : scritto;
-        if (r[i] === MORNING) inp.value = EVERY;
+        /* "Every day" su un posto che ha gia' una lista: resta quella */
+        const ora = (w.workout[g] || [])[i] || '';
+        if (eLista(ora) && edNorm(scritto) === edNorm(EVERY)) { inp.value = EVERY; inp.classList.add('every'); return; }
+        const l = listaDi(scritto);
+        if (l) {
+          r[i] = l.chiave;
+          inp.value = EVERY;
+        } else {
+          /* un workout che c'e' gia', scritto con maiuscole diverse, e' quello:
+             niente workout fantasma. Per i nomi simili c'e' la tendina */
+          const esiste = edWorkout(f).find(n => edNorm(n) === edNorm(scritto));
+          if (esiste) { scritto = esiste; inp.value = esiste; }
+          r[i] = scritto;
+        }
+        if (r[i] === ora) { inp.classList.toggle('every', !!l); return; }
         while (r.length && !r[r.length - 1]) r.pop();
         if (r.length) w.workout[g] = r; else delete w.workout[g];
-        inp.classList.toggle('every', r[i] === MORNING);
+        inp.classList.toggle('every', !!l);
         edCambio(true);
-      });
-      campi.appendChild(edTendina(inp, () => [EVERY].concat(edWorkout(f)),
-        v => { inp.value = v; inp.blur(); inp.dispatchEvent(new Event('change')); }, { simili: true, nuova: 'New workout' }));
+      };
+      inp.addEventListener('change', salva);
+      campi.appendChild(edTendina(inp, voci, v => { inp.value = v; inp.blur(); salva(); }, { simili: true, nuova: 'New workout' }));
     }
     riga.appendChild(campi);
     box.appendChild(riga);
@@ -1367,6 +1386,16 @@ function edPagMattina(box, ctx, listaId) {
     edConferma(az, 'Delete this list', () => {
       o.altre = o.altre.filter(x => x !== a);
       delete f.schede[L.chiave];
+      /* tolta anche dai giorni della Settimana in cui era scritta */
+      for (const w of f.settimane) {
+        for (const g of SETTIMANA) {
+          const r = w.workout[g];
+          if (!r) continue;
+          for (let i = 0; i < r.length; i++) if (r[i] === L.chiave) r[i] = '';
+          while (r.length && !r[r.length - 1]) r.pop();
+          if (!r.length) delete w.workout[g];
+        }
+      }
       edVista = { pag: 'morning', ctx: ctx };
       edCambio(true);
       edRidisegna();
@@ -1482,15 +1511,21 @@ function edSettimanaLista(box, f, chiave) {
   SETTIMANA.forEach((g, pos) => {
     const k = chiaveData(piuGiorni(lun, pos));
     const fuori = !f.base && (k < f.prep.dal || k > f.prep.al);
-    const liste = fuori ? [] : listeDi(f.obj).filter(l => !l.via && quandoVale(l.quando, k));
+    /* la lista c'e' quel giorno se "Quando" lo dice, o se e' scritta in uno
+       dei posti della Settimana: prima quelle di "Quando", poi le altre */
+    const wg = fuori ? null : f.settimane[f.base ? 0 : settimanaDi(f.prep, k)];
+    const nelGiorno = wg ? (wg.workout[g] || []).slice(0, wg.conti[g] || 0) : [];
+    const tutte = fuori ? [] : listeDi(f.obj).filter(l => !l.via);
+    const perQuando = tutte.filter(l => quandoVale(l.quando, k));
+    const liste = perQuando.concat(tutte.filter(l => perQuando.indexOf(l) < 0 && nelGiorno.indexOf(l.chiave) >= 0));
     const qui = liste.some(l => l.chiave === chiave);
     const riga = el('div', 'ed-sl-riga' + (qui ? ' qui' : '') + (fuori ? ' fuori' : '') + (k === oggi ? ' oggi' : ''));
     riga.appendChild(el('span', 'ed-sl-giorno', GIORNI2[g] + ' ' + daChiave(k).getDate()));
     const corpo = el('div', 'ed-sl-corpo');
     if (fuori) corpo.appendChild(el('span', 'ed-sl-wk', 'outside the preparation'));
     else {
-      const w = f.settimane[f.base ? 0 : settimanaDi(f.prep, k)];
-      const nomi = (w.workout[g] || []).slice(0, w.conti[g] || 0).map(x => x === MORNING ? nomeMattinaDi(f.obj) : x).filter(Boolean);
+      /* i workout del giorno; le liste messe nella Settimana stanno con le altre */
+      const nomi = nelGiorno.filter(x => x && !eLista(x));
       corpo.appendChild(el('span', 'ed-sl-wk', nomi.length ? nomi.join(' + ') : 'Rest'));
       for (const l of liste) corpo.appendChild(el('span', 'ed-sl-lista' + (l.chiave === chiave ? ' on' : ''), l.nome));
     }

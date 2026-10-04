@@ -314,7 +314,7 @@ function disegnaW() {
     if (ev) celle.push({ t: x.pi.prep.nome, cls: 'evento' });
     else for (let i = 0; i < n; i++) {
       if (i >= quanti) celle.push({ t: '', cls: 'fuori' });
-      else if (x.w[i] === MORNING) celle.push({ t: nomeMattinaDi(x.pi), cls: 'every' });
+      else if (eLista(x.w[i])) celle.push({ t: nomeLista(x.pi, x.w[i]) || '—', cls: 'every' });
       else celle.push({ t: x.w[i] || '—', cls: x.w[i] ? '' : 'vuota' });
     }
     const cls = [x.k === kOggi ? 'oggi' : '', x.pi.prep ? 'inprep' : ''].filter(Boolean).join(' ');
@@ -332,7 +332,7 @@ function disegnaW() {
 function allenamentiDi(pi) {
   const out = [];
   for (const g of SETTIMANA) {
-    for (const v of workoutDelGiorno(pi, g)) if (v && v !== MORNING && out.indexOf(v) < 0) out.push(v);
+    for (const v of workoutDelGiorno(pi, g)) if (v && !eLista(v) && out.indexOf(v) < 0) out.push(v);
   }
   return out;
 }
@@ -504,6 +504,10 @@ Pila.prototype.vai = function (g) {
    recupero. Nel file sta sotto una chiave fissa, che non cambia mai; il nome
    che si legge sta a parte e si riscrive quando si vuole. */
 const MORNING = '__morning';
+/* Un posto della settimana puo' tenere una lista Every day invece di un
+   workout: la prima (MORNING) o una delle altre (EV e il suo id). */
+const eLista = v => typeof v === 'string' && v.indexOf('__') === 0;
+function nomeLista(pi, k) { const l = listeDi(pi).find(x => x.chiave === k); return l ? l.nome : ''; }
 const nomeMattinaDi = pi => (pi && pi.mattina) || MATTINA_BASE;
 
 /* Se una lista Every day si vede in una data. */
@@ -549,15 +553,15 @@ function paintOggi(box, pi, k, g, titolo) {
   let capo = false;
   for (const nome of workoutDelGiorno(pi, g)) {
     if (!nome) continue;
-    /* un giorno con la lista di tutti i giorni: se il box in alto e' spento,
-       la lista compare qui; se e' acceso c'e' gia' */
-    if (nome === MORNING) {
-      const scm = pi.schede[MORNING];
-      if (!scm || !scm.es.length || listeDelGiorno(pi, k).some(l => l.chiave === MORNING)) continue;
+    /* una lista Every day scritta nel giorno: compare qui col suo nome e i
+       suoi esercizi, salvo se quel giorno c'e' gia' in alto per "Quando" */
+    if (eLista(nome)) {
+      const scm = pi.schede[nome];
+      if (!scm || !scm.es.length || listeDelGiorno(pi, k).some(l => l.chiave === nome)) continue;
       if (!capo) { box.appendChild(el('p', 'grp', titolo || 'TODAY WORKOUTS')); capo = true; }
-      const tm = tabScheda(nomeMattinaDi(pi), scm);
+      const tm = tabScheda(nomeLista(pi, nome) || 'Every day', scm);
       tm.classList.add('tab-oggi');
-      box.appendChild(righeScheda(tm, { es: scm.es, rec: '', tipi: scm.tipi }, pi.src, MORNING));
+      box.appendChild(righeScheda(tm, { es: scm.es, rec: '', tipi: scm.tipi }, pi.src, nome));
       continue;
     }
     const sc = pi.schede[nome];
@@ -1267,6 +1271,27 @@ async function vGet(n) {
     });
   } catch (e) { return null; }
 }
+/* I nomi dei video nel telefono, e un video tolto. */
+async function vNomi() {
+  try {
+    const d = await apriDb();
+    return await new Promise(ok => {
+      const q = d.transaction('v').objectStore('v').getAllKeys();
+      q.onsuccess = () => ok((q.result || []).map(String));
+      q.onerror = () => ok([]);
+    });
+  } catch (e) { return []; }
+}
+async function vVia(n) {
+  try {
+    const d = await apriDb();
+    await new Promise(ok => {
+      const t = d.transaction('v', 'readwrite');
+      t.objectStore('v').delete(n);
+      t.oncomplete = t.onerror = ok;
+    });
+  } catch (e) { /* resta */ }
+}
 async function vPut(n, blob) {
   const d = await apriDb();
   await new Promise((ok, ko) => {
@@ -1345,19 +1370,26 @@ function postaBlob(corpo, avanza) {
 const aspetta = ms => new Promise(r => setTimeout(r, ms));
 
 /* C'e' gia' online? Se un caricamento e' arrivato ma il telefono non ha fatto
-   in tempo a segnarlo, non lo si rimanda. */
+   in tempo a segnarlo, non lo si rimanda. Torna quanto pesa online, o -1 se
+   non c'e'. */
 async function videoOnline(nome) {
   try {
     const r = await fetch(API + '/contents/video/' + nome + '?ref=' + BRANCH, { method: 'GET', headers: ghHeaders(), cache: 'no-store' });
-    return r.status === 200;
-  } catch (e) { return false; }
+    if (r.status !== 200) return -1;
+    try { return +(await r.json()).size || 0; } catch (e) { return 0; }
+  } catch (e) { return -1; }
 }
 
-async function caricaVideo(nome, avanza) {
+async function caricaVideo(nome, avanza, dice) {
   try {
-    const blob = await vGet(nome);
-    if (!blob) return true;                   /* sparito dal telefono: niente da mandare */
-    if (await videoOnline(nome)) return true;
+    /* gia' online: va bene, a meno che sia uno di quelli pesanti di prima */
+    const online = await videoOnline(nome);
+    if (online >= 0 && (!eVideo(nome) || online <= LEGGERO_SOGLIA)) { segnaLeggero(nome); return true; }
+    let blob = (await vGet(nome)) || (await prendiVideo(nome));
+    if (!blob) return true;                   /* non c'e' da nessuna parte: niente da mandare */
+    blob = await alleggerisci(nome, blob, dice);
+    /* online c'era gia' e non si e' alleggerito: si lascia quello */
+    if (online >= 0 && blob.size > online * 0.85) return true;
     const dati = chiave ? new Blob([await cifraByte(await blob.arrayBuffer())]) : blob;
     const corpo = await corpoBlob(dati);
     /* il file va su una volta sola; poi si prova ad attaccarlo al branch */
@@ -1427,14 +1459,33 @@ async function scaricaVideo() {
   if (scaricando) { scaricaAncora = true; return; }
   scaricando = true;
   try {
-    const nomi = [];
+    const servono = new Set();
     for (const tutte of [tstore.schede].concat(tstore.prep.map(p => p.schede))) {
       for (const k of Object.keys(tutte)) {
-        for (const r of tutte[k].es) for (const v of videiDi(r)) if (nomi.indexOf(v) < 0) nomi.push(v);
+        for (const r of tutte[k].es) for (const v of videiDi(r)) servono.add(v);
       }
     }
-    for (const r of tstore.libreria || []) for (const v of videiDi(r)) if (nomi.indexOf(v) < 0) nomi.push(v);
-    for (const n of nomi) if (!(await vGet(n))) await prendiVideo(n);
+    for (const r of tstore.libreria || []) for (const v of videiDi(r)) servono.add(v);
+    for (const n of servono) {
+      const b = await vGet(n);
+      if (!b) { await prendiVideo(n); continue; }
+      /* un video pesante di prima, che online e' diventato leggero: si
+         prende quello nuovo, e il telefono si libera */
+      if (eVideo(n) && b.size > LEGGERO_SOGLIA && !leggeri.has(n)) {
+        try {
+          const r = await fetch(RAW_VIDEO + n, { method: 'HEAD', cache: 'no-store' });
+          const online = +r.headers.get('Content-Length') || 0;
+          if (r.ok && online && online < b.size * 0.85) await prendiVideo(n);
+          /* si segna solo quando online e' davvero leggero: se e' ancora pesante,
+             chi ha il token lo deve poter alleggerire */
+          if (r.ok && online && online <= LEGGERO_SOGLIA) segnaLeggero(n);
+        } catch (e) { /* si riprova la prossima volta */ }
+      }
+    }
+    /* chi legge e basta tiene nel telefono solo i video che gli servono */
+    if (!token && servono.size) {
+      for (const n of await vNomi()) if (!servono.has(n)) await vVia(n);
+    }
   } finally {
     scaricando = false;
   }
@@ -1519,16 +1570,19 @@ function ruota() {
 if (orizzontale.addEventListener) orizzontale.addEventListener('change', ruota);
 
 /* Un file video scelto nell'editor: resta subito nel telefono, sotto un nome
-   nuovo, e al Save parte per GitHub. Torna il nome, o un errore da mostrare. */
-/* La compressione dei video, prima di tenerli: il telefono registra in 1080p
-   o 4K, e un esercizio si capisce benissimo in 720p. La fa il browser con i
-   suoi strumenti video (WebCodecs), attraverso una libreria che si scarica
-   solo quando serve. Due passate: la prima a 720p; se il file e' ancora
-   sopra il limite, una seconda piu' piccola. Se il browser non ce la fa, il
-   video resta com'e'. */
+   nuovo, e parte per GitHub. Torna il nome, o un errore da mostrare. */
+/* La compressione dei video, prima di tenerli. La fa il browser con i suoi
+   strumenti video (WebCodecs), attraverso una libreria che si scarica solo
+   quando serve. Un esercizio si guarda su un telefono, e 540p (960 sul lato
+   lungo) a 30 fotogrammi basta e avanza. H.264 dentro MP4 perche' e' l'unico
+   che si vede su tutti i telefoni, iPhone compresi. Audio mono e leggero: in
+   un esercizio conta poco. Viene circa 5 MB al minuto. Se il video resta
+   comunque grosso (oltre LEGGERO_MAX), una seconda passata piu' piccola. Se
+   il browser non ce la fa, il video resta com'e'. */
 const MEDIABUNNY = 'https://cdn.jsdelivr.net/npm/mediabunny@1.60.0/+esm';
-const PASSATE_VIDEO = [{ lato: 1280, bit: 1500000, audio: 96000 },
-                       { lato: 854,  bit: 700000,  audio: 64000 }];
+const PASSATE_VIDEO = [{ lato: 960, bit: 650000, audio: 48000 },
+                       { lato: 640, bit: 350000, audio: 32000 }];
+const LEGGERO_MAX = 20 * 1024 * 1024;
 
 async function comprimiVideo(f, avanza) {
   if (!('VideoEncoder' in window)) return null;
@@ -1545,21 +1599,57 @@ async function comprimiVideo(f, avanza) {
         input: input, output: output,
         video: t => {
           const w = t.displayWidth, h = t.displayHeight;
-          const o = { bitrate: p.bit };
+          const o = { codec: 'avc', bitrate: p.bit, frameRate: 30, keyFrameInterval: 2, forceTranscode: true };
           if (Math.max(w, h) > p.lato) { if (w >= h) o.width = p.lato; else o.height = p.lato; }
           return o;
         },
-        audio: { bitrate: p.audio }
+        audio: { numberOfChannels: 1, bitrate: p.audio, forceTranscode: true }
       });
-      if (!conv.isValid) break;
+      /* senza la parte video non e' piu' un video: si lascia com'era */
+      if (!conv.isValid || conv.discardedTracks.some(d => d.track.type === 'video')) break;
       conv.onProgress = x => { if (avanza) avanza((i + x) / (i + 1)); };
       await conv.execute();
       const b = new Blob([target.buffer], { type: 'video/mp4' });
       if (!migliore || b.size < migliore.size) migliore = b;
-      if (b.size <= VIDEO_MAX) break;
+      if (b.size <= LEGGERO_MAX) break;
     } catch (e) { break; }
   }
   return migliore;
+}
+
+/* I video gia' caricati prima, ancora pesanti: si alleggeriscono una volta e
+   si sostituiscono online con lo stesso nome. La copia nel telefono diventa
+   quella leggera. Chi e' gia' stato provato non si riprova: l'elenco sta nel
+   telefono. */
+const LEGGERI_KEY = 'gwork-wk-leggeri-v1';
+const LEGGERO_SOGLIA = 3 * 1024 * 1024;
+const leggeri = (() => { try { const v = JSON.parse(localStorage.getItem(LEGGERI_KEY) || '[]'); return new Set(Array.isArray(v) ? v : []); } catch (e) { return new Set(); } })();
+function segnaLeggero(nome) {
+  leggeri.add(nome);
+  try { localStorage.setItem(LEGGERI_KEY, JSON.stringify([...leggeri].slice(-2000))); } catch (e) { /* niente */ }
+}
+const eVideo = n => /\.(mp4|webm|mov|m4v)$/.test(n);
+async function alleggerisci(nome, blob, dice) {
+  if (!eVideo(nome) || blob.size <= LEGGERO_SOGLIA || leggeri.has(nome)) return blob;
+  const piccolo = await comprimiVideo(blob, x => { if (dice) dice('compressing… ' + Math.min(99, Math.round(x * 100)) + '%'); });
+  segnaLeggero(nome);
+  if (!piccolo || piccolo.size > blob.size * 0.85) return blob;
+  const nuovo = new Blob([piccolo], { type: tipoVideo(nome) });
+  try { await vPut(nome, nuovo); } catch (e) { /* resta quello di prima nel telefono */ }
+  return nuovo;
+}
+
+/* Il passaggio che alleggerisce, una volta, tutti i video del piano: entrano
+   nella coda quelli non ancora provati, e la coda li controlla uno per uno
+   (online pesano piu' di 3 MB? si comprimono e si sostituiscono). Solo con
+   il token: e' chi scrive che puo' sostituirli online. */
+function alleggerisciPiano() {
+  if (!token) return;
+  for (const n of nomiNelPiano()) {
+    if (eVideo(n) && !leggeri.has(n) && daCaricare.indexOf(n) < 0) daCaricare.push(n);
+  }
+  salvaCoda();
+  codaVideo();
 }
 
 async function tieniVideo(f, avanza) {
@@ -1570,6 +1660,7 @@ async function tieniVideo(f, avanza) {
   }
   const est = (f.name.match(/\.(mp4|webm|mov|m4v)$/i) || [0, 'mp4'])[1].toLowerCase();
   const nome = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + '.' + est;
+  segnaLeggero(nome);                       /* gia' compresso qui: non si rifa' */
   try {
     await vPut(nome, new Blob([f], { type: tipoVideo(nome) }));
   } catch (e) {
@@ -2115,7 +2206,7 @@ async function codaVideo() {
     for (let i = 0; i < lista.length; i++) {
       const riga = 'uploading video ' + (i + 1) + ' of ' + lista.length;
       paintSync(riga + '… keep the app open');
-      const ok = await caricaVideo(lista[i], x => paintSync(riga + '… ' + Math.round(x * 100) + '%'));
+      const ok = await caricaVideo(lista[i], x => paintSync(riga + '… ' + Math.round(x * 100) + '%'), t => paintSync(riga + ': ' + t));
       if (ok) {
         daCaricare = daCaricare.filter(x => x !== lista[i]);
         salvaCoda();
@@ -2198,7 +2289,7 @@ disegnaW();
 paintSalva();
 paintSync();
 scaricaVideo();
-setTimeout(codaVideo, 3000);
+setTimeout(alleggerisciPiano, 3000);
 
 /* I video stanno nel telefono per sempre: si chiede al browser di non buttare
    mai i dati di questa app, nemmeno quando la memoria scarseggia. */
