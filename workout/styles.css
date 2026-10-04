@@ -1035,6 +1035,8 @@ body.ed-aperto{overflow:hidden}
 /* copia e incolla di un gruppo */
 .chip.gcopia{background:var(--blu);border-color:var(--blu);color:#fff;font-weight:800}
 .ed-incolla{border-color:var(--blu);color:var(--blu)}
+.ed-incolla-riga{display:flex;gap:var(--s2);margin-top:var(--s2)}
+.ed-incolla-riga .ed-aggiungi{flex:1;min-width:0;margin:0}
 
 /* la tendina delle preparazioni finite */
 .ed-voce.ed-finite{color:var(--muted);font-size:15px;font-weight:700}

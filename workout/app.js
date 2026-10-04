@@ -1786,11 +1786,16 @@ function disegnaGruppi() {
 /* --- copia e incolla di un gruppo ---------------------------------------
    Tenendo premuta l'etichetta di un gruppo nel pannello compare "Copia": il
    gruppo (esercizi, quantita', gruppi dentro e tipo) va negli appunti di
-   questo telefono. Nella pagina di un workout c'e' poi "Incolla". */
+   questo telefono. Nella pagina di un workout c'e' poi "Incolla", e accanto
+   la × che toglie la copia. */
 const APPUNTI_KEY = 'gwork-wk-appunti-gruppo-v1';
 function appuntiGruppo() {
   try { const v = JSON.parse(localStorage.getItem(APPUNTI_KEY) || 'null'); return v && Array.isArray(v.es) && v.es.length ? v : null; }
   catch (e) { return null; }
+}
+/* tolta la copia, Incolla sparisce da tutti i workout */
+function togliAppunti() {
+  try { localStorage.removeItem(APPUNTI_KEY); } catch (e) { /* niente */ }
 }
 function copiaGruppo(sc, via) {
   const d = via.length - 1;
