@@ -1125,3 +1125,22 @@ body.vland .vslot{width:auto;height:auto}
 #wlist .receti{font-size:15px}
 #wlist .grp{padding:18px 24px 6px;font-size:16.5px;font-weight:400;letter-spacing:.08em}
 #wlist .desfrec{font-size:21px}
+
+/* L'elenco dell'editor, a due livelli. Primo: PLAN, EVERY DAY, WORKOUTS e
+   PREPARATIONS, allineati e uguali. Secondo: tutto quello che sta dentro,
+   con lo stesso rientro (Week, le liste, i workout, le preparazioni). I
+   titoli delle sessioni sono una fascia verde al secondo livello, con i loro
+   workout sotto. */
+#edNav .ed-sez,#edNav .ed-sub{
+  margin:var(--s4) var(--s2) var(--s1);padding:0;
+  font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+}
+#edNav .ed-sez:first-of-type{margin-top:var(--s3)}
+#edNav .ed-voce,#edNav .ed-voce.wk,#edNav .ed-voce.piu,#edNav .ed-voce.ed-finite{padding-left:var(--s4)}
+#edNav .ed-voce.ed-lib-link{padding-left:var(--s2)}
+#edNav .ed-finite-box{padding-left:0}
+#edNav .ed-sess{
+  margin:var(--s3) var(--s2) var(--s1) var(--s4);padding:5px var(--s2);
+  border-left:3px solid var(--accent);border-radius:4px;background:var(--surface-2);
+  font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+}

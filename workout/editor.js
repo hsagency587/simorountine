@@ -247,26 +247,49 @@ function edVociFonte(box, ctx) {
     box.appendChild(nuova);
   }
   /* i workout nuovi non hanno un bottone: nascono scrivendoli in un giorno della settimana */
-  box.appendChild(el('p', 'ed-sub', 'Workout'));
+  box.appendChild(el('p', 'ed-sub', 'Workouts'));
   const voceWk = n => edVoceAnteprima(box, n, { pag: 'workout', ctx: ctx, nome: n },
     v.pag === 'workout' && v.ctx === ctx && v.nome === n, 'wk', ctx + ':wk:' + n, pv => edAnteprimaScheda(pv, f.schede[n]));
   /* con piu' workout in un giorno, divisi per sessione: sotto ogni sessione
      i suoi workout */
-  const sess = edWorkoutSessioni(f);
-  if (!sess) { for (const n of edWorkoutElenco(f)) voceWk(n); return; }
-  for (const x of sess) {
-    box.appendChild(el('p', 'ed-sess', x.titolo));
-    for (const n of x.nomi) voceWk(n);
+  const sett = edWorkoutSessioni(f);
+  if (sett.piu) {
+    sett.per.forEach((nomi, s) => {
+      if (!nomi || !nomi.length) return;
+      box.appendChild(el('p', 'ed-sess', ORDINALI[s] + ' session'));
+      for (const n of nomi) voceWk(n);
+    });
+  } else {
+    for (const n of sett.tutti) voceWk(n);
+  }
+  /* gli altri workout: hanno una scheda, ma nessun giorno della settimana li
+     usa. Stanno in una tendina chiusa, in fondo */
+  const altri = edWorkout(f).filter(n => sett.tutti.indexOf(n) < 0);
+  if (altri.length) {
+    const qui = v.pag === 'workout' && v.ctx === ctx && altri.indexOf(v.nome) >= 0 ? ctx + '|' + v.nome : '';
+    if (qui && qui !== edAltriUltimo) edAltriAperti.add(ctx);
+    edAltriUltimo = qui || edAltriUltimo;
+    const aperta = edAltriAperti.has(ctx);
+    const t = el('button', 'ed-voce ed-finite ed-altri', (aperta ? '▾ ' : '▸ ') + 'OTHER WORKOUTS (' + altri.length + ')');
+    t.type = 'button';
+    t.setAttribute('aria-expanded', aperta ? 'true' : 'false');
+    t.addEventListener('click', () => { if (aperta) edAltriAperti.delete(ctx); else edAltriAperti.add(ctx); edElenco(); });
+    box.appendChild(t);
+    if (aperta) for (const n of altri) voceWk(n);
   }
 }
 
-/* I workout di una fonte divisi per sessione: la sessione e' il posto nel
-   giorno (il 1° workout, il 2°...). Un workout fatto in sessioni diverse sta
-   sotto ognuna. In una preparazione contano solo i giorni del periodo. Torna
-   null se nessun giorno ha piu' di un workout: allora l'elenco resta uno. I
-   workout che hanno una scheda ma non sono in nessun giorno vanno in fondo. */
+/* La tendina OTHER WORKOUTS aperta, per fonte (il piano o una preparazione) */
+let edAltriAperti = new Set();
+let edAltriUltimo = '';
+
+/* I workout scritti nei giorni della settimana, per sessione: la sessione e'
+   il posto nel giorno (il 1° workout, il 2°...). Un workout fatto in sessioni
+   diverse sta sotto ognuna. In una preparazione contano solo i giorni del
+   periodo. `piu`: qualche giorno ha piu' di un workout; `tutti`: tutti i
+   workout della settimana, una volta sola. */
 function edWorkoutSessioni(f) {
-  const per = [];
+  const per = [], tutti = [];
   let piu = false;
   f.settimane.forEach((w, i) => {
     const lun = f.base ? null : piuGiorni(lunedi(daChiave(f.prep.dal)), 7 * i);
@@ -278,16 +301,11 @@ function edWorkoutSessioni(f) {
         if (!x || x === MORNING) return;
         if (!per[s]) per[s] = [];
         if (per[s].indexOf(x) < 0) per[s].push(x);
+        if (tutti.indexOf(x) < 0) tutti.push(x);
       });
     });
   });
-  if (!piu) return null;
-  const out = [];
-  per.forEach((nomi, s) => { if (nomi && nomi.length) out.push({ titolo: ORDINALI[s] + ' session', nomi: nomi }); });
-  const messi = new Set([].concat(...per.filter(Boolean)));
-  const fuori = edWorkoutElenco(f).filter(n => !messi.has(n));
-  if (fuori.length) out.push({ titolo: 'Not in the week', nomi: fuori });
-  return out;
+  return { piu: piu, per: per, tutti: tutti };
 }
 
 /* Le preparazioni aperte nell'elenco: la casella le apre e le chiude, il
@@ -518,9 +536,9 @@ function edPagSettimana(box, ctx, si) {
         while (r.length <= i) r.push('');
         let scritto = inp.value.slice(0, 60).trim();
         const basso = scritto.toLowerCase();
-        /* un workout che c'e' gia', scritto con maiuscole diverse, e' quello:
-           niente workout fantasma */
-        const esiste = edWorkout(f).find(n => n.toLowerCase() === basso);
+        /* un workout che c'e' gia', scritto in modo simile, e' quello: niente
+           workout fantasma */
+        const esiste = edSimile(edWorkout(f), scritto);
         if (esiste) { scritto = esiste; inp.value = esiste; }
         r[i] = scritto && (basso === EVERY.toLowerCase() || basso === 'every day' || basso === 'everyday' || basso === 'ogni giorno' || basso === nomeEvery.toLowerCase()) ? MORNING : scritto;
         if (r[i] === MORNING) inp.value = EVERY;
@@ -550,6 +568,41 @@ function edPagSettimana(box, ctx, si) {
 /* Quante settimane del calendario tocca una preparazione. */
 const settimaneDel = p =>
   Math.floor(giorniFra(chiaveData(lunedi(daChiave(p.dal))), chiaveData(lunedi(daChiave(p.al)))) / 7) + 1;
+
+/* Il workout che somiglia a un nome scritto nella settimana: le stesse
+   lettere a parte maiuscole, spazi e segni; oppure una o due lettere diverse
+   (un errore di battitura); oppure le stesse parole accorciate ("priv wing
+   chun", "sat calisthenics"). Se ne somigliano due o piu', nessuno. */
+function edSimile(nomi, scritto) {
+  const k = t => edNorm(t).replace(/[^a-z0-9]+/g, '');
+  const parole = t => edNorm(t).replace(/[^a-z0-9 ]+/g, ' ').split(' ').filter(Boolean);
+  const s = k(scritto);
+  if (!s) return '';
+  const uno = l => l.length === 1 ? l[0] : '';
+  const uguali = nomi.filter(n => k(n) === s);
+  if (uguali.length) return uguali[0];
+  const soglia = s.length < 6 ? 1 : 2;
+  const quasi = uno(nomi.filter(n => edDistanza(k(n), s) <= soglia));
+  if (quasi) return quasi;
+  const ps = parole(scritto);
+  return uno(nomi.filter(n => {
+    const pn = parole(n);
+    return pn.length === ps.length && pn.every((p, i) => p.indexOf(ps[i]) === 0);
+  }));
+}
+
+/* Quante lettere vanno cambiate, aggiunte o tolte per passare da a a b. */
+function edDistanza(a, b) {
+  let prima = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const ora = [i];
+    for (let j = 1; j <= b.length; j++) {
+      ora[j] = Math.min(prima[j] + 1, ora[j - 1] + 1, prima[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prima = ora;
+  }
+  return prima[b.length];
+}
 
 /* --- la tendina sotto un campo --------------------------------------------
    Mentre si scrive, sotto il campo si apre l'elenco delle voci che
