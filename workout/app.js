@@ -126,9 +126,9 @@ function touch() {
   P.cambio();
 }
 
-/* Save: il piano parte con il file della Routine, poi i video in coda. */
-async function salva() {
-  if (P.sporco()) await P.salva();
+/* Publish: il piano dei workout parte con il file della Routine, poi i video in coda. */
+async function pubblica() {
+  await P.pubblica();
   codaVideo();
 }
 
@@ -2036,17 +2036,19 @@ async function derivaChiave(pass, salt) {
     base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
 
-/* Il bottone Save dell'editor dice lo stato del salvataggio della Routine;
-   serve anche per spingere i video rimasti in coda. */
+/* Publish, nell'editor: si accende quando ci sono modifiche ai workout non
+   ancora pubblicate; se l'invio non riesce dice Retry, e il perche' sta
+   nella riga accanto. */
 function paintSalva() {
   const b = $('edSalva');
   if (!b) return;
-  const coda = daCaricare.length && !caricandoVideo && token;
-  b.hidden = !(P.sporco() || coda);
-  b.disabled = P.salvando();
-  b.classList.toggle('err', !!P.errore());
-  /* con un errore il bottone dice solo Retry: il perche' sta nella riga accanto */
-  b.textContent = P.salvando() ? 'Saving…' : P.errore() ? 'Retry' : 'Save';
+  const da = P.daPubblicare();
+  const err = !!P.errore() && P.sporco();
+  b.hidden = false;
+  b.disabled = P.salvando() || (!da && !err);
+  b.classList.toggle('err', err);
+  b.classList.toggle('fatto', !da && !err && !P.salvando());
+  b.textContent = P.salvando() ? 'Publishing…' : err ? 'Retry' : da ? 'Publish' : 'Published ✓';
 }
 
 /* La riga accanto al titolo dell'editor: i video quando caricano, altrimenti
@@ -2055,8 +2057,8 @@ function paintSync(msg, err) {
   if (msg !== undefined) { syncMsg = msg; syncErr = !!err; }
   const s = $('edStato');
   if (!s) return;
-  const errRt = P.errore();
-  const t = syncErr ? syncMsg : errRt ? errRt : syncMsg || (P.sporco() ? 'unsaved changes' : '');
+  const errRt = P.sporco() ? P.errore() : '';
+  const t = syncErr ? syncMsg : errRt ? errRt : syncMsg || (P.daPubblicare() ? 'not published' : '');
   s.textContent = t;
   s.classList.toggle('err', syncErr || !!errRt);
 }
@@ -2127,7 +2129,7 @@ async function codaVideo() {
   if (n) {
     paintSync(n + (n === 1 ? ' video still to upload' : ' videos still to upload') + ': retrying in a minute', true);
     ritentaVideo = setTimeout(codaVideo, 60000);
-  } else if (!P.sporco()) {
+  } else if (!P.daPubblicare()) {
     paintSync('videos uploaded at ' + fmtTime.format(new Date()));
   }
   paintSalva();

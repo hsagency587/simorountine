@@ -1554,7 +1554,7 @@ function validTask(x) {
    con le task ferme, passava per "gia' salvata" e non partiva mai. */
 function fotoDati(x) {
   x = x || {};
-  return JSON.stringify([(x.tasks || []).map(validTask), WK.contenuto(wkDi(x)),
+  return JSON.stringify([(x.tasks || []).map(validTask), WK.contenuto(wkFile(x)),
                          validDieta(x.dieta), validLimiti(x.limiti), schedeDieta(x),
                          validRoutine(x.routine), validClienti(x.clienti)]);
 }
@@ -1584,12 +1584,27 @@ function schedeDieta(x) {
   return out;
 }
 
-/* Il piano dei workout al suo posto, le schede della dieta al loro. */
+/* Il piano dei workout al suo posto, le schede della dieta al loro.
+
+   Del piano il telefono tiene due copie: `wk`, quella su cui si lavora, che
+   l'app e la giornata mostrano, e `wkPub`, quella pubblicata, l'unica che
+   va nel file. Le modifiche ai workout restano nel telefono finche' non si
+   preme Publish nell'editor: i salvataggi di task, routine e dieta scrivono
+   il piano pubblicato, e cosi' un workout cambiato non fa un commit a ogni
+   ritocco. */
 function sistemaWk(x) {
   x.wk = wkDi(x);
+  x.wkPub = x.wkPub && typeof x.wkPub === 'object' ? WK.valida(x.wkPub) : WK.valida(x.wk);
   x.schede = schedeDieta(x);
   delete x.workout;
 }
+
+/* Il piano come sta nel file: quello pubblicato, se il telefono lo tiene;
+   per un file letto online, quello che c'e' scritto. */
+const wkFile = x => x.wkPub && typeof x.wkPub === 'object' ? WK.valida(x.wkPub) : wkDi(x);
+
+/* Ci sono modifiche ai workout non ancora pubblicate? */
+const wkDaPubblicare = () => WK.contenuto(tstore.wk) !== WK.contenuto(tstore.wkPub);
 
 /* Un limite e' due testi liberi: a sinistra la cosa, a destra il limite.
    Nessun tipo da scegliere: si scrive come si vuole, e la forma resta la stessa
@@ -2411,6 +2426,26 @@ function wkScorri(y, fine) {
   wYf = y;
 }
 
+/* Una modifica ai workout: resta nel telefono, la giornata la mostra subito,
+   e nell'editor si accende Publish. Non accende Save: non e' un salvataggio
+   della Routine. */
+function wkCambio() {
+  saveLocal();
+  render();
+  const a = wkApp();
+  if (a) a.paintSalva();
+}
+
+/* Publish: il piano su cui si lavora diventa quello pubblicato, e il file
+   parte in un commit solo, con tutto il resto della Routine. */
+async function pubblicaWk() {
+  if (wkDaPubblicare()) {
+    tstore.wkPub = WK.valida(tstore.wk);
+    touch();
+  }
+  if (tstore.dirty) await pushTasks();
+}
+
 /* Il ponte: tutto quello che l'app della cornice puo' chiedere alla Routine.
    Il piano si legge sempre da qui, mai una copia: `tstore` cambia oggetto
    quando arriva il file online o quando un'altra copia scrive nel telefono. */
@@ -2420,8 +2455,9 @@ window.ponteWk = {
   chiave: () => chiave,
   /* una modifica al piano: si segna, compare Save, e la giornata riscrive
      cosa si fa nei workout */
-  cambio: () => { touch(); render(); },
-  salva: () => pushTasks(),
+  cambio: () => wkCambio(),
+  pubblica: () => pubblicaWk(),
+  daPubblicare: () => wkDaPubblicare(),
   sporco: () => !!tstore.dirty,
   salvando: () => salvando,
   errore: () => salvaErr,
@@ -4105,7 +4141,9 @@ async function pullTasks() {
   }
 
   tstore.tasks = remote;
-  tstore.wk = piano;
+  /* i workout non ancora pubblicati restano quelli del telefono */
+  if (!wkDaPubblicare()) tstore.wk = WK.valida(piano);
+  tstore.wkPub = piano;
   delete tstore.workout;
   tstore.dieta = dieta;
   tstore.limiti = limiti;
@@ -4125,7 +4163,8 @@ async function pullTasks() {
 /* Gli esercizi gia' scritti nell'app dei workout (nome, descrizione, video)
    entrano nella libreria dell'editor, una volta sola. Si fa solo dopo aver
    letto il file online: cosi' l'aggiunta parte sopra l'ultima versione, e
-   non sopra una copia vecchia del telefono. Poi si salva come ogni modifica. */
+   non sopra una copia vecchia del telefono. Poi va pubblicata come ogni
+   modifica ai workout. */
 let importando = false;
 async function importaEsercizi() {
   if (tstore.wk.importati || importando) return;
@@ -4136,7 +4175,7 @@ async function importaEsercizi() {
     const righe = await r.json();
     if (tstore.wk.importati) return;
     WK.importa(tstore.wk, righe);
-    touch();
+    wkCambio();
     wkRicarica();
   } catch (e) {
     /* niente rete o file rotto: si riprova alla prossima lettura */
@@ -4159,7 +4198,7 @@ async function pushTasks(opts) {
   const sent = fotoDati(tstore);
   const n = tstore.tasks.filter(x => !x.giorno).length;
   /* con la chiave impostata il file parte chiuso; senza, in chiaro come prima */
-  const testo = JSON.stringify({ tasks: tstore.tasks, wk: WK.daFile(tstore.wk),
+  const testo = JSON.stringify({ tasks: tstore.tasks, wk: WK.daFile(tstore.wkPub),
                                  dieta: tstore.dieta, limiti: tstore.limiti,
                                  schede: tstore.schede,
                                  routine: tstore.routine,

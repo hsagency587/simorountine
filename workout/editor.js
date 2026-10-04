@@ -1,12 +1,12 @@
 'use strict';
 
 /* =========================================================================
-   L'editor: una schermata a parte, solo per chi ha il token. A sinistra
+   L'editor: una schermata a parte. A sinistra
    l'elenco di tutto quello che si scrive (il piano di sempre e le
    preparazioni), a destra i campi di quello che si e' scelto. Sul telefono
    prima l'elenco, poi la pagina, con la freccia per tornare indietro.
-   Ogni cambio resta subito nel telefono; chiudendo l'editor si salva su
-   GitHub da solo.
+   Ogni cambio resta subito nel telefono; su GitHub va solo con Publish,
+   insieme al file della Routine.
    ========================================================================= */
 
 const edBox = $('ed');
@@ -75,8 +75,8 @@ function edApri() {
   edRidisegna();
 }
 
-/* Chiudendo si salva da solo, se c'e' qualcosa da salvare: lo salva la
-   Routine, nel suo file. */
+/* Chiudendo non parte niente: le modifiche restano nel telefono finche'
+   non si preme Publish. */
 function edChiudi(daIndietro) {
   if (edBox.hidden) return;
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
@@ -85,14 +85,13 @@ function edChiudi(daIndietro) {
   edLibera();
   P.editor(false);
   paintW();
-  salva();
   if (!daIndietro && history.state && history.state.ed) history.back();
 }
 
 $('edChiudi').addEventListener('click', () => edChiudi(false));
 $('edSalva').addEventListener('click', () => {
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-  salva();
+  pubblica();
 });
 
 /* Il tasto indietro del telefono: dalla pagina all'elenco, dall'elenco fuori. */
