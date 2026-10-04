@@ -901,3 +901,21 @@ html{zoom:.79}
 .descbox{position:fixed;inset:0;width:auto;max-width:none;height:auto;max-height:none}
 body.vland .vslot{width:auto;height:auto}
 .chiusura{width:min(480px,calc(100vw / .79 - 2 * var(--s3)))}
+
+/* La pagina della tendina, come la dieta: stesse misure delle tabelle della
+   Routine. Alla pagina si aggiunge uno zoom suo (0.79 x 0.844 = 2/3), e le
+   tabelle prendono le regole della Routine: nella tendina 1px qui vale 2/3 di
+   pixel, quindi le misure sono quelle della Routine per 1,5. Editor e finestre
+   restano allo zoom di prima: si scrive e si legge col dito. */
+#wlist{zoom:.844}
+#wlist .tab{font-size:18px}
+#wlist .tabc{padding:9px 12px}
+#wlist .tabr.capo .tabc,
+#wlist .tabc.eti,
+#wlist .tab-i .tabc.eti{font-size:15px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+#wlist .tabr.oggi .tabc.eti{color:var(--accent)}
+#wlist .tabr.schcapo .tabc{padding-top:4.5px;padding-bottom:4.5px;font-size:15px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+#wlist .tabr.capo .tabc.val{color:var(--accent);text-transform:none;letter-spacing:0}
+#wlist .receti{font-size:15px}
+#wlist .grp{padding:18px 24px 6px;font-size:16.5px;font-weight:400;letter-spacing:.08em}
+#wlist .desfrec{font-size:21px}
