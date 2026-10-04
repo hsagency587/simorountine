@@ -56,8 +56,10 @@
       "desc": "Carica video e aggiungi descrizioni\n+ scheda zia",
       "rank": "A",
       "cliente": null,
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-10-04",
+      "gws": [
+        4
+      ],
       "creata": "2026-09-08T20:21:51.433Z"
     },
     {
@@ -225,8 +227,10 @@
       "desc": "",
       "rank": "C",
       "cliente": null,
-      "giorno": null,
-      "gws": null
+      "giorno": "2026-10-04",
+      "gws": [
+        4
+      ]
     },
     {
       "id": "tmusc6dmxfeab",
@@ -256,10 +260,22 @@
       "nome": "Record meta ads",
       "desc": "A novara",
       "rank": "A",
-      "cliente": null,
+      "cliente": "hs-agency",
       "giorno": "2026-10-05",
       "gws": [
         0,
+        1
+      ]
+    },
+    {
+      "id": "tmutnsn84kd2r",
+      "creata": "2026-10-04T10:09:26.932Z",
+      "nome": "Check foto fornitori",
+      "desc": "",
+      "rank": "B",
+      "cliente": "di-nucci",
+      "giorno": "2026-10-04",
+      "gws": [
         1
       ]
     }
