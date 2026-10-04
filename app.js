@@ -1461,11 +1461,9 @@ dlg.addEventListener('close', () => {
 let tstore = readStore(TASKS_KEY);
 if (!Array.isArray(tstore.tasks)) tstore = { tasks: [], sha: null, dirty: false, known: [] };
 if (!Array.isArray(tstore.known)) tstore.known = [];
-/* Il piano dei workout: due caselle per giorno della settimana, scritte a mano.
-   Non ha date: e' un'abitudine, e torna ogni settimana finche' non si cambia. */
-/* Piano, dieta e limiti: la forma buona la danno le tre funzioni piu' sotto,
-   chiamate appena esistono. Fino ad allora bastano tre contenitori vuoti. */
-if (!tstore.workout || typeof tstore.workout !== 'object') tstore.workout = {};
+/* Dieta e limiti: la forma buona la danno le funzioni piu' sotto, chiamate
+   appena esistono. Fino ad allora bastano due contenitori vuoti. Il piano dei
+   workout sta in `wk`, e la sua forma viene da workout/dati.js. */
 if (!tstore.dieta || typeof tstore.dieta !== 'object') tstore.dieta = {};
 if (!Array.isArray(tstore.limiti)) tstore.limiti = [];
 /* Gli integratori stanno fra le schede, come l'attivita' del mattino: stesso
@@ -1476,8 +1474,8 @@ if (Array.isArray(tstore.integratori) && tstore.integratori.length) {
   tstore.vecchiInt = tstore.integratori;
 }
 delete tstore.integratori;
-/* Le schede: per ogni allenamento diverso scritto nel piano, gli esercizi e il
-   recupero. La chiave e' il nome dell'allenamento. */
+/* Le schede della dieta: gli integratori e le info. Quelle dei workout stanno
+   nel piano dei workout. */
 if (!tstore.schede || typeof tstore.schede !== 'object') tstore.schede = {};
 
 let archivio = readStore(ARCHIVIO_KEY);
@@ -1556,23 +1554,41 @@ function validTask(x) {
    con le task ferme, passava per "gia' salvata" e non partiva mai. */
 function fotoDati(x) {
   x = x || {};
-  return JSON.stringify([(x.tasks || []).map(validTask), validWorkout(x.workout),
-                         validDieta(x.dieta), validLimiti(x.limiti), validSchede(x.schede),
+  return JSON.stringify([(x.tasks || []).map(validTask), WK.contenuto(wkDi(x)),
+                         validDieta(x.dieta), validLimiti(x.limiti), schedeDieta(x),
                          validRoutine(x.routine), validClienti(x.clienti)]);
 }
 const sameDati = (a, b) => fotoDati(a) === fotoDati(b);
 
-/* Il piano che arriva dal file: solo i sette giorni, due caselle, testo corto.
-   Le caselle vuote non si scrivono, cosi' un piano vuoto e' un oggetto vuoto. */
-function validWorkout(w) {
+/* Il piano dei workout: quello dell'app che sta nella tendina Workout, con le
+   sue settimane, le preparazioni, le schede, le liste di tutti i giorni e la
+   libreria degli esercizi. Nel file sta alla voce `wk`.
+
+   Prima la Routine aveva un piano suo: due caselle per giorno (`workout`) e
+   le schede mescolate a quelle della dieta (`schede`). Un file o un telefono
+   di prima si converte qui, la prima volta che lo si legge, senza cambiare
+   niente di quello che c'e' scritto: stessi workout negli stessi giorni,
+   stesse schede. Gli integratori e le info restano alla dieta. */
+const SCHEDE_DIETA = ['Supplements', 'Info'];
+
+function wkDi(x) {
+  if (x.wk && typeof x.wk === 'object') return WK.valida(x.wk);
+  return WK.migra(x.workout, x.schede, SCHEDE_DIETA);
+}
+
+/* Le schede della dieta, e solo quelle. */
+function schedeDieta(x) {
+  const s = validSchede(x.schede);
   const out = {};
-  if (!w || typeof w !== 'object') return out;
-  for (let g = 0; g < 7; g++) {
-    const r = Array.isArray(w[g]) ? w[g] : [];
-    const a = [0, 1].map(i => String(r[i] == null ? '' : r[i]).slice(0, 60).trim());
-    if (a[0] || a[1]) out[g] = a;
-  }
+  for (const k of SCHEDE_DIETA) if (s[k]) out[k] = s[k];
   return out;
+}
+
+/* Il piano dei workout al suo posto, le schede della dieta al loro. */
+function sistemaWk(x) {
+  x.wk = wkDi(x);
+  x.schede = schedeDieta(x);
+  delete x.workout;
 }
 
 /* Un limite e' due testi liberi: a sinistra la cosa, a destra il limite.
@@ -1726,10 +1742,9 @@ function salvaRoutineDate() {
    che arriva dal file: cosi' un piano scritto da una versione precedente si
    converte all'apertura invece di restare a meta'. Sta qui e non piu' in alto
    perche' le tre funzioni hanno bisogno di PASTI e di newId. */
-tstore.workout = validWorkout(tstore.workout);
 tstore.dieta   = validDieta(tstore.dieta);
 tstore.limiti  = validLimiti(tstore.limiti);
-tstore.schede  = validSchede(tstore.schede);
+sistemaWk(tstore);
 tstore.routine = validRoutine(tstore.routine);
 tstore.clienti = validClienti(tstore.clienti);
 applicaClienti(tstore.clienti);
@@ -1760,11 +1775,10 @@ if (Array.isArray(tstore.vecchiInt)) {
   saveLocal();
 }
 
-/* Cosa si fa in quel workout, quel giorno: la casella del piano, se c'e'. */
+/* Cosa si fa in quel workout, quel giorno: la casella del piano che vale in
+   quella data (una preparazione in corso vince sul piano di sempre). */
 function workoutDi(k, slot) {
-  const g = new Date(k + 'T00:00:00').getDay();
-  const r = tstore.workout[g];
-  return r && r[slot] ? r[slot] : '';
+  return WK.workoutDi(tstore.wk, k, slot);
 }
 
 /* Ogni scrittura nel telefono lascia l'ora. Serve a capire chi e' piu' recente
@@ -1789,10 +1803,9 @@ function ripescaLocale() {
   if (!(v.stamp > (tstore.stamp || 0))) return false;
   tstore = v;
   if (!Array.isArray(tstore.known)) tstore.known = [];
-  tstore.workout = validWorkout(tstore.workout);
   tstore.dieta   = validDieta(tstore.dieta);
   tstore.limiti  = validLimiti(tstore.limiti);
-  tstore.schede  = validSchede(tstore.schede);
+  sistemaWk(tstore);
   tstore.routine = validRoutine(tstore.routine);
   tstore.clienti = validClienti(tstore.clienti);
   applicaClienti(tstore.clienti);
@@ -1806,6 +1819,7 @@ function sincronizzaLocale() {
   paintDrawer();
   paintSalva();
   if ($('wdrawer').classList.contains('open')) paintW();
+  wkRicarica();
   return true;
 }
 
@@ -1912,7 +1926,7 @@ function salvaMostra() {
 }
 /* i campi per scrivere si vedono solo con l'interruttore Edit acceso: di norma
    il pannello e' una cosa da leggere */
-const modifica = () => wTab === 'w' ? mostra.mw : mostra.md;
+const modifica = () => mostra.md;
 
 const CALENDAR_KEY = 'gwork-calendar-v1';
 let calendar = (() => {
@@ -2217,55 +2231,57 @@ function paintDrawer() {
 
    Per non aprirlo per sbaglio mentre si scorre l'elenco, il movimento deve
    essere lungo e deciso: almeno 70 pixel, e almeno una volta e mezza piu'
-   orizzontale che verticale. Con una finestra aperta il gesto e' spento. */
-(function () {
-  const CORSA = 70;               /* quanto deve correre il dito per contare */
-  const DECISO = 1.5;             /* quanto dev'essere piu' orizzontale che verticale */
-  let x0 = 0, y0 = 0, valido = false;
+   orizzontale che verticale. Con una finestra aperta il gesto e' spento.
 
-  const aperto  = () => $('drawer').classList.contains('open');
-  const apertoW = () => $('wdrawer').classList.contains('open');
+   Sopra l'app dei workout i tocchi restano nella sua cornice: e' lei a passare
+   qui l'inizio e la fine del gesto, con le sue coordinate. Conta solo quanto
+   corre il dito, quindi vanno bene lo stesso. */
+const CORSA = 70;               /* quanto deve correre il dito per contare */
+const DECISO = 1.5;             /* quanto dev'essere piu' orizzontale che verticale */
+let gx0 = 0, gy0 = 0, gValido = false;
 
-  document.addEventListener('touchstart', ev => {
-    if (ev.touches.length !== 1 || document.querySelector('dialog[open]')) {
-      valido = false;
-      return;
-    }
-    /* La fila delle pastiglie scorre di lato per conto suo: li' dentro il dito
-       sposta le pastiglie, non cambia sezione. */
-    if (ev.target.closest && ev.target.closest('.chiprow')) {
-      valido = false;
-      return;
-    }
-    x0 = ev.touches[0].clientX;
-    y0 = ev.touches[0].clientY;
-    valido = true;
-  }, { passive: true });
+function gestoInizio(x, y, ok) {
+  /* con l'editor dei workout aperto il dito serve all'editor */
+  gValido = ok && !$('wdrawer').classList.contains('ed-largo');
+  gx0 = x;
+  gy0 = y;
+}
 
-  document.addEventListener('touchend', ev => {
-    if (!valido) return;
-    valido = false;
-    const dx = ev.changedTouches[0].clientX - x0;
-    const dy = ev.changedTouches[0].clientY - y0;
-    if (Math.abs(dx) < CORSA || Math.abs(dx) < Math.abs(dy) * DECISO) return;
-    /* Verso sinistra il Menu Task, verso destra il piano. Col Menu Task aperto,
-       il gesto contrario lo chiude. Col piano aperto il gesto scorre fra le due
-       sezioni, e solo dall'ultima chiude: Workout -> Diet -> chiuso, e
-       all'indietro Diet -> Workout. */
-    if (aperto()) { if (dx > 0) openMenu(false); return; }
-    if (apertoW()) {
-      if (dx < 0) { if (wTab === 'w') setTab('d'); else openW(false); }
-      else if (wTab === 'd') setTab('w');
-      return;
-    }
-    if (dx < 0) openMenu(true); else openW(true);
-  }, { passive: true });
-})();
+function gestoFine(x, y) {
+  if (!gValido) return;
+  gValido = false;
+  const dx = x - gx0;
+  const dy = y - gy0;
+  if (Math.abs(dx) < CORSA || Math.abs(dx) < Math.abs(dy) * DECISO) return;
+  const aperto  = $('drawer').classList.contains('open');
+  const apertoW = $('wdrawer').classList.contains('open');
+  /* Verso sinistra il Menu Task, verso destra il piano. Col Menu Task aperto,
+     il gesto contrario lo chiude. Col piano aperto il gesto scorre fra le due
+     sezioni, e solo dall'ultima chiude: Workout -> Diet -> chiuso, e
+     all'indietro Diet -> Workout. */
+  if (aperto) { if (dx > 0) openMenu(false); return; }
+  if (apertoW) {
+    if (dx < 0) { if (wTab === 'w') setTab('d'); else openW(false); }
+    else if (wTab === 'd') setTab('w');
+    return;
+  }
+  if (dx < 0) openMenu(true); else openW(true);
+}
 
-/* ------------------------------------------------ piano dei workout ---- */
+document.addEventListener('touchstart', ev => {
+  const t = ev.touches[0];
+  /* La fila delle pastiglie scorre di lato per conto suo: li' dentro il dito
+     sposta le pastiglie, non cambia sezione. */
+  gestoInizio(t.clientX, t.clientY,
+              ev.touches.length === 1 && !document.querySelector('dialog[open]')
+              && !(ev.target.closest && ev.target.closest('.chiprow')));
+}, { passive: true });
 
-const GIORNI = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const GIORNI2 = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+document.addEventListener('touchend', ev => {
+  gestoFine(ev.changedTouches[0].clientX, ev.changedTouches[0].clientY);
+}, { passive: true });
+
+/* ------------------------------------------- workout e dieta: la tendina ---- */
 
 /* Una riga di tabella: le celle in ordine, ognuna con le sue classi. */
 function tabRiga(celle, cls) {
@@ -2287,10 +2303,12 @@ function aggiornaCella(k, v) {
   c.classList.toggle('vuota', !v);
 }
 
-/* Il pannello ha due sezioni: il piano dei workout e la dieta. */
+/* Il pannello ha due sezioni: i workout e la dieta. */
 let wTab = 'w';
 
 function openW(on) {
+  /* chiudendo con l'editor dei workout aperto, l'editor si chiude e salva */
+  if (!on) { const a = wkApp(); if (a && a.edAperto()) a.edChiudi(); }
   $('wdrawer').classList.toggle('open', on);
   $('velo').hidden = !on;
   document.body.classList.toggle('menu-open', on);
@@ -2298,6 +2316,7 @@ function openW(on) {
 }
 
 function setTab(t) {
+  if (t !== 'w') { const a = wkApp(); if (a && a.edAperto()) a.edChiudi(); }
   wTab = t;
   $('tabW').classList.toggle('on', t === 'w');
   $('tabD').classList.toggle('on', t === 'd');
@@ -2308,11 +2327,14 @@ function setTab(t) {
   riportaSu();
 }
 
+/* Nella sezione Workout il bottone apre l'editor dell'app; nella dieta
+   accende e spegne i campi, come sempre. */
 function paintSwitch() {
   $('wMostra').checked = wTab === 'w' ? mostra.w : mostra.d;
   const b = $('wMod');
-  b.textContent = modifica() ? 'done' : 'edit';
-  b.classList.toggle('on', modifica());
+  const on = wTab === 'd' && modifica();
+  b.textContent = wTab === 'w' ? 'editor' : on ? 'done' : 'edit';
+  b.classList.toggle('on', on);
 }
 
 $('wMostra').addEventListener('change', e => {
@@ -2322,8 +2344,8 @@ $('wMostra').addEventListener('change', e => {
 });
 
 $('wMod').addEventListener('click', () => {
-  const v = !modifica();
-  if (wTab === 'w') mostra.mw = v; else mostra.md = v;
+  if (wTab === 'w') { const a = wkApp(); if (a) a.edApri(); return; }
+  mostra.md = !mostra.md;
   salvaMostra();
   paintSwitch();
   paintW();
@@ -2349,94 +2371,66 @@ function paintW() {
    com'era, e chi nasconde la riga degli interruttori. */
 let wY = 0;
 
-/* E dove sta la fila delle pastiglie, che scorre di lato per conto suo:
-   spegnerne una la rifa' da capo, e senza questo tornerebbe alla prima. */
-let chipX = 0;
-
-/* Sette giorni, due caselle per giorno. La durata di ogni casella si legge
-   dalla routine di quel giorno: il secondo workout del wing chun e' piu' lungo
-   di quello degli altri giorni, e la tabella lo dice invece di fingere. */
+/* La dieta si disegna qui; i workout sono l'app nella cornice, che si carica
+   la prima volta che serve e da li' in poi resta viva. */
 function disegnaW() {
-  if (wTab === 'd') return paintD();
-  const box = $('wlist');
-  box.textContent = '';
-  const t0 = today();
-  const oggi = t0.getDay();
-
-  /* o la tabella, per leggere la settimana in un colpo, o i campi per
-     scriverla: mai tutte e due insieme */
-  if (!modifica()) {
-    const tab = el('div', 'tab tab-w');
-    tab.appendChild(tabRiga([{ t: '' }, { t: '1st' }, { t: '2nd' }], 'capo'));
-    for (const g of [1, 2, 3, 4, 5, 6, 0]) {
-      const r = tstore.workout[g] || [];
-      tab.appendChild(tabRiga([
-        { t: GIORNI2[g], cls: 'eti' },
-        { t: r[0] || '—', cls: r[0] ? '' : 'vuota', k: 'w' + g + '-0' },
-        { t: r[1] || '—', cls: r[1] ? '' : 'vuota', k: 'w' + g + '-1' }
-      ], g === oggi ? 'oggi' : ''));
-    }
-    box.appendChild(tab);
-    paintMorning(box);
-    paintOggi(box);
-    paintSchede(box);
-    return;
-  }
-  /* Il piano e' generico, non parte da oggi: da lunedi' a domenica, sempre
-     uguale. Per gli orari serve pero' una data vera con quel giorno della
-     settimana, e la si pesca nei sette giorni davanti. */
-  for (const g of [1, 2, 3, 4, 5, 6, 0]) {
-    let d = t0;
-    for (let n = 0; n < 7 && d.getDay() !== g; n++) d = shift(t0, n + 1);
-    const k = dayKey(d);
-    box.appendChild(el('p', 'wgiorno', GIORNI[g]));
-    const r = routineFor(k);
-    for (const slot of [0, 1]) {
-      const t = r.find(v => v.slot === slot);
-      const ora = t ? t.t.split('|')[0].trim() : '';
-      const capo = el('p', 'wcapo', (slot === 0 ? '1st workout' : '2nd workout'));
-      capo.appendChild(el('span', 'dora', '  ' + ora + ' \u00b7 ' + (t && t.dur || DUR_WORKOUT[slot])));
-      box.appendChild(capo);
-      const row = el('div', 'wrow');
-      const inp = el('input', 'wcampo');
-      inp.type = 'text';
-      inp.maxLength = 60;
-      inp.dataset.g = g;
-      inp.dataset.slot = slot;
-      inp.value = (tstore.workout[g] || [])[slot] || '';
-      inp.placeholder = 'What you do';
-      row.appendChild(inp);
-      box.appendChild(row);
-    }
-  }
-  paintSchede(box);
+  const w = wTab === 'w';
+  $('wlist').hidden = w;
+  $('wframe').hidden = !w;
+  if (!w) return paintD();
+  const f = $('wframe');
+  if (!f.getAttribute('src')) f.src = 'workout/index.html';
+  const a = wkApp();
+  if (a) a.paintW();
 }
 
-/* Gli allenamenti diversi scritti nel piano, nell'ordine in cui compaiono.
-   Non si scrivono qui: si leggono dalle quattordici caselle. */
-function allenamenti() {
-  const out = [];
-  for (const g of [1, 2, 3, 4, 5, 6, 0]) {
-    for (const v of (tstore.workout[g] || [])) {
-      if (v && out.indexOf(v) < 0) out.push(v);
-    }
-  }
-  return out;
+/* ------------------------------------------- l'app dei workout, incorporata --- */
+
+/* L'app della cornice, quando e' pronta; prima null. */
+function wkApp() {
+  const f = document.getElementById('wframe');
+  try { return (f && f.contentWindow && f.contentWindow.wkApi) || null; } catch (e) { return null; }
 }
 
-/* Le frecce ai lati della fila: spariscono se ci sta tutto, e quella del
-   capolinea si spegne quando da quella parte non c'e' piu' niente. */
-function frecceChip(riga) {
-  const f = riga.querySelector('.chipsch');
-  const sx = riga.querySelector('[data-chipscorri="-1"]');
-  const dx = riga.querySelector('[data-chipscorri="1"]');
-  const scorre = f.scrollWidth > f.clientWidth + 1;
-  sx.hidden = !scorre;
-  dx.hidden = !scorre;
-  if (!scorre) return;
-  sx.classList.toggle('spenta', f.scrollLeft <= 1);
-  dx.classList.toggle('spenta', f.scrollLeft >= f.scrollWidth - f.clientWidth - 1);
+/* Il piano e' cambiato sotto l'app (letto online, o scritto da un'altra copia
+   della Routine): l'app si ridisegna sul piano nuovo. */
+function wkRicarica() {
+  const a = wkApp();
+  if (a) a.ricarica();
 }
+
+/* Scorrendo l'app in giu' la riga della spunta si ritira, come per la dieta;
+   risalendo torna. In fondo alla pagina non si muove. */
+let wYf = 0;
+function wkScorri(y, fine) {
+  const sw = $('wdrawer').querySelector('.wswitch');
+  if (!fine) {
+    if (y > wYf + 4 && y > 24) sw.classList.add('via');
+    else if (y < wYf - 4 || y <= 4) sw.classList.remove('via');
+  }
+  wYf = y;
+}
+
+/* Il ponte: tutto quello che l'app della cornice puo' chiedere alla Routine.
+   Il piano si legge sempre da qui, mai una copia: `tstore` cambia oggetto
+   quando arriva il file online o quando un'altra copia scrive nel telefono. */
+window.ponteWk = {
+  wk: () => tstore.wk,
+  token: () => token,
+  chiave: () => chiave,
+  /* una modifica al piano: si segna, compare Save, e la giornata riscrive
+     cosa si fa nei workout */
+  cambio: () => { touch(); render(); },
+  salva: () => pushTasks(),
+  sporco: () => !!tstore.dirty,
+  salvando: () => salvando,
+  errore: () => salvaErr,
+  /* l'editor aperto: la tendina a tutto schermo */
+  editor: on => { $('wdrawer').classList.toggle('ed-largo', !!on); if (on) $('wdrawer').querySelector('.wswitch').classList.remove('via'); },
+  scorri: (y, fine) => wkScorri(y, fine),
+  gestoInizio: (x, y, ok) => gestoInizio(x, y, ok),
+  gestoFine: (x, y) => gestoFine(x, y)
+};
 
 /* Quale scheda si sta scrivendo, o null: una per volta. */
 let scheda = null;
@@ -2703,119 +2697,6 @@ function spostaScelti(nome, dir) {
   paintW();
 }
 
-/* L'attivita' del mattino ha una scheda sua, che non viene dal piano: il nome
-   e' fisso, e si riempie come le altre. Sta sotto il piano e sopra i workout
-   del giorno, senza scritta sopra e senza pastiglia. */
-const MORNING = 'Morning activity';
-
-function paintMorning(box) {
-  const sc = tstore.schede[MORNING] || { es: [], rec: '' };
-  const aperta = scheda === MORNING;
-  const b = el('button', 'schbtn', aperta ? 'done' : 'edit');
-  b.type = 'button';
-  b.dataset.scheda = MORNING;
-  const tab = tabScheda(MORNING, sc, b);
-  /* niente recupero, qui: la mattina non si recupera fra un esercizio e
-     l'altro. Vuota resta comunque una tabella, col trattino, altrimenti non si
-     vede dove toccare per riempirla. */
-  box.appendChild(aperta ? campiScheda(MORNING, sc, tab, true)
-                         : righeScheda(tab, { es: sc.es, rec: '' }, true, MORNING));
-}
-
-/* Quello che si fa oggi, tirato fuori senza aprire niente: le due schede del
-   giorno, ma solo quelle che hanno davvero degli esercizi scritti. Stanno sotto
-   il piano e sopra l'interruttore WORKOUTS. */
-function paintOggi(box) {
-  const r = tstore.workout[today().getDay()] || [];
-  let capo = false;
-  for (const slot of [0, 1]) {
-    const nome = r[slot];
-    if (!nome) continue;
-    const sc = tstore.schede[nome];
-    if (!sc || (!sc.es.length && !sc.rec)) continue;
-    /* la scritta ci va solo se sotto c'e' davvero qualcosa */
-    if (!capo) { box.appendChild(el('p', 'grp', 'TODAY WORKOUTS')); capo = true; }
-    const t = tabScheda(nome, sc, null);
-    t.classList.add('tab-oggi');       /* il nome, qui, si scrive in verde */
-    box.appendChild(righeScheda(t, sc, true, nome));
-  }
-}
-
-/* Le schede, sotto la tabella del piano. Chiuse si leggono come tabelle; con il
-   loro bottone si aprono i campi, e ogni esercizio e' due testi liberi. */
-function paintSchede(box) {
-  const apri = el('button', 'grp grpcli grproot' + (mostra.sch ? ' open' : ''));
-  apri.type = 'button';
-  apri.dataset.schroot = '1';
-  apri.setAttribute('aria-expanded', mostra.sch ? 'true' : 'false');
-  apri.appendChild(el('span', 'grpfrec', mostra.sch ? '\u25be' : '\u25b8'));
-  apri.appendChild(el('span', 'grpnome', 'WORKOUTS'));
-  box.appendChild(apri);
-  if (!mostra.sch) return;
-
-  const nomi = allenamenti();
-  if (!nomi.length) {
-    box.appendChild(el('p', 'vuoto', 'Nothing in the plan yet'));
-    return;
-  }
-
-  /* Non tutti gli allenamenti del piano hanno esercizi da scrivere: il wing
-     chun, per dire, non ne ha nessuno. Le pastiglie qui sopra dicono quali
-     schede si vedono; toccarne una la toglie o la rimette, e la scelta resta
-     nel telefono senza toccare il file. */
-  const riga = el('div', 'chiprow');
-  const sx = el('button', 'chipfrec', '\u2039');
-  sx.type = 'button'; sx.dataset.chipscorri = '-1';
-  sx.setAttribute('aria-label', 'Scroll the workouts left');
-  const chips = el('div', 'chips chipsch');
-  for (const nome of nomi) {
-    const acceso = mostra.off.indexOf(nome) < 0;
-    const c = el('button', 'chip chipw' + (acceso ? ' sel' : ''), nome);
-    c.type = 'button';
-    c.dataset.chipsch = nome;
-    c.setAttribute('aria-pressed', acceso ? 'true' : 'false');
-    chips.appendChild(c);
-  }
-  const dx = el('button', 'chipfrec', '\u203a');
-  dx.type = 'button'; dx.dataset.chipscorri = '1';
-  dx.setAttribute('aria-label', 'Scroll the workouts right');
-  riga.appendChild(sx); riga.appendChild(chips); riga.appendChild(dx);
-  box.appendChild(riga);
-  /* la fila resta dove l'aveva lasciata il dito, non torna alla prima pastiglia */
-  chips.scrollLeft = chipX;
-  chips.addEventListener('scroll', () => {
-    chipX = chips.scrollLeft;
-    frecceChip(riga);          /* al capolinea la freccia si spegne */
-  }, { passive: true });
-  frecceChip(riga);
-
-  const visti = nomi.filter(x => mostra.off.indexOf(x) < 0);
-  if (!visti.length) {
-    box.appendChild(el('p', 'vuoto', 'No workout chosen'));
-    return;
-  }
-
-  for (const nome of visti) {
-    const sc = tstore.schede[nome] || { es: [], rec: '' };
-    const apertaSc = scheda === nome;
-
-    /* Il nome della scheda sta nella riga grigia in alto della sua tabella,
-       come 1st e 2nd nel piano. Il bottone per modificarla sta in fondo alla
-       stessa riga. */
-    const b = el('button', 'schbtn', apertaSc ? 'done' : 'edit');
-    b.type = 'button';
-    b.dataset.scheda = nome;
-    const tab = tabScheda(nome, sc, b);
-
-    if (!apertaSc) {
-      box.appendChild(righeScheda(tab, sc, false, nome));
-      continue;
-    }
-
-    box.appendChild(campiScheda(nome, sc, tab));
-  }
-}
-
 /* Una tabella a due colonne di righe libere: a sinistra la cosa, a destra il
    valore. La usano le info e gli integratori, che sono la stessa cosa scritta
    in due elenchi diversi. `campo` e' il nome del data- che ogni riga si porta
@@ -2963,20 +2844,10 @@ $('wlist').addEventListener('change', ev => {
     if (v) tstore.dieta[i.dataset.pasto] = v; else delete tstore.dieta[i.dataset.pasto];
     touch();
     aggiornaCella('d' + i.dataset.pasto, v);
+    /* si ridisegna solo la giornata: rifare la tabella qui cancellerebbe quello
+       che si sta scrivendo nella casella accanto */
     render();
-    return;
   }
-  const g = +i.dataset.g, slot = +i.dataset.slot;
-  const r = (tstore.workout[g] || ['', '']).slice();
-  const v = i.value.slice(0, 60).trim();
-  if (r[slot] === v) return;
-  r[slot] = v;
-  if (r[0] || r[1]) tstore.workout[g] = r; else delete tstore.workout[g];
-  touch();
-  aggiornaCella('w' + g + '-' + slot, v);
-  /* si ridisegna solo la giornata: rifare la tabella qui cancellerebbe quello
-     che si sta scrivendo nella casella accanto */
-  render();
 });
 
 /* Scorrendo in giu' l'interruttore si ritira, come una barra che si toglie di
@@ -2997,10 +2868,7 @@ $('wlist').addEventListener('scroll', () => {
 
 function riportaSu() {
   wY = 0;
-  chipX = 0;
   $('wlist').scrollTop = 0;
-  const fila = $('wlist').querySelector('.chipsch');
-  if (fila) fila.scrollLeft = 0;
   $('wdrawer').querySelector('.wswitch').classList.remove('via');
 }
 
@@ -3361,31 +3229,6 @@ dlgGrp.addEventListener('cancel', () => { grp = null; });
 
 $('wlist').addEventListener('click', ev => {
 
-  /* l'interruttore delle schede */
-  if (ev.target.closest('button[data-schroot]')) {
-    mostra.sch = !mostra.sch;
-    salvaMostra();
-    paintW();
-    return;
-  }
-  /* una freccia: la fila delle pastiglie scorre di quasi una schermata */
-  const fr = ev.target.closest('button[data-chipscorri]');
-  if (fr) {
-    const f = fr.parentElement.querySelector('.chipsch');
-    f.scrollBy({ left: +fr.dataset.chipscorri * f.clientWidth * 0.8, behavior: 'smooth' });
-    return;
-  }
-  /* una pastiglia: quel workout si vede o non si vede fra le schede */
-  const ch = ev.target.closest('button[data-chipsch]');
-  if (ch) {
-    const n = ch.dataset.chipsch;
-    const i = mostra.off.indexOf(n);
-    if (i < 0) { mostra.off = mostra.off.concat([n]); if (scheda === n) { scheda = null; scelti = []; } }
-    else mostra.off = mostra.off.filter(x => x !== n);
-    salvaMostra();
-    paintW();
-    return;
-  }
   /* il bottone di una scheda: apre i campi, o li chiude e lascia la tabella */
   const sb = ev.target.closest('button[data-scheda]');
   if (sb) {
@@ -4129,6 +3972,9 @@ function paintSalva() {
     b.classList.toggle('err', !!salvaErr);
     b.textContent = salvando ? 'Saving…' : salvaErr ? 'Save — ' + salvaErr : 'Save';
   }
+  /* e il Save dell'editor dei workout, se e' aperto */
+  const a = wkApp();
+  if (a) a.paintSalva();
 }
 
 function paintSync(msg, err) {
@@ -4163,7 +4009,8 @@ async function pullTasks() {
 
   let j;
   try { j = await r.json(); } catch (e) { return; }
-  if (!j || !j.sha || tstore.known.indexOf(j.sha) >= 0) return;   /* gia' vista */
+  if (!j || !j.sha) return;
+  if (tstore.known.indexOf(j.sha) >= 0) { importaEsercizi(); return; }   /* gia' vista */
 
   let data;
   try {
@@ -4178,10 +4025,10 @@ async function pullTasks() {
   const clienti = validClienti(data.clienti);
   if (!tstore.dirty) applicaClienti(clienti);
   const remote = Array.isArray(data.tasks) ? data.tasks.map(validTask).filter(Boolean) : [];
-  const piano  = validWorkout(data.workout);
+  const piano  = wkDi(data);
   const dieta  = validDieta(data.dieta);
   const limiti = validLimiti(data.limiti);
-  const schede = validSchede(data.schede);
+  const schede = schedeDieta(data);
   const rout   = validRoutine(data.routine);
 
   if (tstore.dirty) {
@@ -4194,11 +4041,13 @@ async function pullTasks() {
     } else {
       fine('a different version is online: saving overwrites it');
     }
+    importaEsercizi();
     return;
   }
 
   tstore.tasks = remote;
-  tstore.workout = piano;
+  tstore.wk = piano;
+  delete tstore.workout;
   tstore.dieta = dieta;
   tstore.limiti = limiti;
   tstore.schede = schede;
@@ -4209,7 +4058,32 @@ async function pullTasks() {
   tstore.dirty = false;
   saveLocal();
   tidyTasks(); render(); paintDrawer(); paintSalva();
+  wkRicarica();
   fine('in sync at ' + fmtTime.format(new Date()));
+  importaEsercizi();
+}
+
+/* Gli esercizi gia' scritti nell'app dei workout (nome, descrizione, video)
+   entrano nella libreria dell'editor, una volta sola. Si fa solo dopo aver
+   letto il file online: cosi' l'aggiunta parte sopra l'ultima versione, e
+   non sopra una copia vecchia del telefono. Poi si salva come ogni modifica. */
+let importando = false;
+async function importaEsercizi() {
+  if (tstore.wk.importati || importando) return;
+  importando = true;
+  try {
+    const r = await fetch('workout/esercizi.json', { cache: 'no-store' });
+    if (!r.ok) return;
+    const righe = await r.json();
+    if (tstore.wk.importati) return;
+    WK.importa(tstore.wk, righe);
+    touch();
+    wkRicarica();
+  } catch (e) {
+    /* niente rete o file rotto: si riprova alla prossima lettura */
+  } finally {
+    importando = false;
+  }
 }
 
 /* Un commit solo, con tutto dentro. */
@@ -4226,7 +4100,7 @@ async function pushTasks(opts) {
   const sent = fotoDati(tstore);
   const n = tstore.tasks.filter(x => !x.giorno).length;
   /* con la chiave impostata il file parte chiuso; senza, in chiaro come prima */
-  const testo = JSON.stringify({ tasks: tstore.tasks, workout: tstore.workout,
+  const testo = JSON.stringify({ tasks: tstore.tasks, wk: WK.daFile(tstore.wk),
                                  dieta: tstore.dieta, limiti: tstore.limiti,
                                  schede: tstore.schede,
                                  routine: tstore.routine,

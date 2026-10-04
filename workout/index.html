@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Workout</title>
+<!-- L'app dei workout dentro la tendina della Routine: la Routine la carica in
+     una cornice, e le passa i dati. Aperta da sola torna alla Routine. -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="dark">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="in-routine">
+
+<!-- Niente testata: titolo, Salva e impostazioni li ha la Routine. -->
+<main class="pagina" id="wlist"></main>
+
+<!-- Il pannello dei gruppi di una scheda: le pastiglie in alto dicono quali
+     gruppi ci sono, sotto si lavora su quello scelto. Tutto si salva al volo. -->
+<dialog class="chiusura" id="gruppo" tabindex="-1" aria-labelledby="gruppoTit">
+  <form method="dialog" class="chiusura-box" id="gruppoForm">
+    <h2 class="chiusura-tit" id="gruppoTit">Groups</h2>
+
+    <div class="chips gchips" id="gElenco"></div>
+
+    <div id="gCorpo" hidden>
+      <div class="gtesta">
+        <input class="campo" id="gNome" type="text" maxlength="40" autocomplete="off"
+               placeholder="group name" aria-label="Group name">
+        <select class="campo gsel" id="gDentro" aria-label="Inside which group"></select>
+      </div>
+
+      <p class="commento-lab">Tick what goes in</p>
+      <div class="glista" id="gLista"></div>
+
+      <div class="wrow gnuovo">
+        <input class="wcampo" id="gNuovoEs" type="text" maxlength="60" placeholder="new exercise">
+        <input class="wcampo" id="gNuovoQ" type="text" maxlength="60" placeholder="how much">
+        <button type="button" class="schbtn" id="gNuovoOk">add</button>
+      </div>
+
+      <button type="button" class="btn btn-del btn-largo" id="gElimina">Delete this group</button>
+    </div>
+
+    <div class="chiusura-btn">
+      <button type="submit" class="btn btn-ok" value="ok">Done</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- La descrizione di un esercizio: si apre a tutto schermo, con il testo
+     grande, perche' e' fatta per essere letta mentre ci si allena. Un link
+     scritto da solo su una riga diventa un video. Qui si legge e basta: si
+     scrive nell'editor. -->
+<dialog class="descbox" id="descrizione" aria-labelledby="descTit">
+  <div class="descbox-in">
+    <h2 class="desctit" id="descTit"></h2>
+    <!-- ripetizioni, tempi e gruppo, per esteso: nella tabella possono essere tagliati -->
+    <p class="descqta" id="descQta" hidden></p>
+    <!-- Lo slot del video: sempre orizzontale, in cima. Play da qui; girando
+         il telefono va a schermo intero, e per i video verticali c'e' il bottone. -->
+    <div class="vslot" id="vSlot" hidden>
+      <video id="vVideo" controls playsinline preload="metadata" hidden></video>
+      <button type="button" class="vfull" id="vFull" aria-label="Full screen" hidden>⛶</button>
+      <p class="vstato" id="vStato"></p>
+      <!-- con piu' video: un avviso sopra il primo, che sparisce al tocco -->
+      <p class="vavviso" id="vAvviso" hidden></p>
+    </div>
+    <div class="vnav" id="vNav" hidden>
+      <button type="button" class="vnav-btn" id="vPrima" aria-label="Previous video">&lsaquo;</button>
+      <span class="vnav-conta" id="vConta"></span>
+      <button type="button" class="vnav-btn" id="vDopo" aria-label="Next video">&rsaquo;</button>
+    </div>
+    <div class="desctesto" id="descTesto"></div>
+    <div class="chiusura-btn">
+      <button type="button" class="btn" id="descChiudi">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- L'editor: una schermata a parte. A sinistra l'elenco, a destra la
+     pagina; sul telefono uno dopo l'altra. Mentre e' aperto la tendina della
+     Routine prende tutto lo schermo. -->
+<div class="ed" id="ed" hidden role="dialog" aria-modal="true" aria-labelledby="edTit">
+  <header class="ed-top">
+    <button type="button" class="ed-indietro" id="edIndietro" aria-label="Back to the list">&lsaquo;</button>
+    <h2 class="ed-tit" id="edTit">Editor</h2>
+    <span class="ed-stato" id="edStato"></span>
+    <button type="button" class="salva" id="edSalva" hidden>Save</button>
+    <button type="button" class="schbtn" id="edChiudi">Close</button>
+  </header>
+  <div class="ed-corpo">
+    <nav class="ed-nav" id="edNav" aria-label="What to edit"></nav>
+    <section class="ed-pane" id="edPane"></section>
+  </div>
+  <!-- in basso a destra: le funzioni per giocare -->
+  <button type="button" class="ed-egg" id="edEgg">Easter egg</button>
+</div>
+
+<script src="dati.js"></script>
+<script src="app.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

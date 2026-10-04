@@ -109,9 +109,10 @@
   </div>
 </aside>
 
-<!-- Il piano dei workout: due caselle per giorno, si riempiono a mano e si
-     ripetono ogni settimana finche' non si cambiano. -->
-<aside class="drawer sx" id="wdrawer" aria-label="Workout plan">
+<!-- Workout e dieta. Nella sezione Workout c'e' l'app dei workout intera, con
+     il suo editor, in una cornice: legge e scrive il piano dentro il file delle
+     task. La dieta si disegna qui, come prima. -->
+<aside class="drawer sx" id="wdrawer" aria-label="Workout and diet">
   <div class="wtabs">
     <button type="button" class="wtab on" id="tabW" aria-pressed="true">Workout</button>
     <button type="button" class="wtab" id="tabD" aria-pressed="false">Diet</button>
@@ -124,7 +125,9 @@
     </label>
     <button type="button" class="schbtn wedit" id="wMod">edit</button>
   </div>
-  <div class="drawer-list" id="wlist"></div>
+  <div class="drawer-list" id="wlist" hidden></div>
+  <!-- si carica la prima volta che si apre la sezione Workout -->
+  <iframe class="wframe" id="wframe" title="Workout"></iframe>
 </aside>
 
 <!-- Un limite della dieta: un orario oltre il quale non si puo', o una
@@ -352,6 +355,8 @@
   <ul class="tendlist" id="tendList"></ul>
 </dialog>
 
+<!-- la forma del piano dei workout: in comune con l'app nella tendina -->
+<script src="workout/dati.js"></script>
 <script src="app.js"></script>
 <!-- l'editor della routine: dopo app.js, perche' si appoggia a quello -->
 <script src="routine-editor.js"></script>

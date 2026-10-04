@@ -423,6 +423,14 @@ body.menu-open{overflow:hidden}
 .wswitch.via{min-height:0;max-height:0;opacity:0;border-bottom-color:transparent;pointer-events:none}
 .wswitch input{accent-color:var(--accent)}
 
+/* L'app dei workout, nella sua cornice: prende tutto quello che resta sotto la
+   riga della spunta. Con l'editor aperto la tendina va a tutto schermo, e la
+   riga della spunta si toglie: l'editor ha la sua testata. */
+.wframe{flex:1;min-height:0;width:100%;border:0;display:block;background:var(--bg)}
+.wframe[hidden]{display:none}
+.drawer.sx.ed-largo{width:100vw;border-right:0}
+.drawer.sx.ed-largo .wswitch{display:none}
+
 /* la testata di una casella: nome della tappa, poi orario e durata in chiaro */
 .wcapo{
   margin:0;padding:var(--s2) var(--s3) 2px;

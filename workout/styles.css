@@ -1,0 +1,893 @@
+/* Workout — tema scuro di G Work, scritte grandi: si legge col telefono
+   appoggiato per terra, durante l'allenamento. Nessun tema chiaro. */
+
+:root{
+  --bg:#0d0f12;
+  --surface:#151920;
+  --surface-2:#1c212a;
+  --line:#272d38;
+  --text:#e8eaed;
+  --text-2:#c6ccd6;
+  --muted:#98a1ae;
+  --accent:#3ddc84;
+  --danger:#ff453a;
+
+  --radius:10px;
+
+  --s1:5px;
+  --s2:10px;
+  --s3:14px;
+  --s4:18px;
+  --s5:26px;
+
+  color-scheme:dark;
+}
+
+/* Il tema chiaro: fondo bianco, stesse forme. Il verde e' piu' scuro, se no
+   sul bianco non si legge. */
+:root[data-theme="light"]{
+  --bg:#ffffff;
+  --surface:#f4f6f8;
+  --surface-2:#eaeef2;
+  --line:#d3d9e0;
+  --text:#111418;
+  --text-2:#2b323b;
+  --muted:#5c6672;
+  --accent:#138a48;
+  --danger:#d70015;
+  color-scheme:light;
+}
+:root[data-theme="light"] .wcampo::placeholder{color:#9aa3ad}
+:root[data-theme="light"] .grpcli:active{background:rgba(0,0,0,.05)}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+[hidden]{display:none!important}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font:19px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  -webkit-text-size-adjust:100%;
+  overscroll-behavior-y:contain;
+}
+
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+/* ---------- testata ---------- */
+
+.top{
+  position:sticky;top:0;z-index:5;
+  background:var(--bg);
+  border-bottom:1px solid var(--line);
+  padding:var(--s2) var(--s3) var(--s1);
+  padding-top:calc(var(--s2) + env(safe-area-inset-top));
+}
+.bar{display:flex;align-items:center;gap:var(--s2);max-width:720px;margin:0 auto}
+.titolo{flex:1;min-width:0;margin:0;font-size:24px;font-weight:700;letter-spacing:-.01em}
+.menu{
+  flex:0 0 auto;width:48px;height:48px;
+  border-radius:var(--radius);font-size:26px;color:var(--text-2);
+}
+.menu:active{background:var(--surface-2)}
+/* compare solo quando c'e` qualcosa da salvare; rosso quando non ci riesce */
+.salva{
+  flex:0 0 auto;min-height:44px;padding:0 var(--s3);
+  border-radius:var(--radius);
+  background:var(--accent);color:var(--bg);
+  font-size:17px;font-weight:700;
+}
+.salva:disabled{opacity:.6}
+.salva{max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{min-width:0}
+body{overflow-x:clip}
+.salva.err{background:var(--danger);color:#fff}
+.sync{
+  max-width:720px;margin:2px auto 0;min-height:1.2em;
+  font-size:14px;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.sync.err{color:var(--danger)}
+
+.pagina{
+  max-width:720px;margin:0 auto;
+  padding:var(--s3) 0 calc(var(--s5) * 2 + env(safe-area-inset-bottom));
+}
+
+/* ---------- il piano in modifica ---------- */
+
+.wgiorno{
+  margin:0;padding:var(--s3) var(--s3) var(--s1);
+  font-size:15px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);
+}
+.wgiorno.oggi{color:var(--accent)}
+.wrow{display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3) var(--s1)}
+.wslot{
+  flex:0 0 44px;font-size:15px;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.wcampo{
+  flex:1;min-width:0;min-height:48px;padding:0 var(--s2);
+  background:var(--surface-2);color:var(--text);
+  border:1px solid var(--line);border-radius:var(--radius);
+  font:inherit;font-size:18px;
+}
+.wcampo:focus{outline:none;border-color:var(--accent)}
+
+/* quanti workout al giorno: l'etichetta, il meno, il numero, il piu' */
+.wconta{
+  display:flex;align-items:center;gap:var(--s2);
+  margin:0 var(--s3) var(--s2);padding:var(--s2) var(--s3);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);
+}
+.wconta-eti{flex:1;min-width:0;font-size:17px;color:var(--text-2)}
+.wconta-btn{margin-left:0;min-width:48px;min-height:44px;font-size:22px;line-height:1;color:var(--text)}
+.wconta-btn:disabled{opacity:.3}
+.wconta-num{min-width:28px;text-align:center;font-size:22px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.nota.wnota{margin:0 var(--s3) var(--s2)}
+.wcampo::placeholder{color:#4a5260}
+
+/* ---------- le tabelle di lettura ---------- */
+
+.tab{
+  margin:0 var(--s3) var(--s3);
+  border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;font-size:18px;
+}
+.tabr{display:grid;align-items:stretch;border-top:1px solid var(--line)}
+.tabr:first-child{border-top:0}
+.tab-w .tabr{grid-template-columns:52px repeat(var(--wcol,2),minmax(0,1fr))}
+/* con tre o quattro workout al giorno le colonne sono strette: il testo cala */
+.tab-w[style*="--wcol: 3"],.tab-w[style*="--wcol: 4"]{font-size:16px}
+.tab-w[style*="--wcol: 4"] .tabc{padding-left:6px;padding-right:6px}
+.tab-i .tabr{grid-template-columns:3fr 1.25fr}
+.tabc.val{color:var(--accent)}
+.tabc{
+  min-width:0;padding:10px var(--s2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:var(--text-2);
+}
+.tabc + .tabc{border-left:1px solid var(--line)}
+.tabr.capo{background:var(--surface-2)}
+.tabr.capo .tabc,
+.tabc.eti{
+  font-size:15px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--muted);
+}
+/* nelle schede il nome dell'esercizio si legge bene: niente maiuscolo grigio */
+.tab-i .tabc.eti{font-size:18px;letter-spacing:0;text-transform:none;color:var(--text)}
+/* la testata di una scheda: il nome e il bottone per modificarla */
+.tab-i .tabr.schcapo{grid-template-columns:1fr auto auto}
+.tabr.schcapo .tabc + .tabc{border-left:0}
+.tabr.capo .tabc.val{color:var(--accent)}
+.tabr.schcapo{align-items:center}
+.tabr.schcapo .tabc{padding-top:5px;padding-bottom:5px;color:var(--accent);font-size:16px;font-weight:700}
+.tabc.tabbtn{display:flex;align-items:center;justify-content:flex-end;border-left:0}
+.tab-i .tabr.solo{grid-template-columns:1fr}
+.tab-i .tabr.recgiu{grid-template-columns:1fr}
+.tabr.recgiu .tabc{text-align:right}
+.recval.vuota{color:var(--line)}
+.receti{
+  margin-right:var(--s2);
+  font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);
+}
+.recval{color:var(--accent)}
+.tabr.oggi{background:rgba(61,220,132,.07)}
+.tabr.oggi .tabc.eti{color:var(--accent)}
+.tabc.vuota{color:var(--line)}
+
+/* il bottone di una scheda, e quello di edit in testata */
+.schbtn{
+  margin-left:auto;min-height:40px;padding:0 var(--s3);
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--surface-2);color:var(--muted);
+  font-size:16px;font-weight:600;letter-spacing:0;text-transform:none;
+}
+.wedit{flex:0 0 auto;margin-left:0}
+.wedit.on{border-color:var(--accent);color:var(--accent)}
+.wgrp{justify-content:flex-end;flex-wrap:wrap}
+.wgrp .schbtn{margin-left:0}
+.schfrec{min-width:46px;text-align:center;font-size:18px;line-height:1}
+
+/* La scheda che si sta scrivendo: testata e campi in un riquadro solo, col
+   bordo verde. */
+.schapri{
+  margin:0 var(--s3) var(--s3);
+  padding-bottom:var(--s2);
+  background:var(--surface-2);
+  border:1px solid var(--accent);border-radius:var(--radius);
+  overflow:hidden;
+}
+.schapri .tab{margin:0 0 var(--s2);border:0;border-radius:0}
+.schapri .tabr.capo{background:rgba(61,220,132,.14);border-bottom:1px solid var(--line)}
+.schapri .tabr.capo .tabc{color:var(--accent)}
+.schapri .schbtn{border-color:var(--accent);color:var(--accent)}
+.schapri .wcampo{background:var(--surface)}
+
+.wrec{position:relative;padding-bottom:var(--s3);margin-bottom:var(--s2)}
+.wrec::after{
+  content:'';position:absolute;bottom:0;
+  left:var(--s3);right:var(--s3);height:1px;background:var(--line);
+}
+
+/* ---------- i gruppi dentro una scheda ---------- */
+
+.grpbox{
+  position:relative;
+  background:rgba(61, 220, 132, .04);
+  box-shadow:inset 0 1px 0 rgba(61, 220, 132, .3), inset 0 -1px 0 rgba(61, 220, 132, .3);
+}
+.grpbox + .grpbox{box-shadow:inset 0 -1px 0 rgba(61, 220, 132, .3)}
+.grpcorpo{min-width:0}
+.grpbox .tabr:first-of-type{border-top:0}
+.grpbox::before{
+  content:'';position:absolute;top:2px;bottom:2px;left:2px;width:3px;
+  border-radius:2px;background:rgba(61, 220, 132, .6);pointer-events:none;
+}
+.grpbox .grpbox::before{left:7px}
+.grpbox .grpbox .grpbox::before{left:12px}
+.grpbox .grpbox .grpbox .grpbox::before{left:17px}
+
+.grpeti{
+  position:absolute;z-index:1;top:-9px;right:12px;
+  height:18px;padding:0 7px;
+  display:inline-flex;align-items:center;
+  background:var(--surface);
+  border:1px solid rgba(61, 220, 132, .55);border-radius:9px;
+  font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--accent);
+  white-space:nowrap;max-width:60%;overflow:hidden;text-overflow:ellipsis;
+}
+.grpbox .grpbox .grpeti{right:18px}
+.grpbox .grpbox .grpbox .grpeti{right:24px}
+.schapri .grpeti{background:var(--surface-2);cursor:pointer;height:22px;top:-11px}
+.schapri .grpeti:active{background:var(--accent);color:var(--bg)}
+
+/* nella scheda aperta lo spazio e' dei due campi: il resto si stringe */
+.schapri .wrow{
+  gap:var(--s1);
+  padding-left:var(--s2);
+  padding-right:calc(var(--s2) + var(--gres, 0px));
+}
+.schapri .wcampo{padding:0 8px}
+.schapri .wcampo + .wcampo{flex:0 1 96px}
+.schapri .schsel{margin:0 2px 0 0}
+.schapri .schx{width:34px}
+
+.schsel{flex:0 0 auto;width:24px;height:24px;margin:0;accent-color:var(--accent)}
+
+/* il pannello dei gruppi */
+.gchips{margin-bottom:var(--s3)}
+.gchips .chip{min-height:42px;padding:0 var(--s3);font-size:16px}
+.gchips .chipnuovo{border-style:dashed;color:var(--muted)}
+.gtesta{display:flex;gap:var(--s2);margin-bottom:var(--s2)}
+.gtesta .campo{min-height:48px}
+.gsel{flex:0 1 50%;-webkit-appearance:none;appearance:none;font-size:16px;color:var(--muted)}
+.gnuovo{padding:var(--s2) 0 var(--s3)}
+.grialtro{flex:0 0 auto;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.glista{max-height:34vh;overflow:auto;margin-bottom:var(--s2)}
+.grigar{display:flex;align-items:center;gap:var(--s2);padding:var(--s1) 0;min-height:44px}
+.grinome{
+  flex:1;min-width:0;font-size:18px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.grival{flex:0 0 auto;font-size:16px;color:var(--accent)}
+
+/* la croce che toglie un esercizio */
+.schx{
+  flex:0 0 auto;width:40px;height:48px;
+  border-radius:var(--radius);color:var(--muted);font-size:26px;line-height:1;
+}
+.schx:active{background:var(--surface)}
+
+/* il bottone per aggiungere una riga */
+.lpiu{
+  display:block;width:calc(100% - 2 * var(--s3));margin:var(--s2) var(--s3);
+  min-height:48px;border-radius:var(--radius);
+  background:var(--surface-2);border:1px dashed var(--line);
+  font-size:17px;font-weight:600;color:var(--muted);
+}
+
+.grp{margin:0;padding:var(--s4) var(--s4) var(--s2);font-size:15px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.grpcli{display:flex;align-items:center;gap:var(--s2);width:100%;
+  background:none;border:0;text-align:left;
+  padding:var(--s4) var(--s4) var(--s3);cursor:pointer;font-family:inherit}
+.grpcli:active{background:rgba(255,255,255,.05)}
+.grpfrec{width:1em;flex:none;color:var(--muted)}
+.grpnome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grproot{font-size:15px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.vuoto{margin:0;padding:var(--s4);font-size:17px;color:var(--muted);font-style:italic}
+
+/* ---------- campi e pastiglie ---------- */
+
+.campo{
+  display:block;width:100%;min-height:48px;padding:0 var(--s2);
+  background:var(--surface-2);color:var(--text);
+  border:1px solid var(--line);border-radius:var(--radius);
+  font:inherit;font-size:18px;
+}
+.chips{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.chip{
+  min-height:42px;padding:0 var(--s3);
+  border:1px solid var(--line);border-radius:21px;
+  background:var(--surface-2);color:var(--text-2);
+  font-size:16px;font-weight:600;
+}
+.chip.sel{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+/* le pastiglie che scelgono quali schede si vedono: una riga sola che scorre */
+.chiprow{display:flex;align-items:center;gap:var(--s1);padding:0 var(--s2) var(--s3)}
+.chipsch{
+  flex:1;min-width:0;padding:0;gap:var(--s1);
+  flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.chipsch::-webkit-scrollbar{display:none}
+.chipfrec{
+  flex:0 0 auto;width:28px;height:38px;
+  color:var(--muted);font-size:26px;line-height:1;
+}
+.chipfrec.spenta{opacity:.25}
+.chips.chipsch .chip{
+  flex:0 0 auto;
+  min-height:38px;padding:0 var(--s3);border-radius:19px;
+  font-size:16px;
+  background:var(--surface-2);border-color:var(--line);color:var(--muted);
+}
+.chips.chipsch .chip.sel{border-color:var(--accent);color:var(--accent)}
+.btn.btn-del{flex:0 0 auto;color:var(--danger);border-color:rgba(255,69,58,.45)}
+.btn-largo{width:100%;margin-bottom:var(--s3)}
+.nota{margin:var(--s2) 0 0;font-size:15px;line-height:1.45;color:var(--muted)}
+.nota.err{color:var(--danger)}
+
+/* ---------- finestre ---------- */
+
+.chiusura{
+  width:min(480px,calc(100vw - 2 * var(--s3)));
+  padding:0;
+  background:var(--surface);color:var(--text);
+  border:1px solid var(--line);border-radius:14px;
+}
+.chiusura::backdrop{background:rgba(0,0,0,.66)}
+.chiusura-box{padding:var(--s4)}
+.chiusura-tit{margin:0 0 var(--s3);font-size:22px;letter-spacing:-.01em}
+.commento-lab{
+  display:block;margin:var(--s3) 0 var(--s2);
+  font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);
+}
+.chiusura-btn{display:flex;gap:var(--s2);margin-top:var(--s4)}
+.btn{
+  flex:1;min-height:52px;border-radius:var(--radius);
+  background:var(--surface-2);border:1px solid var(--line);
+  font-size:18px;font-weight:600;color:var(--text-2);
+}
+.btn-ok{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.btn:active{opacity:.8}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:.001ms !important;animation-duration:.001ms !important}
+}
+
+/* ---------- la descrizione di un esercizio ---------- */
+
+/* A tutto schermo, testo grande: si legge da lontano, con le mani occupate. */
+.descbox{
+  width:100vw;max-width:100vw;height:100vh;height:100dvh;max-height:100dvh;
+  margin:0;padding:0;border:0;border-radius:0;
+  background:var(--bg);color:var(--text);
+}
+.descbox::backdrop{background:var(--bg)}
+/* la finestra prende il fuoco appena si apre: il bordo verde li' non serve */
+.descbox:focus,.chiusura:focus{outline:none}
+.descbox-in{
+  display:flex;flex-direction:column;height:100%;
+  max-width:720px;margin:0 auto;
+  padding:calc(var(--s4) + env(safe-area-inset-top)) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom));
+}
+.descbox .desctit{
+  display:block;margin:0 0 var(--s3);padding-bottom:var(--s2);
+  font-size:22px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--accent);text-align:center;
+  border-bottom:1px solid var(--line);
+}
+.descbox .desctit{margin-bottom:var(--s2)}
+.descqta{margin:0 0 var(--s3);font-size:20px;font-weight:700;color:var(--text);text-align:center;line-height:1.35}
+.desctesto{
+  flex:1;margin:0;overflow-y:auto;
+  font-size:24px;line-height:1.5;
+}
+.desriga{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.desriga.vuota{height:.55em}
+.desriga.conpunto{display:flex;gap:6px;align-items:flex-start}
+.despunto{
+  flex:0 0 auto;min-width:22px;
+  font-size:15px;font-weight:700;color:var(--accent);
+  line-height:36px;
+}
+.destesto{min-width:0}
+.desccampo{
+  flex:1;width:100%;resize:none;
+  padding:var(--s3);
+  background:var(--surface);color:var(--text);
+  border:1px solid var(--line);border-radius:var(--radius);
+  font:inherit;font-size:20px;line-height:1.45;
+}
+.descvideo{padding:var(--s2) 0 0}
+
+/* Un video nella descrizione: largo quanto il testo, in proporzione. I video
+   verticali (Shorts) restano alti e stretti, centrati. */
+.desvideo{margin:var(--s2) 0 var(--s3);border-radius:var(--radius);overflow:hidden;background:#000}
+.desvideo video{display:block;width:100%;max-height:70vh}
+.desvideo.frame{position:relative;aspect-ratio:16/9}
+.desvideo.frame.verticale{aspect-ratio:9/16;max-height:70vh;margin-left:auto;margin-right:auto;width:auto;height:70vh;max-width:100%}
+.desvideo iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.deslink{
+  display:flex;align-items:center;justify-content:center;
+  min-height:56px;margin:var(--s2) 0 var(--s3);
+  border:1px solid var(--accent);border-radius:var(--radius);
+  color:var(--accent);font-size:19px;font-weight:700;text-decoration:none;
+}
+.deslink:active{background:rgba(61,220,132,.12)}
+
+/* La freccia che dice "qui sotto c'e' scritto qualcosa": in fondo alla riga */
+.desfrec{margin-left:8px;font-size:16px;font-weight:700;line-height:1;color:var(--accent)}
+.tabr.condesc .tabc:last-child{display:flex;align-items:center}
+.tabr.condesc .desfrec{margin-left:auto;padding-left:8px}
+.tabr.condesc{cursor:pointer}
+.tabr.condesc:active{background:var(--surface-2)}
+.schdesc,
+.schapri .schdesc{
+  min-width:32px;min-height:48px;padding:0;margin-left:0;
+  border:0;background:none;color:var(--muted);font-size:16px;
+}
+.schdesc.piena,
+.schapri .schdesc.piena{border:0;background:none;color:var(--accent)}
+
+/* ---------- dal PC ---------- */
+
+/* Col mouse, quello che si tocca si accende passandoci sopra. */
+@media (hover: hover){
+  .schbtn:hover,.chip:hover,.lpiu:hover,.btn:hover,.menu:hover{border-color:var(--accent);color:var(--accent)}
+  .chip.sel:hover,.btn-ok:hover{color:var(--bg)}
+  .tabr.condesc:hover{background:var(--surface-2)}
+  .grpcli:hover{color:var(--text-2)}
+  .schx:hover{color:var(--danger)}
+}
+
+/* Schermo largo: la pagina si divide in due. A sinistra il piano, la mattina
+   e quello di oggi, fermi mentre si scorre; a destra le schede. */
+@media (min-width: 1000px){
+  .bar,.sync{max-width:calc(1320px - 2 * var(--s5))}
+  .top{padding-left:var(--s5);padding-right:var(--s5)}
+  .pagina{
+    max-width:1320px;
+    display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);
+    gap:var(--s5);align-items:start;
+    padding:var(--s4) var(--s5) var(--s5);
+  }
+  .col-sx{
+    position:sticky;top:92px;
+    max-height:calc(100vh - 110px);overflow-y:auto;
+    scrollbar-width:thin;
+  }
+  .col .tab,.col .schapri,.col .wconta,.col .lpiu{margin-left:0;margin-right:0}
+  .col .lpiu{width:100%}
+  .col .grp,.col .grpcli{padding-left:0;padding-right:0}
+  .col .chiprow{padding-left:0;padding-right:0}
+  .col .nota.wnota{margin-left:0;margin-right:0}
+
+  /* il piano in modifica: un giorno per riga, i campi affiancati */
+  .wday{
+    display:grid;grid-template-columns:130px repeat(var(--wcol,2),minmax(0,1fr));
+    align-items:center;gap:var(--s2);
+    padding:var(--s1) 0;border-bottom:1px solid var(--line);
+  }
+  .wday .wgiorno{padding:0}
+  .wday .wrow{padding:0}
+  .wday .wslot{flex-basis:36px}
+
+  /* la descrizione non prende tutto lo schermo: un pannello grande al centro */
+  .descbox{
+    width:min(980px,94vw);height:92vh;max-height:92vh;
+    margin:auto;border:1px solid var(--line);border-radius:14px;
+  }
+  .descbox::backdrop{background:rgba(0,0,0,.75)}
+  .desvideo video,.desvideo.frame.verticale{max-height:62vh}
+  .desvideo.frame.verticale{height:62vh}
+}
+
+/* Schermo molto largo: le schede in due colonne. */
+@media (min-width: 1500px){
+  .pagina{max-width:1560px}
+  .bar,.sync{max-width:calc(1560px - 2 * var(--s5))}
+  .pagina{grid-template-columns:minmax(0,4fr) minmax(0,8fr)}
+  .schlista{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--s4);align-items:start}
+}
+
+/* ---------- lo slot del video ---------- */
+
+/* Sempre orizzontale, largo quanto la finestra, in cima alla descrizione. Un
+   video verticale ci sta dentro intero, con le bande nere ai lati. */
+.vslot{
+  position:relative;flex:0 0 auto;
+  width:100%;aspect-ratio:16/9;margin:0 0 var(--s3);
+  background:#000;border-radius:var(--radius);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.vslot video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+.vstato{margin:0;padding:var(--s4);text-align:center;font-size:17px;color:var(--muted)}
+/* il bottone a schermo intero: in alto a destra, grande, sopra il video */
+.vfull{
+  position:absolute;top:var(--s2);right:var(--s2);z-index:2;
+  width:52px;height:52px;border-radius:var(--radius);
+  background:rgba(0,0,0,.55);color:#fff;font-size:28px;line-height:1;
+}
+.vfull:active{background:rgba(0,0,0,.8)}
+/* per un video verticale il bottone e' la via per vederlo grande: si accende */
+.vslot.verticale .vfull{background:var(--accent);color:var(--bg)}
+/* piu' video: le frecce sotto lo slot, e l'avviso leggero sopra il primo */
+.vnav{display:flex;align-items:center;justify-content:center;gap:var(--s3);margin:calc(-1 * var(--s2)) 0 var(--s3)}
+.vnav-btn{width:48px;height:40px;border-radius:var(--radius);border:1px solid var(--line);background:transparent;color:var(--text);font-size:26px;line-height:1;cursor:pointer}
+.vnav-btn:disabled{opacity:.3}
+.vnav-conta{font-size:16px;font-weight:700;color:var(--muted);min-width:4em;text-align:center}
+.vframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.vlink{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--s3) var(--s4);
+  border-radius:var(--radius);background:var(--accent);color:#0d0f12;font-size:18px;font-weight:700;text-decoration:none}
+.vlink-host{font-size:13px;font-weight:600;opacity:.75}
+.vavviso{
+  position:absolute;left:var(--s2);top:var(--s2);z-index:3;max-width:calc(100% - 84px);
+  margin:0;padding:6px 14px;border-radius:999px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:700;cursor:pointer;
+}
+.vedit{display:flex;gap:var(--s2);justify-content:flex-end;margin:0 0 var(--s3)}
+.vedit .schbtn{margin-left:0}
+
+/* a schermo intero, vero o finto: tutto nero, il video al centro */
+.vslot:fullscreen{width:100vw;height:100vh;aspect-ratio:auto;border-radius:0;margin:0}
+.vslot:-webkit-full-screen{width:100vw;height:100vh;aspect-ratio:auto;border-radius:0;margin:0}
+body.vland .vslot{
+  position:fixed;inset:0;z-index:50;
+  width:100vw;height:100vh;height:100dvh;aspect-ratio:auto;
+  margin:0;border-radius:0;
+}
+.schbtn.btn-del{color:var(--danger);border-color:rgba(255,69,58,.45)}
+.wmattina{cursor:pointer}
+
+/* la tendina Sviluppatore nelle impostazioni: chiusa, con la freccia */
+.sviluppo{margin-top:var(--s4);border-top:1px solid var(--line);padding-top:var(--s2)}
+.sviluppo-tit{
+  display:flex;align-items:center;gap:var(--s2);min-height:44px;cursor:pointer;
+  font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  list-style:none;
+}
+.sviluppo-tit::-webkit-details-marker{display:none}
+.sviluppo-tit::before{content:'\25b8';color:var(--muted)}
+.sviluppo[open] .sviluppo-tit::before{content:'\25be'}
+.sviluppo-corpo .commento-lab:first-child{margin-top:var(--s1)}
+
+/* ---------- la pagina: preparazione, settimana, tendina ---------- */
+
+/* la preparazione in corso: una banda in cima, con le date e quanto manca */
+.prepbanda{
+  margin:0 var(--s3) var(--s3);padding:var(--s2) var(--s3);
+  border:1px solid var(--accent);border-left-width:5px;border-radius:var(--radius);
+  background:rgba(61,220,132,.08);
+}
+.prepbanda-eti{margin:0;font-size:14px;font-weight:700;letter-spacing:.08em;color:var(--accent)}
+.prepbanda-date{margin:2px 0 0;font-size:17px;color:var(--text)}
+/* l'avviso di una preparazione che sta per iniziare, con il bottone Anteprima */
+.prossima{
+  display:flex;align-items:center;gap:var(--s2);
+  margin:0 var(--s3) var(--s2);padding:6px 6px 6px var(--s3);
+  border:1px dashed var(--accent);border-radius:999px;
+}
+.prossima-testo{flex:1;min-width:0;margin:0;font-size:15px;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prossima-testo b{color:var(--accent);font-weight:700}
+.prossima-btn{
+  flex:none;padding:5px 12px;border:0;border-radius:999px;cursor:pointer;
+  background:var(--accent);color:#0d0f12;font:inherit;font-size:14px;font-weight:700;
+}
+@media (min-width:1000px){ .col .prossima{margin-left:0;margin-right:0} }
+/* la barra dell'anteprima */
+.antbar{display:flex;align-items:center;gap:var(--s2);margin:0 var(--s3) var(--s3)}
+.antbar .schbtn{margin-left:0}
+.antbar-eti{font-size:14px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+@media (min-width:1000px){ .col .antbar{margin-left:0;margin-right:0} }
+/* i giorni della settimana che vengono dalla preparazione: una striscia a sinistra */
+.tabr.inprep .tabc.eti{box-shadow:inset 4px 0 0 var(--accent)}
+/* le caselle in piu' di un giorno con meno workout: vuote, senza trattino */
+.tabc.fuori{background:var(--surface)}
+.tab-w .tabc.eti{font-variant-numeric:tabular-nums}
+.tab-w .tabc.tuttariga{grid-column:1 / -1}
+.tab-w .tabr{grid-template-columns:88px repeat(var(--wcol,2),minmax(0,1fr))}
+.tab-w .tabc.eti{overflow:visible}
+
+/* La tendina WORKOUTS: una barra vera, con bordo, il numero e la freccia che
+   gira. Si riconosce come una cosa che si apre. */
+.wkbar{
+  display:flex;align-items:center;gap:var(--s2);
+  width:calc(100% - 2 * var(--s3));margin:var(--s3) var(--s3) var(--s3);
+  min-height:56px;padding:0 var(--s3) 0 var(--s4);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);
+  text-align:left;cursor:pointer;
+}
+.wkbar-nome{flex:1;font-size:16px;font-weight:700;letter-spacing:.08em;color:var(--text)}
+.wkbar-num{
+  min-width:30px;height:30px;padding:0 8px;border-radius:15px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--bg);border:1px solid var(--line);
+  font-size:15px;font-weight:700;color:var(--accent);
+}
+.wkbar-frec{
+  width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:22px;color:var(--text-2);transform:rotate(-90deg);transition:transform 160ms ease;
+}
+.wkbar.open .wkbar-frec{transform:none}
+.wkbar.open{border-color:var(--accent)}
+@media (hover:hover){ .wkbar:hover{border-color:var(--accent)} }
+@media (min-width:1000px){ .col .wkbar{width:100%;margin-left:0;margin-right:0} .col .prepbanda{margin-left:0;margin-right:0} }
+
+/* ---------- l'editor ---------- */
+
+body.ed-aperto{overflow:hidden}
+.ed{
+  position:fixed;inset:0;z-index:30;
+  display:flex;flex-direction:column;
+  background:var(--bg);color:var(--text);
+}
+.ed-top{
+  display:flex;align-items:center;gap:var(--s2);
+  padding:var(--s2) var(--s3);padding-top:calc(var(--s2) + env(safe-area-inset-top));
+  border-bottom:1px solid var(--line);background:var(--bg);
+}
+.ed-indietro{width:44px;height:44px;border-radius:var(--radius);font-size:32px;line-height:1;color:var(--text-2);display:none}
+.ed-tit{margin:0;font-size:22px;font-weight:700}
+.ed-stato{flex:1;min-width:0;font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed-stato.err{color:var(--danger)}
+.ed-corpo{flex:1;min-height:0;display:grid;grid-template-columns:300px minmax(0,1fr)}
+.ed-nav{overflow-y:auto;border-right:1px solid var(--line);padding:var(--s2) var(--s2) var(--s5);background:var(--surface)}
+.ed-pane{overflow-y:auto;padding:var(--s4) var(--s5) calc(var(--s5) * 3)}
+.ed-pane > *{max-width:760px}
+
+/* l'elenco */
+.ed-sez{margin:var(--s4) var(--s2) var(--s1);font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--muted)}
+.ed-sez:first-child{margin-top:var(--s2)}
+.ed-voce{
+  display:block;width:100%;text-align:left;
+  min-height:44px;padding:var(--s2) var(--s3);margin:1px 0;
+  border-radius:var(--radius);font-size:17px;color:var(--text-2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.ed-voce:hover{background:var(--surface-2)}
+.ed-voce.on{background:var(--surface-2);color:var(--accent);font-weight:700;box-shadow:inset 3px 0 0 var(--accent)}
+.ed-voce.wk{padding-left:var(--s5)}
+.ed-voce.piu{color:var(--muted);font-weight:600}
+.ed-voce.spenta{color:var(--muted);text-decoration:line-through}
+.ed-figli{margin-left:var(--s3);border-left:1px solid var(--line);padding-left:var(--s1)}
+.ed-prep{white-space:normal}
+.ed-prep-nome{display:block;font-weight:700;color:var(--text)}
+.ed-prep-date{display:block;font-size:14px;color:var(--muted)}
+.ed-prep.incorso .ed-prep-date{color:var(--accent)}
+.ed-prep.fatta{opacity:.6}
+
+/* la pagina */
+.ed-dove{margin:0 0 var(--s1);font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.ed-dove.prep{color:var(--accent)}
+.ed-h{margin:0;font-size:26px;font-weight:700;overflow-wrap:anywhere}
+.ed-sotto{margin:var(--s1) 0 var(--s4);font-size:16px;color:var(--muted);line-height:1.45}
+.ed-sez-pag{margin:var(--s5) 0 var(--s2);font-size:14px;font-weight:700;letter-spacing:.1em;color:var(--muted)}
+.ed-campo{display:block;margin:0 0 var(--s3)}
+.ed-eti{display:block;margin-bottom:var(--s1);font-size:14px;font-weight:600;color:var(--text-2)}
+.ed-spunta{display:flex;align-items:center;gap:var(--s2);min-height:44px;margin:0 0 var(--s2);font-size:17px;cursor:pointer}
+.ed-azioni{display:flex;flex-wrap:wrap;gap:var(--s2);margin:var(--s4) 0}
+.ed-azioni .schbtn{margin-left:0}
+.ed-ok{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.ed .schbtn.btn-del{color:var(--danger);border-color:rgba(255,69,58,.45)}
+.ed input[type=date]{min-height:48px}
+
+/* la settimana: un giorno per riga, il contatore e i campi */
+.ed-giorno{display:grid;grid-template-columns:240px minmax(0,1fr);gap:var(--s3);align-items:start;padding:var(--s3) 0;border-bottom:1px solid var(--line)}
+.ed-giorno-testa{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);min-height:48px}
+.ed-giorno-nome{font-size:17px;font-weight:700}
+.ed-giorno.riposo .ed-giorno-nome{color:var(--muted)}
+.ed-conta{display:flex;align-items:center;gap:4px}
+.ed-piumeno{margin-left:0;min-width:40px;min-height:40px;padding:0;font-size:20px;color:var(--text)}
+.ed-piumeno:disabled{opacity:.3}
+.ed-conta-num{min-width:22px;text-align:center;font-size:18px;font-weight:700;color:var(--accent)}
+.ed-giorno-campi{display:grid;gap:var(--s2)}
+.ed-riposo{display:flex;align-items:center;min-height:48px;font-size:16px;color:var(--muted);font-style:italic}
+
+/* gli esercizi */
+.ed-es{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:var(--s2);background:var(--surface)}
+.ed-es.aperto{border-color:var(--accent)}
+.ed-es-riga{display:flex;align-items:center;gap:var(--s1);padding:var(--s1)}
+.ed-es-nome{flex:1 1 auto;min-width:0}
+.ed-es-qta{flex:0 1 140px;min-width:70px}
+.ed-es-tasti{display:flex;gap:2px;flex:0 0 auto}
+.ed-tasto{margin-left:0;min-width:40px;min-height:44px;padding:0 6px;font-size:18px;color:var(--text-2)}
+.ed-tasto:disabled{opacity:.25}
+.ed-desc.piena{color:var(--accent);border-color:var(--accent)}
+.ed-x:hover{color:var(--danger)}
+.ed-es-grp{margin:0 var(--s3) var(--s2);font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.ed-desc-box{padding:0 var(--s2) var(--s2)}
+.ed-video{margin-bottom:var(--s2)}
+.ed-video video{display:block;width:100%;max-height:50vh;background:#000;border-radius:var(--radius);margin-bottom:var(--s2)}
+.ed-video-stato{margin:0 0 var(--s2);font-size:15px;color:var(--muted)}
+.ed-video-uno{padding:0 0 var(--s2);margin:0 0 var(--s2);border-bottom:1px solid var(--line)}
+.ed-video-num{margin:0 0 4px;font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.ed-video-tasti{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.ed-video-tasti .schbtn{margin-left:0}
+.ed-desc-testo{font-size:17px}
+.ed-aggiungi{display:block;width:100%;margin:var(--s2) 0 0;min-height:48px;border-style:dashed;font-size:17px}
+.ed-lista-sett .ed-voce{border:1px solid var(--line);margin-bottom:var(--s1)}
+
+/* Telefono: prima l'elenco, poi la pagina, con la freccia per tornare. */
+@media (max-width: 899px){
+  .ed-corpo{grid-template-columns:1fr}
+  .ed-nav{border-right:0;background:var(--bg);padding:var(--s2) var(--s3) var(--s5)}
+  .ed-pane{display:none;padding:var(--s3) var(--s3) calc(var(--s5) * 3)}
+  .ed.in-pagina .ed-nav{display:none}
+  .ed.in-pagina .ed-pane{display:block}
+  .ed.in-pagina .ed-indietro{display:inline-flex;align-items:center;justify-content:center}
+  .ed-giorno{grid-template-columns:1fr;gap:var(--s2)}
+  .ed-es-riga{flex-wrap:wrap}
+  .ed-es-nome{flex:1 1 100%}
+  .ed-es-qta{flex:1 1 90px}
+  .ed-tit{font-size:20px}
+}
+
+.ed-sub{margin:var(--s2) var(--s3) 2px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ed-tendina{
+  display:flex;align-items:center;gap:var(--s2);width:calc(100% - 2*var(--s3));
+  padding:6px 0;background:none;border:0;border-bottom:1px solid var(--line);
+  font-family:inherit;cursor:pointer;text-align:left;
+}
+.ed-tendina-nome{flex:1}
+.ed-tendina-frec{font-size:14px;transform:rotate(-90deg);transition:transform .15s}
+.ed-tendina.open .ed-tendina-frec{transform:none}
+@media (hover:hover){ .ed-tendina:hover{color:var(--text)} }
+.tab-w .tabc.every{color:var(--muted);font-style:italic}
+.campo.every{color:var(--accent)}
+.ed-desc-testo{
+  display:block;width:100%;padding:var(--s2) var(--s3);
+  background:var(--bg);color:var(--text);
+  border:1px solid var(--line);border-radius:var(--radius);
+  font:inherit;font-size:17px;line-height:1.45;resize:vertical;
+}
+.ed-desc-testo:focus{outline:none;border-color:var(--accent)}
+.ed-desc-testo::placeholder{color:var(--muted)}
+
+/* nella settimana di una preparazione: i giorni fuori dal periodo, spenti */
+.ed-giorno.fuori{opacity:.55}
+.ed-giorno.fuori .ed-giorno-nome{color:var(--muted)}
+.ed-giorno-data{font-weight:400;color:var(--muted);font-size:15px;white-space:nowrap}
+/* nelle schede da leggere la quantita' e' corta: sta a destra, meno larga */
+.tab-i .tabc.val{white-space:normal;overflow-wrap:anywhere}
+.ed-cat{margin:0 0 var(--s1)}
+
+/* ---------- easter egg ---------- */
+
+/* il tastino in basso a destra dell'editor */
+.ed-egg{
+  position:absolute;right:16px;bottom:16px;z-index:5;
+  padding:8px 14px;border:1px dashed var(--accent);border-radius:999px;
+  background:var(--bg);color:var(--accent);font:inherit;font-size:14px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);
+}
+
+/* l'immagine del giorno, a tutto schermo */
+.egg-img{
+  position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#000;opacity:0;transition:opacity .25s;cursor:pointer;
+}
+.egg-img.on{opacity:1}
+.egg-img img{max-width:100%;max-height:calc(100% - 48px);object-fit:contain}
+.egg-img-nota{margin:12px 0 0;color:rgba(255,255,255,.6);font-size:14px}
+
+/* la postilla: un foglietto colorato, un po' storto, che luccica */
+.postilla{
+  position:relative;overflow:hidden;
+  margin:0 var(--s3) var(--s3);padding:12px 16px;
+  border-radius:6px;transform:rotate(-1.2deg);
+  font-size:18px;font-weight:700;line-height:1.35;color:#1b1b1b;white-space:pre-wrap;
+  box-shadow:0 6px 18px rgba(0,0,0,.28);
+  animation:postilla-entra .35s ease-out;
+}
+.postilla::after{
+  content:'';position:absolute;top:0;bottom:0;left:-60%;width:40%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);
+  animation:postilla-luce 2.4s ease-in-out infinite;
+}
+.postilla.c0{background:#ffe45c}
+.postilla.c1{background:#ff8fc7}
+.postilla.c2{background:#7fd3ff}
+.postilla.c3{background:#8ef0a7}
+@keyframes postilla-entra{from{transform:scale(.8) rotate(-6deg);opacity:0}to{transform:rotate(-1.2deg);opacity:1}}
+@keyframes postilla-luce{0%{left:-60%}60%,100%{left:130%}}
+@media (min-width:1000px){ .col .postilla{margin-left:0;margin-right:0} }
+@media (prefers-reduced-motion:reduce){ .postilla,.postilla::after{animation:none} }
+
+/* le righe della pagina Easter eggs nell'editor */
+.egg-riga{display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s2) 0;border-bottom:1px solid var(--line)}
+.egg-mini{flex:0 0 96px;height:96px;border-radius:var(--radius);background:var(--line);overflow:hidden}
+.egg-mini img{width:100%;height:100%;object-fit:cover;display:block}
+.egg-dx{flex:1;min-width:0}
+.egg-nota{padding:var(--s2) 0 var(--s3);border-bottom:1px solid var(--line)}
+.egg-nota .postilla{margin:0 0 var(--s2);animation:none}
+.ed-pane{padding-bottom:88px}
+
+/* ---------- Every day: quando si vede ---------- */
+.ed-giorni-sett{margin-top:var(--s2)}
+.ed-ogni{display:flex;flex-wrap:wrap;gap:var(--s3);margin-top:var(--s2)}
+.ed-ogni .ed-campo{flex:1 1 160px}
+.ed-prossimi{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 var(--s3)}
+.ed-pross{padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ed-pross.si{background:var(--accent);border-color:var(--accent);color:#0d0f12;font-weight:700}
+
+/* ---------- editor: anteprima delle voci con la freccetta ---------- */
+.ed-riga{display:flex;align-items:stretch}
+.ed-riga .ed-voce{flex:1;min-width:0}
+.ed-freccia{
+  flex:0 0 40px;border:0;background:none;color:var(--muted);font-size:15px;cursor:pointer;
+  border-radius:var(--radius);transform:rotate(-90deg);transition:transform .15s,color .15s;
+}
+.ed-freccia.open{transform:none;color:var(--accent)}
+@media (hover:hover){ .ed-freccia:hover{color:var(--text);background:var(--surface-2)} }
+.ed-anteprima{margin:0 var(--s2) var(--s2) var(--s4);padding:6px 10px;border-left:2px solid var(--line);font-size:14px;color:var(--muted)}
+.ed-ant-riga{display:flex;gap:var(--s2);padding:3px 0;line-height:1.3}
+.ed-ant-nome{flex:1;min-width:0;color:var(--text)}
+.ed-ant-grp{color:var(--muted);font-size:12px}
+.ed-ant-qta{flex:0 0 auto;color:var(--accent);font-variant-numeric:tabular-nums}
+.ed-ant-giorno{flex:0 0 3.2em;font-weight:700;color:var(--muted)}
+.ed-ant-rec{color:var(--muted);font-style:italic}
+.ed-ant-vuota{margin:0;font-style:italic}
+.ed-prep-hint{font-style:italic}
+
+/* ---------- editor: libreria degli esercizi ---------- */
+.ed-voce.ed-lib-link{margin:var(--s2) 0;border:1px dashed var(--line);font-weight:700}
+.ed-lib-cerca{margin:0 0 var(--s2)}
+.ed-lib-voce{border-bottom:1px solid var(--line)}
+.ed-lib-testa{display:flex;align-items:center;gap:var(--s2);width:100%;padding:10px 4px;border:0;background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.ed-lib-nome{flex:1;min-width:0;font-weight:600}
+.ed-lib-segni{color:var(--accent);font-size:14px}
+.ed-lib-testa .ed-freccia{flex:0 0 auto;display:inline-block;background:none}
+.ed-lib-corpo{padding:0 4px var(--s3)}
+.ed-lib-usi{margin:0 0 var(--s2);font-size:13px;color:var(--muted)}
+.ed-lib-corpo video{display:block;width:100%;max-height:320px;background:#000;border-radius:var(--radius);margin-bottom:var(--s2)}
+.ed-lib-desc{font-size:15px;line-height:1.45;color:var(--text)}
+.ed-lib-desc .desriga{margin:0 0 4px}
+.ed-lib-nuovo{display:flex;gap:var(--s2);margin:0 0 var(--s2)}
+.ed-lib-nuovo .campo{flex:1;min-width:0}
+.ed-lib-filtro{margin:0 0 var(--s2);padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:none;color:var(--muted);font:inherit;font-size:14px;cursor:pointer}
+.ed-lib-filtro.on{border-color:var(--accent);color:var(--accent);font-weight:700}
+.ed-lib-nomecampo{width:100%;margin:0 0 6px;font-weight:600}
+.ed-lib-nota{margin:0 0 var(--s2);font-size:13px;color:var(--muted);font-style:italic}
+.ed-lib-msg{color:var(--accent)}
+
+/* ---------- dentro la Routine ---------- */
+
+/* La pagina sta nella tendina Workout della Routine: una colonna sola, anche
+   quando la tendina e' larga. La settimana in cima, sempre aperta; sotto la
+   mattina e gli allenamenti di oggi; in fondo la tendina ALLENAMENTI. Qui si
+   rimette, sugli schermi larghi, quello che vale sul telefono. */
+@media (min-width: 1000px){
+  body.in-routine .pagina{
+    display:block;max-width:720px;
+    padding:var(--s3) 0 calc(var(--s5) * 2 + env(safe-area-inset-bottom));
+  }
+  body.in-routine .col-sx{position:static;max-height:none;overflow:visible}
+  body.in-routine .col .tab,body.in-routine .col .schapri,body.in-routine .col .wconta,
+  body.in-routine .col .lpiu,body.in-routine .col .nota.wnota,body.in-routine .col .prossima,
+  body.in-routine .col .antbar,body.in-routine .col .wkbar,body.in-routine .col .prepbanda,
+  body.in-routine .col .postilla{margin-left:var(--s3);margin-right:var(--s3)}
+  body.in-routine .col .lpiu,body.in-routine .col .wkbar{width:calc(100% - 2 * var(--s3))}
+  body.in-routine .col .grp,body.in-routine .col .grpcli{padding-left:var(--s4);padding-right:var(--s4)}
+  body.in-routine .col .chiprow{padding-left:var(--s2);padding-right:var(--s2)}
+  body.in-routine .schlista{display:block}
+}

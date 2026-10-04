@@ -30,7 +30,7 @@ jobs:
       # e il service worker network-first non la salverebbe. Se non passa,
       # Pages non pubblica e il sito resta quello di prima.
       - name: Controlla la sintassi prima di pubblicare
-        run: node --check app.js && node --check sw.js
+        run: node --check app.js && node --check sw.js && node --check workout/dati.js && node --check workout/app.js && node --check workout/editor.js
 
       - uses: actions/configure-pages@v5
 
