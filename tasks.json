@@ -245,6 +245,18 @@
       "gws": [
         0
       ]
+    },
+    {
+      "id": "tmutnibminn3c",
+      "creata": "2026-10-04T10:01:25.338Z",
+      "nome": "Mia nuova scheda",
+      "desc": "",
+      "rank": "B",
+      "cliente": null,
+      "giorno": "2026-10-04",
+      "gws": [
+        1
+      ]
     }
   ],
   "workout": {
