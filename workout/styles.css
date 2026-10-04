@@ -891,3 +891,13 @@ body.ed-aperto{overflow:hidden}
   body.in-routine .col .chiprow{padding-left:var(--s2);padding-right:var(--s2)}
   body.in-routine .schlista{display:block}
 }
+
+/* Nella Routine le scritte sono quelle della Routine, non quelle grandi
+   dell'app da leggere col telefono per terra: tutta l'app si rimpicciolisce
+   in proporzione, scritte, righe e spazi insieme. 19px diventano 15px. */
+html{zoom:.79}
+/* Con lo zoom le misure in vw e vh si rimpiccioliscono anche loro: le finestre
+   a tutto schermo si attaccano ai bordi invece di misurarsi in vw e vh. */
+.descbox{position:fixed;inset:0;width:auto;max-width:none;height:auto;max-height:none}
+body.vland .vslot{width:auto;height:auto}
+.chiusura{width:min(480px,calc(100vw / .79 - 2 * var(--s3)))}
