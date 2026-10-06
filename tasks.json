@@ -53,7 +53,7 @@
     {
       "id": "tmtt4824pobh9",
       "nome": "Finire Scheda sifu e zia",
-      "desc": "Carica video e aggiungi descrizioni\n+ scheda zia",
+      "desc": "Carica video e aggiungi descrizioni\n",
       "rank": "A",
       "cliente": null,
       "giorno": null,
@@ -84,7 +84,7 @@
       "id": "tmu6prtodvdv0",
       "nome": "Scrittura video AlbergADV",
       "desc": "",
-      "rank": "A",
+      "rank": "B",
       "cliente": "cmufl8jhvkkm",
       "giorno": null,
       "gws": null,
@@ -92,8 +92,8 @@
     },
     {
       "id": "tmujo8w29ped1",
-      "nome": "Proteggi password con applicazione.",
-      "desc": "",
+      "nome": "Porta tutte password su app",
+      "desc": "- clienti \n- applicazioni",
       "rank": "C",
       "cliente": null,
       "giorno": null,
@@ -191,24 +191,16 @@
       "creata": "2026-10-03T11:56:26.121Z"
     },
     {
-      "id": "tmutnmjtc9ram",
-      "nome": "Record meta ads",
-      "desc": "A novara",
-      "rank": "A",
-      "cliente": "hs-agency",
-      "giorno": null,
-      "gws": null,
-      "creata": "2026-10-04T10:04:42.576Z"
-    },
-    {
-      "id": "tmutp3jfkdk9o",
-      "nome": "Multi persone sull'app workout",
+      "id": "tmuwd9f1i4ty2",
+      "creata": "2026-10-06T07:37:52.230Z",
+      "nome": "Set up video editing fix e selezione video",
       "desc": "",
-      "rank": "C",
+      "rank": "A",
       "cliente": null,
-      "giorno": null,
-      "gws": null,
-      "creata": "2026-10-04T10:45:54.848Z"
+      "giorno": "2026-10-06",
+      "gws": [
+        0
+      ]
     }
   ],
   "wk": {
