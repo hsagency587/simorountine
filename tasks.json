@@ -56,10 +56,8 @@
       "desc": "Carica video e aggiungi descrizioni\n+ scheda zia",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-10-04",
-      "gws": [
-        4
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-09-08T20:21:51.433Z"
     },
     {
@@ -88,186 +86,129 @@
       "desc": "",
       "rank": "A",
       "cliente": "cmufl8jhvkkm",
-      "giorno": "2026-10-04",
-      "gws": [
-        3
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-09-18T08:46:05.821Z"
     },
     {
       "id": "tmujo8w29ped1",
-      "creata": "2026-09-27T10:24:23.121Z",
       "nome": "Proteggi password con applicazione.",
       "desc": "",
       "rank": "C",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-27T10:24:23.121Z"
     },
     {
       "id": "tmuka6oush096",
-      "creata": "2026-09-27T20:38:32.020Z",
       "nome": "Email outreach automated",
       "desc": "",
       "rank": "C",
       "cliente": "hs-agency",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-27T20:38:32.020Z"
     },
     {
       "id": "tmumtis03rlno",
-      "creata": "2026-09-29T15:15:21.027Z",
       "nome": "Train Claude",
       "desc": "- Progetto per:  target market analysis, gestione, impostazione dei sistemi di tracking. Tutto quello che riguarda il creare meta ads, Google ads, anche con il winner writing process preso dal target market analysis\nsaper collegare bene un bel winner writing process ad una target market analysis e sapere come costruire delle landing page\n(per farlo gli darò molto materiale, tra cui walkthrough) \n\n- Progetto per completare il lavoro della top 3 interamente \n\n- Progetto per sviluppare applicazioni: tutto ciò che riguarda: come farlo, come gestire i dati, come mettersi in regola, come proteggerlo, tutto quello che riguarda il creare un'applicazione e metterla in vendita\n ",
       "rank": "B",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-29T15:15:21.027Z"
     },
     {
       "id": "tmumtk0shojc0",
-      "creata": "2026-09-29T15:16:19.073Z",
       "nome": "Target market Analysis e WWP",
       "desc": "Scrivere e comprendere come migliorare la mia target market analysis e come, soprattutto, unirla a un bel writing winner process, perché manca un step ora: lo step del \"come riorganizzare le informazioni\" per dirle al meglio e per raggiungere il mental step. ",
       "rank": "B",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-09-29T15:16:19.073Z"
     },
     {
       "id": "tmup53ni1fbo9",
-      "creata": "2026-10-01T06:15:03.098Z",
       "nome": "Privata con cripto gem",
       "desc": "- mio portafoglio\n- come far entrare 7k investendone 140k",
       "rank": "C",
       "cliente": "longkai",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-10-01T06:15:03.098Z"
     },
     {
       "id": "tmuqmwzr2srf0",
-      "creata": "2026-10-02T07:21:31.646Z",
       "nome": "Recupera foto (attesa risposta)",
       "desc": "",
       "rank": "A",
       "cliente": "di-nucci",
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-10-02T07:21:31.646Z"
     },
     {
       "id": "tmuqs2o24du5o",
-      "creata": "2026-10-02T09:45:54.508Z",
       "nome": "Valuta siti alternativi a quelli che uso per lavorare",
       "desc": "",
       "rank": "C",
       "cliente": "hs-agency",
       "giorno": null,
-      "gws": null
-    },
-    {
-      "id": "tmur1uendanen",
-      "creata": "2026-10-02T14:19:25.225Z",
-      "nome": "Finisci piano vendita app",
-      "desc": "",
-      "rank": "A",
-      "cliente": "cmufl8y32jd3",
-      "giorno": "2026-10-04",
-      "gws": [
-        1
-      ]
+      "gws": null,
+      "creata": "2026-10-02T09:45:54.508Z"
     },
     {
       "id": "tmus20qdpzjqj",
-      "creata": "2026-10-03T07:12:06.541Z",
       "nome": "Write new creative",
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-10-04",
-      "gws": [
-        2
-      ]
-    },
-    {
-      "id": "tmus244ajsq7h",
-      "creata": "2026-10-03T07:14:44.539Z",
-      "nome": "Report Completo",
-      "desc": "",
-      "rank": "A",
-      "cliente": "manuela-lovo",
-      "giorno": "2026-10-04",
-      "gws": [
-        1
-      ]
+      "giorno": null,
+      "gws": null,
+      "creata": "2026-10-03T07:12:06.541Z"
     },
     {
       "id": "tmus25oz72hoh",
-      "creata": "2026-10-03T07:15:58.003Z",
       "nome": "Fix my workouts",
       "desc": "",
       "rank": "C",
       "cliente": null,
-      "giorno": "2026-10-04",
-      "gws": [
-        4
-      ]
+      "giorno": null,
+      "gws": null,
+      "creata": "2026-10-03T07:15:58.003Z"
     },
     {
       "id": "tmusc6dmxfeab",
-      "creata": "2026-10-03T11:56:26.121Z",
       "nome": "Compra gazzebo",
       "desc": "",
       "rank": "C",
       "cliente": null,
       "giorno": null,
-      "gws": null
-    },
-    {
-      "id": "tmutnecvu8d7c",
-      "creata": "2026-10-04T09:58:20.346Z",
-      "nome": "Recupero",
-      "desc": "",
-      "rank": "C",
-      "cliente": null,
-      "giorno": "2026-10-04",
-      "gws": [
-        0
-      ]
+      "gws": null,
+      "creata": "2026-10-03T11:56:26.121Z"
     },
     {
       "id": "tmutnmjtc9ram",
-      "creata": "2026-10-04T10:04:42.576Z",
       "nome": "Record meta ads",
       "desc": "A novara",
       "rank": "A",
       "cliente": "hs-agency",
-      "giorno": "2026-10-05",
-      "gws": [
-        0,
-        1
-      ]
-    },
-    {
-      "id": "tmutnsn84kd2r",
-      "creata": "2026-10-04T10:09:26.932Z",
-      "nome": "Check foto fornitori",
-      "desc": "",
-      "rank": "B",
-      "cliente": "di-nucci",
-      "giorno": "2026-10-04",
-      "gws": [
-        1
-      ]
+      "giorno": null,
+      "gws": null,
+      "creata": "2026-10-04T10:04:42.576Z"
     },
     {
       "id": "tmutp3jfkdk9o",
-      "creata": "2026-10-04T10:45:54.848Z",
       "nome": "Multi persone sull'app workout",
       "desc": "",
       "rank": "C",
       "cliente": null,
       "giorno": null,
-      "gws": null
+      "gws": null,
+      "creata": "2026-10-04T10:45:54.848Z"
     }
   ],
   "wk": {
