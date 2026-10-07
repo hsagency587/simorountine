@@ -76,8 +76,10 @@
       "desc": "Find a way to edit video faster ",
       "rank": "B",
       "cliente": "hs-agency",
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-10-08",
+      "gws": [
+        0
+      ],
       "creata": "2026-09-09T14:05:38.041Z"
     },
     {
