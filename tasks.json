@@ -201,6 +201,33 @@
       "gws": [
         0
       ]
+    },
+    {
+      "id": "tmuxqor52e96t",
+      "creata": "2026-10-07T06:41:28.934Z",
+      "nome": "Check foto di nucci",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-10-07",
+      "gws": [
+        0
+      ]
+    },
+    {
+      "id": "tmuxqp3htcr1j",
+      "creata": "2026-10-07T06:41:44.945Z",
+      "nome": "Video editing",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-10-07",
+      "gws": [
+        0,
+        1,
+        2,
+        3
+      ]
     }
   ],
   "wk": {
