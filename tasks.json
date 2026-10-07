@@ -1931,10 +1931,12 @@
           ]
         },
         "gws1": {
-          "da": 480
+          "da": 480,
+          "nome": "TECNOMAT + FRUTTA"
         },
         "workout-1": {
-          "da": 765
+          "da": 765,
+          "via": true
         },
         "snack-pomeriggio": {
           "nome": "SNACK"
@@ -1949,7 +1951,20 @@
               "id": "rtmuivt1o8ml6",
               "t": "FIREBLOOD"
             }
-          ]
+          ],
+          "via": true
+        },
+        "gws2": {
+          "da": 660
+        },
+        "prep-cena": {
+          "via": true
+        },
+        "workout-2": {
+          "da": 1080
+        },
+        "cena": {
+          "da": 1200
         }
       },
       "4": {
@@ -2097,6 +2112,34 @@
       }
     },
     "log": [
+      {
+        "q": "2026-10-07T20:42:31.083Z",
+        "t": "Wednesday: DINNER now at 20:00"
+      },
+      {
+        "q": "2026-10-07T20:42:23.300Z",
+        "t": "Wednesday: 2ND WORKOUT now at 18:00"
+      },
+      {
+        "q": "2026-10-07T20:42:09.837Z",
+        "t": "Wednesday: removed \"DINNER PREP\""
+      },
+      {
+        "q": "2026-10-07T20:41:58.757Z",
+        "t": "Wednesday: removed \"1ST WORKOUT\""
+      },
+      {
+        "q": "2026-10-07T20:41:56.392Z",
+        "t": "Wednesday: renamed \"1ST G WORK SESSION\" to \"TECNOMAT + FRUTTA\""
+      },
+      {
+        "q": "2026-10-07T20:41:00.809Z",
+        "t": "Wednesday: 2ND G WORK SESSION now at 11:00"
+      },
+      {
+        "q": "2026-10-07T20:40:37.918Z",
+        "t": "Wednesday: removed \"SNACK + REC\""
+      },
       {
         "q": "2026-09-28T12:29:12.363Z",
         "t": "Tuesday: WAKE UP + MORNING ROUTINE now at 07:30"
