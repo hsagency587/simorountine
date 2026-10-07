@@ -2122,7 +2122,14 @@ function paintLista(box, opt) {
      giorni dopo, non solo quelli a cui si e' dato un cliente: sono gia'
      collocati, di li' non si pesca niente. Nel menu' invece restano come
      prima, sotto il filtro Calendar. */
-  const evSched = opt.calSched ? eventiFinestra() : [];
+  /* Nel pescone, degli eventi della settimana prossima restano solo i rossi
+     (quelli in finestra protetta): gli altri tornano quando quella settimana
+     diventa la corrente. La settimana va da lunedi' a domenica. */
+  const t0 = today();
+  const fineSett = dayKey(shift(t0, (7 - t0.getDay()) % 7));
+  const evSched = opt.calSched
+    ? eventiFinestra().filter(x => x.giorno <= fineSett || (eventoDi(x) || {}).alarm)
+    : [];
   /* Una task rimasta indietro non e' "gia' collocata": il suo giorno e' passato.
      Resta nel serbatoio, col bordino verde e la scritta del giorno, che dicono
      dov'e' ancora spuntabile. */
