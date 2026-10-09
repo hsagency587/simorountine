@@ -229,6 +229,18 @@
       "cliente": "fisio-leone",
       "giorno": null,
       "gws": null
+    },
+    {
+      "id": "tmv0mcd21d1mw",
+      "creata": "2026-10-09T07:03:10.873Z",
+      "nome": "Trova chiavi",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-10-09",
+      "gws": [
+        1
+      ]
     }
   ],
   "wk": {
