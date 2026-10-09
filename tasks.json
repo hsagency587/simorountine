@@ -76,10 +76,8 @@
       "desc": "Find a way to edit video faster ",
       "rank": "B",
       "cliente": "hs-agency",
-      "giorno": "2026-10-08",
-      "gws": [
-        0
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-09-09T14:05:38.041Z"
     },
     {
@@ -167,9 +165,11 @@
       "nome": "Write new creative",
       "desc": "",
       "rank": "A",
-      "cliente": null,
-      "giorno": null,
-      "gws": null,
+      "cliente": "hs-agency",
+      "giorno": "2026-10-09",
+      "gws": [
+        1
+      ],
       "creata": "2026-10-03T07:12:06.541Z"
     },
     {
@@ -193,30 +193,27 @@
       "creata": "2026-10-03T11:56:26.121Z"
     },
     {
-      "id": "tmuxqor52e96t",
-      "creata": "2026-10-07T06:41:28.934Z",
-      "nome": "Check foto di nucci",
+      "id": "tmv0lyhgjqay7",
+      "creata": "2026-10-09T06:52:23.395Z",
+      "nome": "Dai a gabri videoeditor",
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-10-07",
+      "giorno": "2026-10-09",
       "gws": [
         0
       ]
     },
     {
-      "id": "tmuxqp3htcr1j",
-      "creata": "2026-10-07T06:41:44.945Z",
-      "nome": "Video editing",
+      "id": "tmv0lytmsf66a",
+      "creata": "2026-10-09T06:52:39.172Z",
+      "nome": "Dai a gabri integrazione workout in routine",
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-10-07",
+      "giorno": "2026-10-09",
       "gws": [
-        0,
-        1,
-        2,
-        3
+        0
       ]
     }
   ],
