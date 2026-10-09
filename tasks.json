@@ -56,8 +56,10 @@
       "desc": "Carica video e aggiungi descrizioni\n",
       "rank": "A",
       "cliente": null,
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-10-09",
+      "gws": [
+        4
+      ],
       "creata": "2026-09-08T20:21:51.433Z"
     },
     {
@@ -142,12 +144,14 @@
     },
     {
       "id": "tmuqmwzr2srf0",
-      "nome": "Recupera foto (attesa risposta)",
+      "nome": "Recupera foto + sito",
       "desc": "",
       "rank": "A",
       "cliente": "di-nucci",
-      "giorno": null,
-      "gws": null,
+      "giorno": "2026-10-09",
+      "gws": [
+        2
+      ],
       "creata": "2026-10-02T07:21:31.646Z"
     },
     {
@@ -215,6 +219,16 @@
       "gws": [
         0
       ]
+    },
+    {
+      "id": "tmv0m0i0o0yxy",
+      "creata": "2026-10-09T06:53:57.432Z",
+      "nome": "Fix sito",
+      "desc": "",
+      "rank": "B",
+      "cliente": "fisio-leone",
+      "giorno": null,
+      "gws": null
     }
   ],
   "wk": {
