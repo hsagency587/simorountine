@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-10-11T00:00:12+02:00",
+  "scartati": {
+    "cancellati": 0,
+    "senzaTitolo": 0
+  },
+  "days": {
+    "2026-10-10": [],
+    "2026-10-11": [],
+    "2026-10-12": [
+      {
+        "id": "6gs3ior360o3ibb668r3eb9k6orj8b9o74s30b9mcoqm4d9kccq68opncg@google.com",
+        "title": "Chiama Sabina, your future online fashion academy.",
+        "start": "2026-10-12T10:00:00+02:00",
+        "end": "2026-10-12T10:15:00+02:00",
+        "description": ""
+      }
+    ],
+    "2026-10-13": [
+      {
+        "id": "68rj0dpi6crmcbb56tj30b9k6pj66bb274r3ebb6c9j3gc3174q3edhlcg@google.com::2026-10-13T22:00:00",
+        "title": "Butta immondizia",
+        "start": "2026-10-13T22:00:00+02:00",
+        "end": "2026-10-13T22:15:00+02:00",
+        "description": "Butta immondizia indifferenziata"
+      }
+    ],
+    "2026-10-14": [
+      {
+        "id": "6dhm6c9i74q64b9l6so30b9kc4o3cb9o6koj0b9g64sjceb4ckpm4dhi64@google.com::2026-10-14T08:00:00",
+        "title": "Post clienti",
+        "start": "2026-10-14T08:00:00+02:00",
+        "end": "2026-10-14T09:00:00+02:00",
+        "description": "- Berga\n- Lovo\n- Paolo\n- Omnia"
+      }
+    ],
+    "2026-10-15": [],
+    "2026-10-16": [],
+    "2026-10-17": [],
+    "2026-10-18": []
+  }
+}
