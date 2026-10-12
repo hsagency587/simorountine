@@ -121,18 +121,6 @@
       "creata": "2026-10-01T06:15:03.098Z"
     },
     {
-      "id": "tmuqmwzr2srf0",
-      "nome": "Recupera foto + sito",
-      "desc": "",
-      "rank": "A",
-      "cliente": "di-nucci",
-      "giorno": "2026-10-09",
-      "gws": [
-        2
-      ],
-      "creata": "2026-10-02T07:21:31.646Z"
-    },
-    {
       "id": "tmuqs2o24du5o",
       "nome": "Valuta siti alternativi a quelli che uso per lavorare",
       "desc": "",
@@ -148,10 +136,8 @@
       "desc": "",
       "rank": "A",
       "cliente": "hs-agency",
-      "giorno": "2026-10-09",
-      "gws": [
-        1
-      ],
+      "giorno": null,
+      "gws": null,
       "creata": "2026-10-03T07:12:06.541Z"
     },
     {
@@ -175,30 +161,6 @@
       "creata": "2026-10-03T11:56:26.121Z"
     },
     {
-      "id": "tmv0lyhgjqay7",
-      "creata": "2026-10-09T06:52:23.395Z",
-      "nome": "Dai a gabri videoeditor",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-10-09",
-      "gws": [
-        0
-      ]
-    },
-    {
-      "id": "tmv0lytmsf66a",
-      "creata": "2026-10-09T06:52:39.172Z",
-      "nome": "Dai a gabri integrazione workout in routine",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-10-09",
-      "gws": [
-        0
-      ]
-    },
-    {
       "id": "tmv0m0i0o0yxy",
       "creata": "2026-10-09T06:53:57.432Z",
       "nome": "Fix sito",
@@ -215,22 +177,8 @@
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-10-09",
-      "gws": [
-        1
-      ]
-    },
-    {
-      "id": "tmv0mlx7vxvw8",
-      "creata": "2026-10-09T07:10:36.907Z",
-      "nome": "Costruzione whisper flow",
-      "desc": "",
-      "rank": "A",
-      "cliente": null,
-      "giorno": "2026-10-09",
-      "gws": [
-        4
-      ]
+      "giorno": null,
+      "gws": null
     }
   ],
   "wk": {
