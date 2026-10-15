@@ -877,6 +877,53 @@
           ]
         ],
         "rec": ""
+      },
+      "Cali tirata": {
+        "es": [
+          [
+            "Hand curl",
+            "3'",
+            [],
+            "",
+            ""
+          ],
+          [
+            "Push hands",
+            "2'",
+            [],
+            "",
+            ""
+          ],
+          [
+            "Pull up",
+            "2x8",
+            [],
+            "",
+            ""
+          ],
+          [
+            "Pull up zavorrati",
+            "3x5",
+            [],
+            "",
+            ""
+          ],
+          [
+            "Australian pull up zavorrati (zaino)",
+            "3x10",
+            [],
+            "",
+            ""
+          ],
+          [
+            "Pull up",
+            "2x5",
+            [],
+            "",
+            ""
+          ]
+        ],
+        "rec": "1'"
       }
     },
     "libreria": [
@@ -1628,8 +1675,20 @@
         [],
         "",
         ""
+      ],
+      [
+        "Pull up zavorrati",
+        "",
+        [],
+        "",
+        ""
       ]
     ],
+    "esercizi": {
+      "pull up zavorrati": {
+        "p": "Pull up"
+      }
+    },
     "importati": true
   },
   "dieta": {
