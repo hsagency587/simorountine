@@ -184,11 +184,11 @@
   "wk": {
     "workout": {
       "0": [
-        "Stretching",
-        "Core + roll & stretch"
+        "Roll + stretch",
+        "Core + roll &"
       ],
       "1": [
-        "Rest / Roll",
+        "Walk/roll",
         "Sprint/running"
       ],
       "2": [
@@ -196,24 +196,24 @@
         "Wing chun"
       ],
       "3": [
-        "Rest / Roll",
+        "Cali tirata",
         "Wing chun"
       ],
       "4": [
-        "Fascia 2",
+        "Cali hs + tirata",
         "Privata Wing chun"
       ],
       "5": [
-        "Wing chun",
+        "Fascia 2",
         "Wing chun"
       ],
       "6": [
-        "Sunday Calisthenics",
+        "Walk/roll",
         "Fascia full"
       ]
     },
     "conti": {
-      "0": 2,
+      "0": 1,
       "1": 2,
       "2": 2,
       "3": 2,
