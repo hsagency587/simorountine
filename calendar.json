@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-10-24T00:00:51+02:00",
+  "scartati": {
+    "cancellati": 0,
+    "senzaTitolo": 0
+  },
+  "days": {
+    "2026-10-23": [
+      {
+        "id": "r2a2mp89vva2qm6pp6q6910pbo@google.com",
+        "title": "Richiamare Francesco - Puis Fleuri",
+        "start": "2026-10-23T14:00:00+02:00",
+        "end": "2026-10-23T14:15:00+02:00",
+        "description": "Follow-up lead ads (Close: \"S Puis Fleuri - Lead ads 22/10\").\nFrancesco +393664250970\nStamattina era al telefono con un'altra persona e ha dovuto mettere in pausa: ha chiesto di richiamarlo alle 14."
+      }
+    ],
+    "2026-10-24": [
+      {
+        "id": "5b9m31oh4evmop8ses4d36lakc@google.com",
+        "title": "Controllare mail di Francesco (Puis Fleuri) per la newsletter",
+        "start": "2026-10-24T10:00:00+02:00",
+        "end": "2026-10-24T10:15:00+02:00",
+        "description": "Controllare se Francesco di Puis Fleuri (+393664250970) ha mandato la sua mail.\nSe sì: iscriverlo alla newsletter.\nLead in Close: \"S Puis Fleuri - Lead ads 22/10\"."
+      }
+    ],
+    "2026-10-25": [],
+    "2026-10-26": [],
+    "2026-10-27": [
+      {
+        "id": "68rj0dpi6crmcbb56tj30b9k6pj66bb274r3ebb6c9j3gc3174q3edhlcg@google.com::2026-10-27T22:00:00",
+        "title": "Butta immondizia",
+        "start": "2026-10-27T22:00:00+01:00",
+        "end": "2026-10-27T22:15:00+01:00",
+        "description": "Butta immondizia indifferenziata"
+      }
+    ],
+    "2026-10-28": [
+      {
+        "id": "6dhm6c9i74q64b9l6so30b9kc4o3cb9o6koj0b9g64sjceb4ckpm4dhi64@google.com::2026-10-28T08:00:00",
+        "title": "Post clienti",
+        "start": "2026-10-28T08:00:00+01:00",
+        "end": "2026-10-28T09:00:00+01:00",
+        "description": "- Berga\n- Lovo\n- Paolo\n- Omnia"
+      }
+    ],
+    "2026-10-29": [],
+    "2026-10-30": [],
+    "2026-10-31": []
+  }
+}
