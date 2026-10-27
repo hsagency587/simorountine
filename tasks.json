@@ -119,6 +119,18 @@
       "giorno": null,
       "gws": null,
       "creata": "2026-10-03T07:12:06.541Z"
+    },
+    {
+      "id": "tmvqsouop3abr",
+      "creata": "2026-10-27T14:42:51.865Z",
+      "nome": "Ri record video sito web",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-10-28",
+      "gws": [
+        0
+      ]
     }
   ],
   "wk": {
@@ -1913,10 +1925,6 @@
             }
           ]
         },
-        "gws1": {
-          "da": 480,
-          "nome": "TECNOMAT + FRUTTA"
-        },
         "workout-1": {
           "da": 765,
           "via": true
@@ -1934,8 +1942,7 @@
               "id": "rtmuivt1o8ml6",
               "t": "FIREBLOOD"
             }
-          ],
-          "via": true
+          ]
         },
         "gws2": {
           "da": 660
@@ -1948,6 +1955,9 @@
         },
         "cena": {
           "da": 1200
+        },
+        "gws1": {
+          "da": 480
         }
       },
       "4": {
@@ -1977,9 +1987,6 @@
               "t": "MORNING ACTIVITY"
             }
           ]
-        },
-        "gws1": {
-          "da": 480
         },
         "workout-1": {
           "da": 765
@@ -2095,6 +2102,22 @@
       }
     },
     "log": [
+      {
+        "q": "2026-10-27T14:42:29.836Z",
+        "t": "Wednesday: 1ST G WORK SESSION now at 08:00"
+      },
+      {
+        "q": "2026-10-27T14:42:26.044Z",
+        "t": "Wednesday: 1ST G WORK SESSION now at 08:30"
+      },
+      {
+        "q": "2026-10-27T14:42:08.027Z",
+        "t": "Wednesday, Thursday: TECNOMAT + FRUTTA: back to the original"
+      },
+      {
+        "q": "2026-10-27T14:42:04.782Z",
+        "t": "Wednesday, Thursday: put back \"SNACK + REC\""
+      },
       {
         "q": "2026-10-07T20:42:31.083Z",
         "t": "Wednesday: DINNER now at 20:00"
