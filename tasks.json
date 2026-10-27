@@ -131,6 +131,43 @@
       "gws": [
         0
       ]
+    },
+    {
+      "id": "tmvqsupexrnbd",
+      "creata": "2026-10-27T14:47:24.969Z",
+      "nome": "Outreach + Follow up",
+      "desc": "",
+      "rank": "B",
+      "cliente": null,
+      "giorno": "2026-10-28",
+      "gws": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "tmvqswpytafnj",
+      "creata": "2026-10-27T14:48:58.997Z",
+      "nome": "Finish content program",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-10-28",
+      "gws": [
+        1
+      ]
+    },
+    {
+      "id": "tmvqsx02ezgf5",
+      "creata": "2026-10-27T14:49:12.086Z",
+      "nome": "Client work",
+      "desc": "",
+      "rank": "A",
+      "cliente": null,
+      "giorno": "2026-10-28",
+      "gws": [
+        2
+      ]
     }
   ],
   "wk": {
@@ -1847,114 +1884,9 @@
           ]
         }
       },
-      "2": {
-        "pranzo": {
-          "da": 795,
-          "nome": "LUNCH",
-          "sub": [
-            {
-              "id": "pranzo-movimento",
-              "t": "10’ OF SUN"
-            }
-          ]
-        },
-        "gws1": {
-          "da": 480
-        },
-        "workout-1": {
-          "da": 765
-        },
-        "snack-pomeriggio": {
-          "nome": "SNACK"
-        },
-        "snack-mattina": {
-          "sub": [
-            {
-              "id": "snack-sole",
-              "t": "10’ OF SUN"
-            },
-            {
-              "id": "rtmuivt1o8ml6",
-              "t": "FIREBLOOD"
-            }
-          ]
-        },
-        "sveglia": {
-          "da": 450,
-          "sub": [
-            {
-              "id": "sveglia-finestra",
-              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
-            },
-            {
-              "id": "sveglia-acqua",
-              "t": "WATER + TEETH"
-            },
-            {
-              "id": "sveglia-walk",
-              "t": "MORNING ACTIVITY"
-            }
-          ]
-        }
-      },
       "3": {
-        "pranzo": {
-          "da": 795,
-          "nome": "LUNCH",
-          "sub": [
-            {
-              "id": "pranzo-movimento",
-              "t": "10’ OF SUN"
-            }
-          ]
-        },
         "sveglia": {
-          "da": 450,
-          "sub": [
-            {
-              "id": "sveglia-finestra",
-              "t": "OPEN WINDOW + MAKE BED + GET DRESSED"
-            },
-            {
-              "id": "sveglia-acqua",
-              "t": "WATER + TEETH"
-            },
-            {
-              "id": "sveglia-walk",
-              "t": "MORNING ACTIVITY"
-            }
-          ]
-        },
-        "workout-1": {
-          "da": 765,
-          "via": true
-        },
-        "snack-pomeriggio": {
-          "nome": "SNACK"
-        },
-        "snack-mattina": {
-          "sub": [
-            {
-              "id": "snack-sole",
-              "t": "10’ OF SUN"
-            },
-            {
-              "id": "rtmuivt1o8ml6",
-              "t": "FIREBLOOD"
-            }
-          ]
-        },
-        "gws2": {
-          "da": 660
-        },
-        "prep-cena": {
-          "via": true
-        },
-        "workout-2": {
-          "da": 1080
-        },
-        "cena": {
-          "da": 1200
+          "da": 450
         },
         "gws1": {
           "da": 480
@@ -2102,6 +2034,26 @@
       }
     },
     "log": [
+      {
+        "q": "2026-10-27T14:48:34.167Z",
+        "t": "Wednesday: 1ST G WORK SESSION now at 08:00"
+      },
+      {
+        "q": "2026-10-27T14:48:09.265Z",
+        "t": "Wednesday: 1ST G WORK SESSION now at 08:59"
+      },
+      {
+        "q": "2026-10-27T14:48:05.752Z",
+        "t": "Wednesday: WAKE UP + MORNING ROUTINE now at 07:30"
+      },
+      {
+        "q": "2026-10-27T14:47:58.996Z",
+        "t": "Wednesday: the whole day went back to the original"
+      },
+      {
+        "q": "2026-10-27T14:47:41.506Z",
+        "t": "Tuesday: the whole day went back to the original"
+      },
       {
         "q": "2026-10-27T14:42:29.836Z",
         "t": "Wednesday: 1ST G WORK SESSION now at 08:00"
