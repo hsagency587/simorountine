@@ -1,0 +1,71 @@
+{
+  "generatedAt": "2026-10-31T00:00:54+01:00",
+  "scartati": {
+    "cancellati": 0,
+    "senzaTitolo": 0
+  },
+  "days": {
+    "2026-10-30": [
+      {
+        "id": "3bd3sj7c1qphev75abt4rnobii@google.com",
+        "title": "call taxi vip",
+        "start": "2026-10-30T10:00:00+01:00",
+        "end": "2026-10-30T11:00:00+01:00",
+        "description": "Mario, Taxi Vip 3338237408 – è interessato, mi ha chiesto di richiamarlo verso le 10:00-10:30.\nPrima della chiamata: preparare il link di Google Meet.\nGli chiedo se ha 10-15 minuti e se magari vuole vederci dal vivo. Se dice di sì: \"Ti mando il link di Google Meet e ci vediamo lì.\""
+      },
+      {
+        "id": "tt7esb34epsg9d8492h3edsuu8@google.com",
+        "title": "Follow-up S: Pietro (Todaro Giardini)",
+        "start": "2026-10-30T10:30:00+01:00",
+        "end": "2026-10-30T10:45:00+01:00",
+        "description": "Pietro, Todaro Giardini 3791558843 – 3° follow-up, 3 giorni dopo il 2° del 27/10."
+      },
+      {
+        "id": "cet3k6l26gggsqhcdrrale4ofc@google.com",
+        "title": "Follow-up S: Sartoria Flaminia, Osteopata Cantù, Il Gallo",
+        "start": "2026-10-30T11:00:00+01:00",
+        "end": "2026-10-30T11:30:00+01:00",
+        "description": "- Poros, Sartoria Flaminia 3447981475 – il 27/10 gli hai detto il prezzo, deve guardare l'analisi.\n- Matteo, Osteopata Cantù 3347404377 – il 27/10 non l'aveva guardata, ma era molto preso bene; doveva guardarla la sera.\n- Donato, Affittacamere Il Gallo 3291135233 – il 27/10 ha visto il video; doveva farlo vedere al socio. Resta anche la chiamata di lunedì 02/11."
+      }
+    ],
+    "2026-10-31": [],
+    "2026-11-01": [],
+    "2026-11-02": [
+      {
+        "id": "pfk4nirhd6o43c26i90etpkbio@google.com",
+        "title": "Chiamare Il Gallo (Affittacamere)",
+        "start": "2026-11-02T10:00:00+01:00",
+        "end": "2026-11-02T10:15:00+01:00",
+        "description": "Affittacamere Il Gallo a Donato – 3291135233\nIl 27/10 ha visto il video; doveva farlo vedere al socio in questi giorni. Vi risentite lunedì."
+      }
+    ],
+    "2026-11-03": [
+      {
+        "id": "2hnmc1rfeahlq5sel65hc14v7c@google.com",
+        "title": "Chiamare il titolare di La Plaza - El Rey (3386554908)",
+        "start": "2026-11-03T10:30:00+01:00",
+        "end": "2026-11-03T10:45:00+01:00",
+        "description": "Titolare (padre di Gigi / El Rey), La Plaza - El Rey Ristorante Messicano – 3386554908. Gigi mi ha scritto su WhatsApp il 29/10: posso chiamarlo la settimana prossima."
+      },
+      {
+        "id": "68rj0dpi6crmcbb56tj30b9k6pj66bb274r3ebb6c9j3gc3174q3edhlcg@google.com::2026-11-03T22:00:00",
+        "title": "Butta immondizia",
+        "start": "2026-11-03T22:00:00+01:00",
+        "end": "2026-11-03T22:15:00+01:00",
+        "description": "Butta immondizia indifferenziata"
+      }
+    ],
+    "2026-11-04": [
+      {
+        "id": "6dhm6c9i74q64b9l6so30b9kc4o3cb9o6koj0b9g64sjceb4ckpm4dhi64@google.com::2026-11-04T08:00:00",
+        "title": "Post clienti",
+        "start": "2026-11-04T08:00:00+01:00",
+        "end": "2026-11-04T09:00:00+01:00",
+        "description": "- Berga\n- Lovo\n- Paolo\n- Omnia"
+      }
+    ],
+    "2026-11-05": [],
+    "2026-11-06": [],
+    "2026-11-07": []
+  }
+}
