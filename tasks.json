@@ -127,10 +127,8 @@
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-10-28",
-      "gws": [
-        0
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmvqsupexrnbd",
@@ -139,11 +137,8 @@
       "desc": "",
       "rank": "B",
       "cliente": null,
-      "giorno": "2026-10-28",
-      "gws": [
-        0,
-        1
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmvqswpytafnj",
@@ -152,10 +147,8 @@
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-10-28",
-      "gws": [
-        1
-      ]
+      "giorno": null,
+      "gws": null
     },
     {
       "id": "tmvqsx02ezgf5",
@@ -164,10 +157,8 @@
       "desc": "",
       "rank": "A",
       "cliente": null,
-      "giorno": "2026-10-28",
-      "gws": [
-        2
-      ]
+      "giorno": null,
+      "gws": null
     }
   ],
   "wk": {
