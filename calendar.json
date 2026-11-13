@@ -1,0 +1,77 @@
+{
+  "generatedAt": "2026-11-14T00:00:53+01:00",
+  "scartati": {
+    "cancellati": 0,
+    "senzaTitolo": 0
+  },
+  "days": {
+    "2026-11-13": [],
+    "2026-11-14": [],
+    "2026-11-15": [],
+    "2026-11-16": [],
+    "2026-11-17": [
+      {
+        "id": "68rj0dpi6crmcbb56tj30b9k6pj66bb274r3ebb6c9j3gc3174q3edhlcg@google.com::2026-11-17T22:00:00",
+        "title": "Butta immondizia",
+        "start": "2026-11-17T22:00:00+01:00",
+        "end": "2026-11-17T22:15:00+01:00",
+        "description": "Butta immondizia indifferenziata"
+      }
+    ],
+    "2026-11-18": [
+      {
+        "id": "6dhm6c9i74q64b9l6so30b9kc4o3cb9o6koj0b9g64sjceb4ckpm4dhi64@google.com::2026-11-18T08:00:00",
+        "title": "Post clienti",
+        "start": "2026-11-18T08:00:00+01:00",
+        "end": "2026-11-18T09:00:00+01:00",
+        "description": "- Berga\n- Lovo\n- Paolo\n- Omnia"
+      }
+    ],
+    "2026-11-19": [
+      {
+        "id": "2kig0rq97bfdvhanpggtmdhac8@google.com",
+        "title": "HS citazioni: ricontrollo PagineGialle + portali in attesa",
+        "start": "2026-11-19T00:00:00+01:00",
+        "end": "2026-11-20T00:00:00+01:00",
+        "description": "1) PagineGialle: la pagina pubblica mostra orari e descrizione? 2) Clutch: location giusta? 3) Misterimprese, Opendi, Trovanumeri: schede online? 4) Europages: è arrivata risposta? File: Desktop\\HS Agency\\citazioni\\2-DIRECTORY-hs-agency.txt."
+      },
+      {
+        "id": "778p3cfji7de554b6vslqmoo8s@google.com",
+        "title": "HS citazioni: ricontrollo Apple Business Connect",
+        "start": "2026-11-19T00:00:00+01:00",
+        "end": "2026-11-20T00:00:00+01:00",
+        "description": "Controllare lo stato della scheda HS AGENCY su Apple. File: Desktop\\HS Agency\\citazioni\\4-PROCEDURE-hs-agency.txt."
+      },
+      {
+        "id": "ei6ik7lbsv7gcvoluilbgp8c1k@google.com",
+        "title": "HS citazioni: inviare le 5 mail (associazioni, giornale, Mappe Attive)",
+        "start": "2026-11-19T00:00:00+01:00",
+        "end": "2026-11-20T00:00:00+01:00",
+        "description": "Testi pronti in Desktop\\HS Agency\\citazioni\\5-MAIL-associazioni-hs-agency.txt: Confartigianato Lomellina, Confcommercio Pavia, CNA Pavia, Informatore Vigevanese, Mappe Attive (WhatsApp/SMS 351 538 3102)."
+      },
+      {
+        "id": "g71l240fmkmgblvadvassj2b1c@google.com",
+        "title": "HS citazioni: ricontrollo Bing Places",
+        "start": "2026-11-19T00:00:00+01:00",
+        "end": "2026-11-20T00:00:00+01:00",
+        "description": "Controllare se la scheda HS AGENCY su Bing è verificata e online. File: Desktop\\HS Agency\\citazioni\\4-PROCEDURE-hs-agency.txt."
+      },
+      {
+        "id": "phiu0plo80bsd2a47e1qdrfg50@google.com",
+        "title": "HS citazioni: ricontrollo Kompass",
+        "start": "2026-11-19T00:00:00+01:00",
+        "end": "2026-11-20T00:00:00+01:00",
+        "description": "Controllare se la scheda HS AGENCY su Kompass è stata approvata. File: Desktop\\HS Agency\\citazioni\\2-DIRECTORY-hs-agency.txt (voce 19)."
+      },
+      {
+        "id": "u00k2fo91c5n8ob17bvbpi9s04@google.com",
+        "title": "HS citazioni: portfolio DesignRush e Batlist",
+        "start": "2026-11-19T00:00:00+01:00",
+        "end": "2026-11-20T00:00:00+01:00",
+        "description": "Preparare i dati dei lavori da mettere nel portfolio e compilarlo con Claude su DesignRush e Batlist."
+      }
+    ],
+    "2026-11-20": [],
+    "2026-11-21": []
+  }
+}
